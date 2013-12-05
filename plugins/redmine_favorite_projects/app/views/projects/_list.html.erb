@@ -1,0 +1,26 @@
+<% if @projects.empty? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+
+<table class="list">
+  <thead><tr>
+  <th></th>  
+  <th style="text-align: center"><%=l(:label_project)%></th>
+  <th style="text-align: center"><%=l(:field_description)%></th>
+  <!-- <th><%=l(:field_go_to)%></th> -->
+  <th style="text-align: center"><%=l(:field_created_on)%></th>
+  </tr></thead>
+  <tbody>
+<% project_tree(@projects) do |project, level| %>
+  <tr class="<%= cycle("odd", "even") %> <%= project.css_classes %> <%= level > 0 ? "idnt idnt-#{level}" : nil %>">
+  <td><%= favorite_tag(project, User.current) %></td>  
+  <td class="name"><span title="<%= strip_tags(project.short_description).html_safe %>"><%= link_to_project(project, {:action => 'show'}, :title => strip_tags(project.short_description).html_safe) %></span></td>
+  <td><small><%= strip_tags(project.short_description).html_safe %></small></td>
+  <!-- <td><%# favorite_project_modules_links(project) %></td> -->
+  <td align="center" style="min-width: 120px"><%= format_date(project.created_on) %></td>
+
+  </tr>
+<% end %>
+  </tbody>
+</table>
+<% end %>

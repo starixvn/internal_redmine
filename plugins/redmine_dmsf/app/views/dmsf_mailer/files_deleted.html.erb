@@ -1,0 +1,10 @@
+User <%= link_to(h(@user), {:only_path => false, :controller => 'users', :action => 'show', :id => @user }) %>
+deleted DMSF files in project <%= @project.name %>:
+<% @files.each do |file| %>
+  <p>
+    <%= h(file.dmsf_path_str) %> (<%= file.name %>)
+    <%  if file.last_revision %>
+      , <%= number_to_human_size(file.last_revision.size) %>, version: <%= file.last_revision.major_version %>.<%= file.last_revision.minor_version %>
+    <% end  %>
+  </p>
+<% end %>

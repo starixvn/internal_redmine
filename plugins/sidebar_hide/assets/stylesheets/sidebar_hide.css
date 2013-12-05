@@ -1,0 +1,32 @@
+#hideSidebarButton {
+  position: fixed;
+  width:7px;
+  height:23px;
+}
+
+#hideSidebarButton:hover {
+  cursor:pointer;
+}
+
+.hide {
+  background:url("../images/buttons.png") -7px 0;
+}
+
+.show {
+  background:url("../images/buttons.png") 0 0;
+}
+
+#sidebarHandler {
+  position: absolute;
+  float: right;
+  top:150px;
+  right:0px;
+  margin-top:50px;
+  margin-right: 7px;
+  z-index: 11;
+}
+
+#content {
+  position: relative;
+  padding: 6px 10px 10px;
+}

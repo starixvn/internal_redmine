@@ -1,0 +1,14 @@
+fa:
+  ckeditor_toolbar_setting: ØªÙ†Ø¸ÛŒÙ…Ø§Øª Ù†ÙˆØ§Ø± Ø§Ø¨Ø²Ø§Ø± CKEditor
+  add: Ø§Ø¶Ø§Ù�Ù‡
+  remove: Ø­Ø°Ù�
+  separator: Ø¬Ø¯Ø§Ø³Ø§Ø²
+  line_break: Ø³Ø± Ø®Ø·
+
+  ckeditor:
+    page_title: "CKEditor Files Manager"
+    confirm_delete: "Delete file?"
+    buttons:
+      cancel: "Cancel"
+      upload: "Upload"
+      delete: "Delete"

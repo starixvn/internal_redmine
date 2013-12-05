@@ -1,0 +1,14 @@
+table.list.projects-listing th, table.list.users-listing th {
+    white-space: normal;
+}
+textarea#custom_field_default_value {
+    width: 99%;
+}
+form.new_project input[type="text"],
+form.edit_project input[type="text"] {
+    width: 30em;
+}
+form.new_project input[type="text"].date_cf,
+form.edit_project input[type="text"].date_cf {
+    width: auto;
+}
