@@ -59,6 +59,12 @@
 </table>
 </div>
 
+<% else %>
+
+<script>
+	$('#tab-spent_time').removeAttr("onclick");
+</script>
+
 <% end %>
 
 <a href="/time_entries?f[]=spent_on&op[spent_on]=lm&f[]=user_id&op[user_id]=%3D&v[user_id][]=<%=@person.id %>&f[]=&c[]=project&c[]=spent_on&c[]=user&c[]=activity&c[]=issue&c[]=comments&c[]=hours">Spent time »</a>

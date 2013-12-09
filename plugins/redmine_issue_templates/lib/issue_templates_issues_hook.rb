@@ -13,19 +13,22 @@ class IssueTemplatesIssuesHook < Redmine::Hook::ViewListener
     end      
     return o
   end
-  
-  def view_issues_form_details_top(context={})
-    action = context[:request].parameters[:action]
-    project_id = context[:request].parameters[:project_id]
 
-    return '' unless action == 'new' && !project_id.blank?    
-    context[:controller].send(
-      :render_to_string,
-      {
-        :partial => 'issue_templates/issue_select_form'
-      }
-    ) 
-  end
+#  def view_issues_form_details_top(context={})
+#    action = context[:request].parameters[:action]
+#    project_id = context[:request].parameters[:project_id]
+
+#    return '' unless action == 'new' && !project_id.blank?    
+#    context[:controller].send(
+#      :render_to_string,
+#      {
+#        :partial => 'issue_templates/issue_select_form'
+#      }
+#    ) 
+#  end
+ 
+  
+  render_on :view_issues_form_details_top, :partial => 'issue_templates/issue_select_form'
   
   render_on :view_issues_sidebar_planning_bottom, :partial => 'issue_templates/issue_template_link'
 end
