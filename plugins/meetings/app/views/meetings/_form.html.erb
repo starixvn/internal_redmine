@@ -49,5 +49,9 @@
 		<%= label_tag :participants, l(:field_participants) %>
 		<%= select_tag "meeting[participant_ids][]", principals_options_for_select(@meeting.assignable_users, @meeting.participants) , :multiple => true %>
 	</p>
+	
+	<script>
+		$('#meeting_participant_ids_').select2();
+	</script>
 		
 <% end %>
