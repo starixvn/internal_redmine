@@ -1,4 +1,4 @@
-<div class="box">
+<div class="box" id="custom_queries_box">
 	<h3><%= l(:label_issue_plural) %></h3>
 	<%= link_to l(:label_issue_view_all), _project_issues_path(@project, :set_filter => 1) %><br />
 	<% if @project %>
@@ -17,3 +17,14 @@
 	<%= render_sidebar_queries %>
 	<%= call_hook(:view_issues_sidebar_queries_bottom) %>
 </div>
+
+<script>
+	$("#custom_queries_box a").each(function(){		
+		var href = $(this).attr("href");
+		if(href.indexOf("/issues/") === -1)
+		{
+			$(this).attr("href", "/issues" + href)
+		}
+	});
+	
+</script>
