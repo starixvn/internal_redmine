@@ -21,7 +21,7 @@
 <script>
 	$("#custom_queries_box a").each(function(){		
 		var href = $(this).attr("href");
-		if(href.indexOf("/issues/") === -1)
+		if(href.indexOf("/issues") === -1)
 		{
 			$(this).attr("href", "/issues" + href)
 		}
