@@ -7,10 +7,10 @@ var ul = null;
 
 $("#custom_queries").children().each(function() {
 	if(ul == null && $(this).prop("tagName") == "H3") {
-		ul = "custom_ul";
+		ul = "my_ul";
 	}
 	else if($(this).prop("tagName") == "H3") {
-		ul = "my_ul";
+		ul = "custom_ul";
 	}
 	else {
 		if(ul === "my_ul") {
