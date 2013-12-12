@@ -440,9 +440,9 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.integer  "root_id"
     t.integer  "lft"
     t.integer  "rgt"
+    t.integer  "s2b_position"
     t.boolean  "is_private",                             :default => false, :null => false
     t.datetime "closed_on"
-    t.integer  "s2b_position"
   end
 
   add_index "issues", ["assigned_to_id"], :name => "index_issues_on_assigned_to_id"
@@ -457,11 +457,11 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "issues", ["tracker_id"], :name => "index_issues_on_tracker_id"
 
   create_table "journal_details", :force => true do |t|
-    t.integer "journal_id",                       :default => 0,  :null => false
-    t.string  "property",   :limit => 30,         :default => "", :null => false
-    t.string  "prop_key",   :limit => 30,         :default => "", :null => false
-    t.text    "old_value",  :limit => 2147483647
-    t.text    "value",      :limit => 2147483647
+    t.integer "journal_id",               :default => 0,  :null => false
+    t.string  "property",   :limit => 30, :default => "", :null => false
+    t.string  "prop_key",   :limit => 30, :default => "", :null => false
+    t.text    "old_value"
+    t.text    "value"
   end
 
   add_index "journal_details", ["journal_id"], :name => "journal_details_journal_id"
@@ -558,6 +558,16 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "messages", ["last_reply_id"], :name => "index_messages_on_last_reply_id"
   add_index "messages", ["parent_id"], :name => "messages_parent_id"
 
+  create_table "myhierarchy", :id => false, :force => true do |t|
+    t.integer "ID",               :default => 0,  :null => false
+    t.integer "Parent_Id"
+    t.string  "Subject",          :default => "", :null => false
+    t.integer "IDHierLevel",      :default => 0,  :null => false
+    t.integer "AlreadyProcessed", :default => 0,  :null => false
+  end
+
+  add_index "myhierarchy", ["IDHierLevel"], :name => "MyHier_Idx1"
+
   create_table "news", :force => true do |t|
     t.integer  "project_id"
     t.string   "title",          :limit => 60, :default => "", :null => false
@@ -599,9 +609,9 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.integer  "status",            :default => 1,     :null => false
     t.integer  "lft"
     t.integer  "rgt"
-    t.boolean  "inherit_members",   :default => false, :null => false
     t.text     "dmsf_description"
     t.boolean  "dmsf_notification"
+    t.boolean  "inherit_members",   :default => false, :null => false
   end
 
   add_index "projects", ["lft"], :name => "index_projects_on_lft"
@@ -679,6 +689,41 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   end
 
   add_index "settings", ["name"], :name => "index_settings_on_name"
+
+  create_table "spm_databases", :primary_key => "Id", :force => true do |t|
+    t.string  "Name",        :limit => 100, :null => false
+    t.string  "Description", :limit => 100
+    t.integer "ServerId"
+    t.string  "UserID",      :limit => 100, :null => false
+    t.string  "Password",    :limit => 300, :null => false
+  end
+
+  create_table "spm_favorities_issues", :primary_key => "Id", :force => true do |t|
+    t.integer "IssueId",               :null => false
+    t.string  "UserId",  :limit => 45, :null => false
+  end
+
+  create_table "spm_servers", :primary_key => "Id", :force => true do |t|
+    t.string "Name",         :limit => 100, :null => false
+    t.string "IPLocal",      :limit => 50
+    t.string "IPUAT",        :limit => 50
+    t.string "IPProduction", :limit => 50
+    t.string "Description",  :limit => 100
+  end
+
+  create_table "spm_storeprocedures", :primary_key => "Id", :force => true do |t|
+    t.integer  "ServerId",                                        :null => false
+    t.integer  "DatabaseId",                                      :null => false
+    t.string   "Name",         :limit => 300,                     :null => false
+    t.binary   "IsFunction",   :limit => 1,   :default => "b'0'", :null => false
+    t.string   "ActionName",   :limit => 10
+    t.integer  "ModifiedBy",                                      :null => false
+    t.integer  "Status",                                          :null => false
+    t.string   "Description",  :limit => 300,                     :null => false
+    t.integer  "IssueId",                                         :null => false
+    t.datetime "ModifiedDate"
+    t.integer  "DeveloperId",                                     :null => false
+  end
 
   create_table "stuff_to_do_reportees", :force => true do |t|
     t.integer "user_id"

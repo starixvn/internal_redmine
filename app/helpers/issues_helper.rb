@@ -198,7 +198,7 @@ module IssuesHelper
 
   def query_links(title, queries)
     # links to #index on issues/show
-    url_params = controller_name == 'issues' ? {:controller => 'issues', :action => 'index', :project_id => @project} : params
+    url_params = {:controller => 'issues', :action => 'index', :project_id => nil}
 
     content_tag('h3', h(title)) +
       queries.collect {|query|
