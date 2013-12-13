@@ -7,10 +7,10 @@ var ul = null;
 
 $("#custom_queries").children().each(function() {
 	if(ul == null && $(this).prop("tagName") == "H3") {
-		ul = "my_ul";
+		ul = "custom_ul";
 	}
 	else if($(this).prop("tagName") == "H3") {
-		ul = "custom_ul";
+		ul = "my_ul";
 	}
 	else {
 		if(ul === "my_ul") {
@@ -25,8 +25,14 @@ $("#custom_queries").children().each(function() {
 my_ul += "</ul>";
 custom_ul += "</ul>";
 
-my_queries_menu.append(my_ul);
-custom_queries_menu.append(custom_ul);
+if($('#top-menu ul').dropit){
+	my_queries_menu.append(my_ul);
+	custom_queries_menu.append(custom_ul);	
+}
+else {
+	custom_queries_menu.hide();
+	my_queries_menu.hide();		
+}
 
 if(my_ul == "<ul></ul>") {
 	my_queries_menu.hide();
