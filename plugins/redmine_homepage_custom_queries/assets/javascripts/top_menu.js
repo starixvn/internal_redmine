@@ -6,11 +6,11 @@ var custom_ul = "<ul>";
 var ul = null;
 
 $("#custom_queries").children().each(function() {
-	if(ul == null && $(this).prop("tagName") == "H3") {
-		ul = "custom_ul";
-	}
-	else if($(this).prop("tagName") == "H3") {
+	if(ul == null && $(this).html() == "My custom queries") {
 		ul = "my_ul";
+	}
+	else if($(this).html() == "Custom queries") {
+		ul = "custom_ul";
 	}
 	else {
 		if(ul === "my_ul") {
