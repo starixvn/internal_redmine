@@ -1,3 +1,5 @@
+// Create top menu
+
 var my_queries_menu = $("#top-menu ul li a.my-queries-menu").parent();
 var custom_queries_menu = $("#top-menu ul li a.custom-queries-menu").parent();
 
@@ -42,3 +44,38 @@ $("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu
 $("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
 $('#top-menu ul').dropit();
+
+// Append header toggle button
+var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png" style=" \
+    position: absolute; \
+    z-index: 99999; \
+    right: 300px; \
+    top: -3px; \
+    cursor: pointer \
+	">';
+$("#loggedas").html(toggle_img + $("#loggedas").html());
+
+if($.cookie("toggle_header") == 1){
+	$("#header").hide();
+	$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-down.png");
+}
+else {
+	$("#header").show();
+	$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png");
+}
+
+$("#toggle_img").click(function(){
+	if($.cookie("toggle_header") == 1){
+		$("#header").show();
+		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png");
+	}
+	else {
+		$("#header").hide();
+		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-down.png");
+	}
+	
+	$.cookie("toggle_header", $.cookie("toggle_header") == 1 ? 0 : 1);
+});
+
+
+
