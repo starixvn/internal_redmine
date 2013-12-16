@@ -223,10 +223,10 @@ table#done tr td.done
 }
 img.icon
 {
-	height: 16px;
-	padding: 4px;
+	height: 20px;
+	padding-right: 4px;
 	position: relative;
-	width: 16px;
+	width: 20px;
 }
 .no_edit
 {
