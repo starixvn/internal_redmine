@@ -225,6 +225,7 @@ img.icon
 {
 	height: 20px;
 	padding-right: 4px;
+	padding-left: 0px;
 	position: relative;
 	width: 20px;
 }
@@ -290,7 +291,7 @@ img.icon
 	display: none;
 	font-size: 12px;
 	font-weight: bold;
-	padding-top: 15px;
+	padding-top: 0px;
 }
 .connectedSortable li
 {
@@ -360,4 +361,18 @@ img.icon
 #div_change_sprint
 {
 	float: right;
+}
+#div_news
+{
+	background-color:#FFDD88;
+}
+
+#div_progress
+{
+	background-color:#BAE0BA
+}
+
+#div_completed
+{
+	background-color:#5BA1CF;
 }
