@@ -187,12 +187,10 @@ class S2bBoardsController < ApplicationController
       session[:conditions][0] += " AND fixed_version_id = ? "
       session[:conditions] << session[:params_select_version_onboard]
     end
-    if session[:params_select_member] && session[:params_select_member] == "me"
-      session[:conditions][0] += " AND assigned_to_id = ?"
-      session[:conditions] << User.current.id
-    elsif session[:params_select_member] && session[:params_select_member] != "all" && session[:params_select_member].to_i != 0
-      session[:conditions][0] += " AND assigned_to_id = ?"
-      session[:conditions] << session[:params_select_member].to_i
+    
+    if session[:params_select_member] && !(session[:params_select_member].include? "all") && (session[:params_select_member] != 'null')
+      session[:conditions][0] += " AND assigned_to_id in (?)"
+      session[:conditions] << session[:params_select_member].split(",")
     end
 
     @new_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_no_start']).order(:s2b_position)
