@@ -28,10 +28,9 @@
 	padding: 3px 3px 3px 8px !important;
 	margin: 0;
 	margin-top: 5px !important;
-	background-color: #111;
+	background-color: #222;
 	line-height: 22px;
-	border-left: #F7A922 2px solid;
-	border-top: #222 1px solid;
+	border: #444 1px solid;
 }
 .dropit .dropit-open .dropit-submenu
 { 

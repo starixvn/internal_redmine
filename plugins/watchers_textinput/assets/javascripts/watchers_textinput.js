@@ -8,7 +8,7 @@ var WatchersTextInput = (function () {
             select_box = $("#watchers_select_box");
             //alert('started');
             var autocomplete_box = select_box.select2({
-                width: "100px"
+                width: "350px"
             });
             autocomplete_box.change(function (val) {
                 //console.log('change');
@@ -53,7 +53,7 @@ var AddWatchersTextInput = (function () {
             select_box = $("#add_watchers_select_box");
             //alert('started');
             var autocomplete_box = select_box.select2({
-                'width': 350
+                width: "350px"
             });
             autocomplete_box.change(function (val) {
                 sync_checkboxes();

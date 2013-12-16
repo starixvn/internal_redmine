@@ -8,10 +8,10 @@
 <div class="container-fluid">
   <% if is_board %>
     <%= button_to l(:label_scrum2b_list), {:controller => "s2b_lists", :action => "index", :project_id =>  params[:project_id], :switch_screens => 1},
-                    :class => "btn btn_submit_board btn-primary"%>
+                    :class => "btn btn_submit_board"%>
   <% else %> 
     <%= button_to l(:label_scrum2b_board), {:controller => "s2b_boards", :action => "index", :project_id =>  params[:project_id], :switch_screens => 1},
-                    :class => "btn btn_submit_board btn-primary" %>
+                    :class => "btn btn_submit_board" %>
   <% end %>
 </div>
 
