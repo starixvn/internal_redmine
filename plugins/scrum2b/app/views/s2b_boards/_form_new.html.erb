@@ -25,6 +25,9 @@
         <% end %>
       </select></p>
       
+      <p><span class="span5"><%= l(:label_start_date)%></span>
+      <input class="span7 value_content" name="issue[start_date]" id="new_date_start_<%= issue.id %>" date="<%= (issue.start_date) %>" type="text"></p>
+    
       <p id="p_assignee_<%= issue.id %>"><span class="span5"><%= l(:label_head_issue_assignee)%> </span>
       <select class="span7 value_content" name="issue[assigned_to_id]" id="new_assignee_<%= issue.id %>">
         <option></option>
@@ -32,9 +35,7 @@
         <% @member.each do |assignee| %>
             <option value="<%= assignee.id %>"  <%= "selected" if assignee.id == issue.assigned_to_id %>><%= assignee.name %></option>
         <% end %>
-      </select></p>
-      <p><span class="span5"><%= l(:label_start_date)%></span>
-      <input class="span7 value_content" name="issue[start_date]" id="new_date_start_<%= issue.id %>"  value="<%= format_date(issue.start_date) %>"></p>
+      </select></p>    
     </div>
     
     <div class="span6">
@@ -46,18 +47,18 @@
         <% end %>
       </select></p>
       <p id="p_time_<%= issue.id %>"><span class="span5" style="text-align:justify; white-space: nowrap;"><%= l(:label_head_issue_est_time) %> </span>
-      <input class="span7 input-mini value_content" name="issue[estimated_hours]"  id="new_time_<%= issue.id %>" value="<%= issue.estimated_hours %>" style="text"/></p>
+      <input class="span7 input-mini value_content" name="issue[estimated_hours]" id="new_time_<%= issue.id %>" value="<%= issue.estimated_hours %>" type="text"></p>
       
       <p><span class="span5" ><%= l(:label_end_date)%></span>
-      <input class="span7 value_content" name="issue[due_date]"  id="new_date_end_<%= issue.id %>" value="<%= format_date(issue.due_date) %>"/></p>
-
+      <input class="span7 value_content" name="issue[due_date]" id="new_date_end_<%= issue.id %>" date="<%= (issue.due_date) %>" type="text"></p>
+		
     </div>
   </div>
   <div class="submit_new_issue span12" value = "<%= issue.id %>">
-    <button type="button" class="submit_issue btn-mini btn-info">
+    <button type="button" class="submit_issue btn btn-mini btn-info">
       <%= l(:label_board_edit_btn_submit) %>
     </button>
-    <button type="button" class="cancel_issue btn-mini btn-danger">
+    <button type="button" class="cancel_issue btn btn-mini btn-danger">
       <%= l(:label_board_edit_btn_cancel) %>
     </button>
   </div>

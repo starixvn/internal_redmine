@@ -16,11 +16,8 @@
 	
 	<select name="select_member" multiple="multiple" id="select_member">
 		<option value="all" ><%= l(:label_select_all_member)%></option>
-		<% if User.current.name != "Anonymous" %>
-		 <option value="<%= User.current.id %>" <% if session[:params_select_member] && session[:params_select_member] == "me" %><%= selected="selected" %><% end %>><%= l(:label_select_me)%></option>
-		<% end %>
 		<% @member.each do |member|%>
-       <option value="<%= member.id %>" <%= "selected" if session[:params_select_member] && (session[:params_select_member].split(",").include? member.id.to_s) %> ><%= member.firstname + ' ' + member.lastname %></option>
+        <option value="<%= member.id %>" <%= "selected" if session[:params_select_member] && (session[:params_select_member].split(",").include? member.id.to_s) %> ><%= member.firstname + ' ' + member.lastname %></option>
 		<% end %>
 	</select>
 	
