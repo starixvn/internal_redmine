@@ -55,25 +55,20 @@ var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_cust
 	">';
 $("#loggedas").html(toggle_img + $("#loggedas").html());
 
-$(document).ready(function(){
-	if($.cookie("toggle_header") == "hide"){
-		$("#header").hide();
-		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-down.png");
-	}
-	else {
-		$("#header").show();
-		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png");
-	}
-});
+if($.cookie("toggle_header") == "hide") {
+	$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-down.png");
+}
 
 $("#toggle_img").click(function(){
 	if($.cookie("toggle_header") == "hide"){
-		$("#header").show();
+		$("#header").css("visibility", "");
+		$("#header").css("position", "");
 		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png");
 		$.removeCookie("toggle_header", {path: "/"});
 	}
 	else {
-		$("#header").hide();
+		$("#header").css("visibility", "hidden");
+		$("#header").css("position", "absolute");
 		$("#toggle_img").attr("src", "/plugin_assets/redmine_homepage_custom_queries/images/navigation-down.png");
 		$.cookie("toggle_header", "hide", {path: "/"});
 	}		
