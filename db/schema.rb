@@ -359,12 +359,13 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "groups_users", ["group_id", "user_id"], :name => "groups_users_ids", :unique => true
 
   create_table "issue_categories", :force => true do |t|
-    t.integer "project_id",                   :default => 0,  :null => false
-    t.string  "name",           :limit => 30, :default => "", :null => false
+    t.integer "project_id",                          :default => 0,  :null => false
+    t.string  "name",                  :limit => 30, :default => "", :null => false
     t.integer "assigned_to_id"
     t.integer "parent_id"
-    t.integer "lft",                          :default => 0,  :null => false
-    t.integer "rgt",                          :default => 0,  :null => false
+    t.integer "lft",                                 :default => 0,  :null => false
+    t.integer "rgt",                                 :default => 0,  :null => false
+    t.string  "reminder_notification"
   end
 
   add_index "issue_categories", ["assigned_to_id"], :name => "index_issue_categories_on_assigned_to_id"
@@ -419,30 +420,31 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "issue_templates", ["tracker_id"], :name => "index_issue_templates_on_tracker_id"
 
   create_table "issues", :force => true do |t|
-    t.integer  "tracker_id",                                                :null => false
-    t.integer  "project_id",                                                :null => false
-    t.string   "subject",                                :default => "",    :null => false
-    t.text     "description",      :limit => 2147483647
+    t.integer  "tracker_id",                                                     :null => false
+    t.integer  "project_id",                                                     :null => false
+    t.string   "subject",                                     :default => "",    :null => false
+    t.text     "description",           :limit => 2147483647
     t.date     "due_date"
     t.integer  "category_id"
-    t.integer  "status_id",                                                 :null => false
+    t.integer  "status_id",                                                      :null => false
     t.integer  "assigned_to_id"
-    t.integer  "priority_id",                                               :null => false
+    t.integer  "priority_id",                                                    :null => false
     t.integer  "fixed_version_id"
-    t.integer  "author_id",                                                 :null => false
-    t.integer  "lock_version",                           :default => 0,     :null => false
+    t.integer  "author_id",                                                      :null => false
+    t.integer  "lock_version",                                :default => 0,     :null => false
     t.datetime "created_on"
     t.datetime "updated_on"
     t.date     "start_date"
-    t.integer  "done_ratio",                             :default => 0,     :null => false
+    t.integer  "done_ratio",                                  :default => 0,     :null => false
     t.float    "estimated_hours"
     t.integer  "parent_id"
     t.integer  "root_id"
     t.integer  "lft"
     t.integer  "rgt"
     t.integer  "s2b_position"
-    t.boolean  "is_private",                             :default => false, :null => false
+    t.boolean  "is_private",                                  :default => false, :null => false
     t.datetime "closed_on"
+    t.string   "reminder_notification"
   end
 
   add_index "issues", ["assigned_to_id"], :name => "index_issues_on_assigned_to_id"
@@ -826,22 +828,22 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "user_preferences", ["user_id"], :name => "index_user_preferences_on_user_id"
 
   create_table "users", :force => true do |t|
-    t.string   "login",                           :default => "",    :null => false
-    t.string   "hashed_password",   :limit => 40, :default => "",    :null => false
-    t.string   "firstname",         :limit => 30, :default => "",    :null => false
-    t.string   "lastname",                        :default => "",    :null => false
-    t.string   "mail",              :limit => 60, :default => "",    :null => false
-    t.boolean  "admin",                           :default => false, :null => false
-    t.integer  "status",                          :default => 1,     :null => false
+    t.string   "login",                               :default => "",    :null => false
+    t.string   "hashed_password",       :limit => 40, :default => "",    :null => false
+    t.string   "firstname",             :limit => 30, :default => "",    :null => false
+    t.string   "lastname",                            :default => "",    :null => false
+    t.string   "mail",                  :limit => 60, :default => "",    :null => false
+    t.boolean  "admin",                               :default => false, :null => false
+    t.integer  "status",                              :default => 1,     :null => false
     t.datetime "last_login_on"
-    t.string   "language",          :limit => 5,  :default => ""
+    t.string   "language",              :limit => 5,  :default => ""
     t.integer  "auth_source_id"
     t.datetime "created_on"
     t.datetime "updated_on"
     t.string   "type"
     t.string   "identity_url"
-    t.string   "mail_notification",               :default => "",    :null => false
-    t.string   "salt",              :limit => 64
+    t.string   "mail_notification",                   :default => "",    :null => false
+    t.string   "salt",                  :limit => 64
     t.string   "phone"
     t.string   "address"
     t.string   "skype"
@@ -849,13 +851,14 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.string   "job_title"
     t.string   "company"
     t.string   "middlename"
-    t.integer  "gender",            :limit => 2
+    t.integer  "gender",                :limit => 2
     t.string   "twitter"
     t.string   "facebook"
     t.string   "linkedin"
     t.text     "background"
     t.date     "appearance_date"
     t.integer  "department_id"
+    t.string   "reminder_notification"
   end
 
   add_index "users", ["auth_source_id"], :name => "index_users_on_auth_source_id"
