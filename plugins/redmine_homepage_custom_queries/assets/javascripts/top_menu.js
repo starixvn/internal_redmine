@@ -51,6 +51,7 @@ var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_cust
     z-index: 99999; \
     right: 300px; \
     top: -3px; \
+    width: 30px; \
     cursor: pointer \
 	">';
 $("#loggedas").html(toggle_img + $("#loggedas").html());

@@ -11,6 +11,9 @@
   
   <div class="span12" style="margin:0 0 5px 0;">
     <div class="span6">
+      <p><span class="span5"><%= l(:label_start_date)%></span>
+      <input class="span7 value_content" name="issue[start_date]" id="new_date_start_<%= issue.id %>" date="<%= (issue.start_date) %>" type="text"></p>    	
+    	
       <p id="p_tracker_<%= issue.id %>"><span class="span5" style="font-size: 11px"><%= l(:label_tracker) %></span>
       <select class="span7 value_content" name="issue[tracker_id]" id="new_tracker_<%= issue.id %>" >
         <% @tracker.each do |tracker| %>
@@ -24,10 +27,7 @@
             <option value="<%= priority.id %>" <%= "selected" if priority.id == issue.priority_id %>><%= priority.name %></option>
         <% end %>
       </select></p>
-      
-      <p><span class="span5"><%= l(:label_start_date)%></span>
-      <input class="span7 value_content" name="issue[start_date]" id="new_date_start_<%= issue.id %>" date="<%= (issue.start_date) %>" type="text"></p>
-    
+          
       <p id="p_assignee_<%= issue.id %>"><span class="span5"><%= l(:label_head_issue_assignee)%> </span>
       <select class="span7 value_content" name="issue[assigned_to_id]" id="new_assignee_<%= issue.id %>">
         <option></option>
@@ -39,6 +39,10 @@
     </div>
     
     <div class="span6">
+    	
+      <p><span class="span5" ><%= l(:label_end_date)%></span>
+      <input class="span7 value_content" name="issue[due_date]" id="new_date_end_<%= issue.id %>" date="<%= (issue.due_date) %>" type="text"></p>    	
+    	
       <p id="p_sprint_<%= issue.id %>"><span class="span5"><%= l(:label_sprint) %> </span>
       <select class="span7 value_content" name="issue[fixed_version_id]" id="new_sprint_<%= issue.id %>">
         <option></option>
@@ -48,10 +52,7 @@
       </select></p>
       <p id="p_time_<%= issue.id %>"><span class="span5" style="text-align:justify; white-space: nowrap;"><%= l(:label_head_issue_est_time) %> </span>
       <input class="span7 input-mini value_content" name="issue[estimated_hours]" id="new_time_<%= issue.id %>" value="<%= issue.estimated_hours %>" type="text"></p>
-      
-      <p><span class="span5" ><%= l(:label_end_date)%></span>
-      <input class="span7 value_content" name="issue[due_date]" id="new_date_end_<%= issue.id %>" date="<%= (issue.due_date) %>" type="text"></p>
-		
+      		
     </div>
   </div>
   <div class="submit_new_issue span12" value = "<%= issue.id %>">

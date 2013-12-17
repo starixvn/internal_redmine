@@ -157,6 +157,11 @@
                       editDate(id_issue);
                       form_edit(id_issue);
                       $("#completed").find(".icon_close_issue").show();
+                      
+                      if($("#new_sprint_" + id_issue).val() != $("#select_version_onboard").val() && $("#select_version_onboard").val() != "all") {
+                      	$("#" + id_issue).hide();
+                      }
+                      
                   } else if (data.result == "create_success") {
                       $("#edit_issue_").find(".value_content").val("");
                       $("#edit_issue_").hide();
@@ -213,7 +218,7 @@
       $("#p_status_" + id).hide();
       $("#p_priority_" + id);
       $("#p_tracker_" + id).hide();
-      $("#p_sprint_" + id).hide();
+      $("#p_sprint_" + id);
   }
 
   function editDate(id) {
