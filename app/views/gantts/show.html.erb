@@ -6,6 +6,7 @@
              :year => params[:year], :months => params[:months]},
              :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag 'set_filter', '1' %>
+<%= hidden_field_tag 'subject_width', '1' %>
 <fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
   <legend onclick="toggleFieldset(this);"><%= l(:label_filter_plural) %></legend>
   <div style="<%= @query.new_record? ? "" : "display: none;" %>">
@@ -118,8 +119,10 @@
 			}
 			
 			// Add new parameters or update existing ones
-			queryParameters['subject_width'] = $("#slider").slider("option", "value");		
-			location.search = $.param(queryParameters); // Causes page to reload    		
+			queryParameters['subject_width'] = $("#slider").slider("option", "value");
+			$("#subject_width").val($("#slider").slider("option", "value"));
+			
+			$("#query_form").submit();
     	}
     });
   });
