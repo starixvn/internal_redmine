@@ -40,8 +40,8 @@ if(my_ul == "<ul></ul>") {
 	my_queries_menu.hide();
 }
 
-$("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " â–½");
-$("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " â–½");
+$("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " ▽");
+$("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
 $('#top-menu ul').dropit();
 
