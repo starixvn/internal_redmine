@@ -71,7 +71,7 @@
   zoom = 1
   @gantt.zoom.times { zoom = zoom * 2 }
 
-  subject_width = 330
+  subject_width = (params[:subject_width] && params[:subject_width].to_i > 50) ? params[:subject_width].to_i : 330
   header_height = 18
 
   headers_height = header_height
@@ -101,6 +101,36 @@
   <p class="warning"><%= l(:notice_gantt_chart_truncated, :max => @gantt.max_rows) %></p>
 <% end %>
 
+<div id="slider"></div>
+<script>
+  $(function() {
+    $("#slider").slider({ 
+    	min: 0, 
+    	max: $("#content").width() - 2, 
+    	value: <%= subject_width %>,
+    	change: function( event, ui ) {
+			var queryParameters = {}, queryString = location.search.substring(1),
+			re = /([^&=]+)=([^&]*)/g, m;
+			
+			// Creates a map with the query string parameters
+			while (m = re.exec(queryString)) {
+				queryParameters[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+			}
+			
+			// Add new parameters or update existing ones
+			queryParameters['subject_width'] = $("#slider").slider("option", "value");		
+			location.search = $.param(queryParameters); // Causes page to reload    		
+    	}
+    });
+  });
+</script>
+<style>
+	.ui-slider
+	{
+		height: 2px;
+		background-color: #ddd;
+	}
+</style>
 <table style="width:100%; border:0; border-collapse: collapse;">
 <tr>
 <td style="width:<%= subject_width %>px; padding:0px;">
@@ -133,6 +163,7 @@
     <% end %>
   <% end %>
 </td>
+
 
 <td>
 <div style="position:relative;height:<%= t_height + 24 %>px;overflow:auto;" id="gantt_area">
@@ -297,9 +328,6 @@
 <% end %>
 <% end # query.valid? %>
 
-<% content_for :sidebar do %>
-  <%= render :partial => 'issues/sidebar' %>
-<% end %>
 
 <% html_title(l(:label_gantt)) -%>
 
