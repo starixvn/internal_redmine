@@ -120,9 +120,11 @@
 			
 			// Add new parameters or update existing ones
 			queryParameters['subject_width'] = $("#slider").slider("option", "value");
-			$("#subject_width").val($("#slider").slider("option", "value"));
 			
-			$("#query_form").submit();
+			if($("#subject_width").val() != $("#slider").slider("option", "value")) {
+				$("#subject_width").val($("#slider").slider("option", "value"));
+				$("#query_form").submit();
+			}
     	}
     });
   });
@@ -133,6 +135,10 @@
 		height: 2px;
 		background-color: #ddd;
 		cursor: pointer;
+	}
+	.ui-slider-handle
+	{
+		cursor: w-resize !important;
 	}
 </style>
 <table style="width:100%; border:0; border-collapse: collapse;">
