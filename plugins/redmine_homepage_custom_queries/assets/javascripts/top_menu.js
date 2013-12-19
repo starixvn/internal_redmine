@@ -49,7 +49,7 @@ $('#top-menu ul').dropit();
 var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png" style=" \
     position: absolute; \
     z-index: 99999; \
-    right: 300px; \
+    right: 310px; \
     top: -3px; \
     width: 30px; \
     cursor: pointer \
