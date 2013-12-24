@@ -1,5 +1,11 @@
 <div style="display: none" id="custom_queries">	
-	<%= render_sidebar_queries %>	
+	<%=
+	begin
+		render_sidebar_queries
+	rescue
+		
+	end
+	%>	
 </div>
 
 <%= stylesheet_link_tag    'dropit.css',     :plugin => 'redmine_homepage_custom_queries', :media => 'all' %>
