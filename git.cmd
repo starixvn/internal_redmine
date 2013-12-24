@@ -5,17 +5,17 @@ setlocal enabledelayedexpansion
 :: Original command
 ::"C:\Program Files (x86)\Git\cmd\git.exe" "--git-dir" "git@gito.nexcel.vn:agency/fanex-age-ui.git" "-c" "core.quotepath=false" "-c" "log.decorate=no" "log" "--no-color" "--encoding=UTF-8" "--date=iso" "--pretty=fuller" "--no-merges" "-n" "1"
 
-:: Test command
-::D:\workspace\redmine\git.cmd "--git-dir" "git@gito.nexcel.vn:agency/fanex-age-ui.git" "-c" "core.quotepath=false" "-c" "log.decorate=no" "branch" "--no-color" "--verbose" "--no-abbrev"
+
+SET git_cmd="C:\Program Files (x86)\Git\cmd\git.exe"
+SET redmine_dir=D:\workspace\redmine
+SET redmine_git_repository="D:\workspace\redmine_git_repository"
+
+ECHO %* >> "%redmine_git_repository%\git.log
 
 IF "%1"=="" (
-  %gitcmd%
+  %git_cmd%
   goto END
 )
-
-SET gitcmd="C:\Program Files (x86)\Git\cmd\git.exe"
-SET redminedir=D:\workspace\redmine
-SET redmine_git_dir="D:\workspace\redmine_git_dir"
 
 IF %1=="--git-dir" (
 
@@ -30,25 +30,25 @@ IF %1=="--git-dir" (
      goto END
    )
 
-   IF not exist "%redmine_git_dir%\!project!" mkdir "%redmine_git_dir%\!project!"
-   IF not exist "%redmine_git_dir%\!project!\!dir!" (
-      mkdir "%redmine_git_dir%\!project!\!dir!"
-      %gitcmd% clone %2 "%redmine_git_dir%\!project!\!dir!"
+   IF not exist "%redmine_git_repository%\!project!" mkdir "%redmine_git_repository%\!project!"
+   IF not exist "%redmine_git_repository%\!project!\!dir!" (
+      mkdir "%redmine_git_repository%\!project!\!dir!"
+      %git_cmd% clone %2 "%redmine_git_repository%\!project!\!dir!"
    )
 
    IF "%7"==""branch"" (
       D:
-      cd "%redmine_git_dir%\!project!\!dir!"
-      %gitcmd% pull --quiet         
+      cd "%redmine_git_repository%\!project!\!dir!"
+      %git_cmd% fetch     
    )
 
    SET git_parameters=%*
-   CALL SET git_parameters=%%git_parameters:%2="!redmine_git_dir!\!project!\!dir!\.git"%%
-   %gitcmd% !git_parameters!
+   CALL SET git_parameters=%%git_parameters:%2="!redmine_git_repository!\!project!\!dir!\.git"%%
+   %git_cmd% !git_parameters!
  
 
 ) else (
-  %gitcmd% %*
+  %git_cmd% %*
 )
 
 :END

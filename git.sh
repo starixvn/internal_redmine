@@ -34,11 +34,10 @@ then
   then
     mkdir $redmine_git_repository/$project_dir/$repo_dir
     git clone $2 $redmine_git_repository/$project_dir/$repo_dir
-  fi
-
-  if [ "$7" = "branch" ]
-  then
+  else
     cd $redmine_git_repository/$project_dir/$repo_dir
+    git clean -df
+    git checkout .
     git pull --quiet
   fi
   
