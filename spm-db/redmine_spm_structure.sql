@@ -57,7 +57,7 @@ CREATE TABLE `spm_storeprocedures` (
   `DeveloperId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`Id`) USING BTREE,
   KEY `IssueId` (`IssueId`)
-) ENGINE=InnoDB AUTO_INCREMENT=940 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=960 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -216,7 +216,7 @@ BEGIN
          ,d.Name
          ,d.Description
          ,d.UserID
-         ,d.Password
+         ,"" as Password
          ,s.Id AS Id
          ,s.Name
          ,s.Description
@@ -453,7 +453,7 @@ CALL splitter(issueids, ',');
 
 IF includeChild = 0
 THEN
-SELECT sp.id
+SELECT DISTINCT(sp.id)
       ,sp.name
       ,sp.isfunction
       ,sp.actionname
@@ -479,7 +479,7 @@ WHERE (i.id in (select split_value from splitResults))
 ORDER BY sp.Id;
 ELSE
 
-  SELECT sp.id
+  SELECT DISTINCT(sp.id)
       ,sp.name
       ,sp.isfunction
       ,sp.actionname
@@ -642,4 +642,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-10  9:50:24
+-- Dump completed on 2014-01-10 14:24:05
