@@ -1,11 +1,11 @@
 <hr />
 <div id="issue_spm">
 <div class="contextual">
-  <a id="issue_spm_toggle" href="javascript: void(0)"><%= cookies[:issue_spm_toggle]? 'Expand' : 'Collapse'%></a>
+  <a id="issue_spm_toggle" href="javascript: void(0)"><%= cookies[:issue_spm_toggle]? 'Collapse' : 'Expand'%></a>
 </div>
 <p><strong>Related store procedures</strong></p>
 
-<div id="issue_spm_widgets" style="<%= cookies[:issue_spm_toggle]? 'display: none' : ''%>">
+<div id="issue_spm_widgets" style="<%= cookies[:issue_spm_toggle]? '' : 'display: none'%>">
 	<iframe 
 	src="//10.18.200.105:3000/widgets/issue/<%= @issue.id %>/storeprocedure.html?author=<%= User.current.login %>" 
 	width="99%" height="250px" frameborder="0" scrolling="no"></iframe>	
@@ -14,15 +14,15 @@
 <script>
 	
 	function issue_spm_toggle(){
-		if($.cookie("issue_spm_toggle") == "hide") {
-			$("#issue_spm_widgets").show();
-			$("#issue_spm_toggle").html("Collapse");
-			$.removeCookie("issue_spm_toggle", {path: "/"});
-		}
-		else {
+		if($.cookie("issue_spm_toggle")) {
 			$("#issue_spm_widgets").hide();
 			$("#issue_spm_toggle").html("Expand");
-			$.cookie("issue_spm_toggle", "hide", {path: "/"});
+			$.removeCookie("issue_spm_toggle", {path: "/"});	
+		}
+		else {
+			$("#issue_spm_widgets").show();
+			$("#issue_spm_toggle").html("Collapse");			
+			$.cookie("issue_spm_toggle", "show", {path: "/"});
 		}		
 	}
 
