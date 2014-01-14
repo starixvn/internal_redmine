@@ -495,12 +495,12 @@ ELSE
       ,u.login AS Username
       ,s.id
       ,s.name
-FROM issues AS i
-  LEFT JOIN spm_storeprocedures AS sp ON sp.issueid = i.id
+FROM issues AS i  
   LEFT JOIN issues as i1 ON i1.parent_id = i.id
   LEFT JOIN issues as i2 ON i2.parent_id = i1.id
   LEFT JOIN issues as i3 ON i3.parent_id = i2.id
   LEFT JOIN issues as i4 ON i4.parent_id = i3.id
+  LEFT JOIN spm_storeprocedures AS sp ON (sp.issueid = i.id or sp.issueid = i1.id or sp.issueid = i2.id or sp.issueid = i3.id or sp.issueid = i4.id)
   LEFT JOIN spm_databases AS d ON sp.databaseid = d.id
   LEFT JOIN spm_servers AS s ON sp.serverid = s.id
   LEFT JOIN users AS u ON sp.modifiedby = u.id
@@ -642,4 +642,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-10 14:24:05
+-- Dump completed on 2014-01-14 10:03:12
