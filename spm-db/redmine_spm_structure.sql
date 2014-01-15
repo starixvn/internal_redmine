@@ -57,7 +57,7 @@ CREATE TABLE `spm_storeprocedures` (
   `DeveloperId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`Id`) USING BTREE,
   KEY `IssueId` (`IssueId`)
-) ENGINE=InnoDB AUTO_INCREMENT=960 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=961 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -453,6 +453,165 @@ CALL splitter(issueids, ',');
 
 IF includeChild = 0
 THEN
+SELECT sp.id
+      ,sp.name
+      ,sp.isfunction
+      ,sp.actionname
+      ,sp.status
+      ,sp.description
+      ,d.id
+      ,d.name
+      ,du.Id
+      ,du.Login AS Username
+      ,i.id
+      ,i.subject AS Name
+      ,u.id
+      ,u.login AS Username
+      ,s.id
+      ,s.name
+FROM issues AS i
+  LEFT JOIN spm_storeprocedures AS sp ON sp.issueid = i.id
+  LEFT JOIN spm_databases AS d ON sp.databaseid = d.id
+  LEFT JOIN spm_servers AS s ON sp.serverid = s.id
+  LEFT JOIN users AS u ON sp.modifiedby = u.id
+  LEFT JOIN users AS du ON sp.developerid = du.id
+WHERE (i.id in (select split_value from splitResults))
+OR sp.Name Like issueids
+ORDER BY sp.Id;
+ELSE
+  -- prepare a hierarchy level variable
+  SET @hierlevel := 00000;
+
+  -- prepare a variable for total rows so we know when no more rows found
+  SET @lastRowCount := 0;
+
+  -- pre-drop temp table
+  DROP TABLE IF EXISTS MyHierarchy;
+
+  -- now, create it as the first level you want...
+  -- ie: a specific top level of all "no parent" entries
+  -- or parameterize the function and ask for a specific "ID".
+  -- add extra column as flag for next set of ID's to load into this.
+  CREATE TABLE MyHierarchy AS
+  SELECT U.ID
+       , U.Parent_Id
+       , U.Subject
+       , 00 AS IDHierLevel
+       , 00 AS AlreadyProcessed
+  FROM
+    issues U
+  WHERE
+    U.ID in (select split_value from splitResults);
+
+  -- how many rows are we starting with at this tier level
+  -- START the cycle, only IF we found rows...
+  SET @lastRowCount := FOUND_ROWS();
+
+  -- we need to have a "key" for updates to be applied against,
+  -- otherwise our UPDATE statement will nag about an unsafe update command
+  CREATE INDEX MyHier_Idx1 ON MyHierarchy (IDHierLevel);
+
+
+  -- NOW, keep cycling through until we get no more records
+  WHILE @lastRowCount > 0
+  DO
+
+    UPDATE MyHierarchy
+    SET
+      AlreadyProcessed = 1
+    WHERE
+      IDHierLevel = @hierLevel;
+
+    -- NOW, load in all entries found from full-set NOT already processed
+    INSERT INTO MyHierarchy
+    SELECT DISTINCT U.ID
+                  , U.Parent_Id
+                  , U.Subject
+                  , @hierLevel + 1 AS IDHierLevel
+                  , 0 AS AlreadyProcessed
+    FROM
+      MyHierarchy mh
+    JOIN issues U
+    ON U.Parent_Id = mh.ID
+    WHERE
+      mh.IDHierLevel = @hierLevel;
+
+    -- preserve latest count of records accounted for from above query
+    -- now, how many acrual rows DID we insert from the select query
+    SET @lastRowCount := ROW_COUNT();
+
+
+    -- only mark the LOWER level we just joined against as processed,
+    -- and NOT the new records we just inserted
+    UPDATE MyHierarchy
+    SET
+      AlreadyProcessed = 1
+    WHERE
+      IDHierLevel = @hierLevel;
+
+    -- now, update the hierarchy level
+    SET @hierLevel := @hierLevel + 1;
+
+  END WHILE;
+
+
+  -- return the final set now
+  -- SELECT DISTINCT ID
+  -- FROM
+  --  MyHierarchy;
+
+  -- and we can clean-up after the query of data has been selected / returned.
+  --    drop table if exists MyHierarchy;
+
+  SELECT sp.id
+      ,sp.name
+      ,sp.isfunction
+      ,sp.actionname
+      ,sp.status
+      ,sp.description
+      ,d.id
+      ,d.name
+      ,du.Id
+      ,du.Login AS Username
+      ,i.id
+      ,i.subject AS Name
+      ,u.id
+      ,u.login AS Username
+      ,s.id
+      ,s.name
+FROM issues AS i
+  LEFT JOIN spm_storeprocedures AS sp ON sp.issueid = i.id
+  LEFT JOIN spm_databases AS d ON sp.databaseid = d.id
+  LEFT JOIN spm_servers AS s ON sp.serverid = s.id
+  LEFT JOIN users AS u ON sp.modifiedby = u.id
+  LEFT JOIN users AS du ON sp.developerid = du.id
+WHERE (i.id in (select ID from MyHierarchy))
+OR sp.Name Like issueids
+ORDER BY sp.Id;
+
+END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spm_storeprocedures_getbyissueid2` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spm_storeprocedures_getbyissueid2`(issueids varchar(255),includeChild BIT)
+BEGIN
+CALL splitter(issueids, ',');
+
+IF includeChild = 0
+THEN
 SELECT DISTINCT(sp.id)
       ,sp.name
       ,sp.isfunction
@@ -642,4 +801,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-01-14 10:03:12
+-- Dump completed on 2014-01-15 17:09:44
