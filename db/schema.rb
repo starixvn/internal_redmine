@@ -690,6 +690,13 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
 
   add_index "settings", ["name"], :name => "index_settings_on_name"
 
+  create_table "spent_time_queries", :force => true do |t|
+    t.string  "name"
+    t.string  "query"
+    t.boolean "is_public"
+    t.integer "user_id"
+  end
+
   create_table "spm_databases", :primary_key => "Id", :force => true do |t|
     t.string  "Name",        :limit => 100, :null => false
     t.string  "Description", :limit => 100
