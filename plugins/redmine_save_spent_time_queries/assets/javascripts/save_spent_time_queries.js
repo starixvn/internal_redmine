@@ -17,7 +17,7 @@ $(document).ready(function(){
 		$('#top-menu ul').dropit();		
 	}
 	
-	$(document.body).css("visibility", "visible");
+	$("#top-menu").css("visibility", "visible");
 });
 
 // Decorate
