@@ -1,4 +1,4 @@
-<h2>New spent time query</h2>
+﻿<h2>New spent time query</h2>
 
 <%= form_tag() do %>
 
@@ -15,7 +15,7 @@
 			<input id="query_is_public" name="query[is_public]" type="checkbox" value="1" />
 		</p>
 		
-		<input name="query[value]" type="hidden" value="<%= URI.unescape(request.query_string) %>" />
+		<input name="query[value]" type="hidden" value="<%= CGI.unescape(request.query_string) %>" />
 		
 		<p><%= submit_tag l(:button_save) %></p>
 	</div>
