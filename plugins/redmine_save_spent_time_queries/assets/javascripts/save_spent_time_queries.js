@@ -18,6 +18,7 @@ $(document).ready(function(){
 	}
 	
 	$("#top-menu").css("visibility", "visible");
+	$("#main").css("visibility", "visible");
 });
 
 // Decorate
