@@ -6,6 +6,7 @@
 </div>
 <script>
   $(document).ready(function () {
+      
       $("#completed").find(".icon_close_issue").show();
 
       $(".icon_close_issue").live("click", function () {
@@ -22,7 +23,9 @@
               type: "POST",
               data: 'issue_id=' + issue_id + '&project_id=' + project_id,
               dataType: "script",
-              success: function () {}
+              success: function () {
+              	makeSumEstTimeNSpentTime();
+              }
           });
           return false;
       });
@@ -37,8 +40,10 @@
               type: "POST",
               data: 'select_version=' + select_version + '&select_member=' + select_member + '&project_id=' + project_id,
               dataType: "script",
-              success: function () {}
+              success: function () {              	
+              }
           });
+          
           return false;
       });
 
@@ -71,9 +76,12 @@
                   dataType: "json",
                   success: function (res) {
                       if (res.status == "completed") {
-                          makeSlider(issue_id, res.done_ratio);
+                          makeSlider(issue_id, res.done_ratio);                          
                       }
-                  }
+                      
+                      makeSumEstTimeNSpentTime();
+                  },
+                  error: makeSumEstTimeNSpentTime
               });
           },
           stop: function () {
@@ -91,7 +99,10 @@
                   type: "POST",
                   data: 'issue_id=' + issue_id + '&id_prev=' + id_prev + '&project_id=' + project_id + '&id_next=' + id_next + '&new_status=' + new_status + '&old_status=' + old_status,
                   dataType: "text",
-                  success: function () {}
+                  success: function () {
+                  	makeSumEstTimeNSpentTime();
+                  },
+                  error: makeSumEstTimeNSpentTime
               });
           }
       });
@@ -157,11 +168,11 @@
                       editDate(id_issue);
                       form_edit(id_issue);
                       $("#completed").find(".icon_close_issue").show();
-                      
-                      if($("#new_sprint_" + id_issue).val() != $("#select_version_onboard").val() && $("#select_version_onboard").val() != "all") {
-                      	$("#" + id_issue).hide();
+
+                      if ($("#new_sprint_" + id_issue).val() != $("#select_version_onboard").val() && $("#select_version_onboard").val() != "all") {
+                          $("#" + id_issue).hide();
                       }
-                      
+
                   } else if (data.result == "create_success") {
                       $("#edit_issue_").find(".value_content").val("");
                       $("#edit_issue_").hide();
@@ -172,7 +183,10 @@
                   } else {
                       alert(data.message);
                   }
-              }
+                  
+                  makeSumEstTimeNSpentTime();
+              },
+              error: makeSumEstTimeNSpentTime
           });
       });
 
@@ -211,7 +225,8 @@
           $("#edit_issue_").show();
           $("#edit_issue_").addClass("board_issue");
       });
-
+      
+      makeSumEstTimeNSpentTime();
   });
 
   function form_edit(id) {
@@ -226,10 +241,10 @@
       $("#new_date_end_" + id).datepicker();
       $("#new_date_start_" + id).datepicker("option", "dateFormat", "yy-mm-dd");
       $("#new_date_end_" + id).datepicker("option", "dateFormat", "yy-mm-dd");
-      
+
       $("#new_date_start_" + id).datepicker("setDate", $("#new_date_start_" + id).attr("date"));
       $("#new_date_end_" + id).datepicker("setDate", $("#new_date_end_" + id).attr("date"));
-      
+
   }
 
   function makeSlider(id, slide_value) {
@@ -259,5 +274,64 @@
       });
       $("#amount" + id).val($("#slider" + id).slider("value"));
       $("#main-menu .s2b-lists").addClass("selected");
+  }
+
+  function makeSumEstTimeNSpentTime() {
+  	  var estText = "Est. ", spentText = "Spent ", hourText = "h";
+      // new column
+      var total_est_new = 0;
+      $("#new p.estimated span").each(function () {
+          var est = $(this).html();
+          total_est_new += isNaN(est) ? 0 : parseFloat(est);
+      });
+      
+      $("#total-est-new").html(estText + total_est_new + hourText);
+
+      var total_spent_new = 0;
+      $("#new p.total-hours span").each(function () {
+          var spent = $(this).html();
+          total_spent_new += isNaN(spent) ? 0 : parseFloat(spent);
+      });
+      
+      $("#total-spent-new").html(spentText + total_spent_new + hourText);
+      $("#div_news span.time-sum").css("visibility", "visible");
+      
+
+      // inprogress column
+      var total_est_inprogress = 0;
+      $("#started p.estimated span").each(function () {
+          var est = $(this).html();
+          total_est_inprogress += isNaN(est) ? 0 : parseFloat(est);
+      });
+      
+      $("#total-est-inprogress").html(estText + total_est_inprogress + hourText);
+
+      var total_spent_inprogress = 0;
+      $("#started p.total-hours span").each(function () {
+          var spent = $(this).html();
+          total_spent_inprogress += isNaN(spent) ? 0 : parseFloat(spent);
+      });
+      
+      $("#total-spent-inprogress").html(spentText + total_spent_inprogress + hourText);
+      $("#div_progress span.time-sum").css("visibility", "visible");
+      
+      // completed column
+      var total_est_completed = 0;
+      $("#completed p.estimated span").each(function () {
+          var est = $(this).html();
+          total_est_completed += isNaN(est) ? 0 : parseFloat(est);
+      });
+      
+      $("#total-est-completed").html(estText + total_est_completed + hourText);
+
+      var total_spent_completed = 0;
+      $("#completed p.total-hours span").each(function () {
+          var spent = $(this).html();
+          total_spent_completed += isNaN(spent) ? 0 : parseFloat(spent);
+      });
+      
+      $("#total-spent-completed").html(spentText + total_spent_completed + hourText); 
+      $("#div_completed span.time-sum").css("visibility", "visible");          
+
   }
 </script>

@@ -95,6 +95,41 @@
               value: parseInt($(this).attr("value"))
           });
       });
+      
+      makeSumEstTimeNSpentTime();
   });
+  
+  function makeSumEstTimeNSpentTime() {
+  	var totalSpent = 0.0, totalEst = 0.0, totalSpentSpan = null, totalEstSpan = null, hourText = "h";
+  	$("#table_issues tbody tr").each(function(){
+  		var self = $(this);
+  		if(self.hasClass("version_row")){
+  			
+  			if(totalSpentSpan && totalEstSpan) {
+		  		totalSpentSpan.html(Math.round(totalSpent * 10) / 10 + hourText);
+		  		totalEstSpan.html(Math.round(totalEst * 10) / 10 + hourText);
+  			}
+  			
+  			totalSpent = 0.0;
+  			totalEst = 0.0;
+  			
+  			totalSpentSpan = $("td span.total-spent-version", this);
+  			totalEstSpan = $("td span.total-est-version", this);
+  		}
+  		else {
+			var spent = "0" + self.children()[6].innerHTML;
+			totalSpent += isNaN(spent) ? 0.0 : parseFloat(spent);
+			
+			var est = "0" + self.children()[7].innerHTML;
+			totalEst += isNaN(est) ? 0.0 : parseFloat(est);
+  		}
+  	});
+  	
+  	if(totalSpentSpan && totalEstSpan) {
+  		totalSpentSpan.html(Math.round(totalSpent * 10) / 10 + hourText);
+  		totalEstSpan.html(Math.round(totalEst * 10) / 10 + hourText);
+  	}
+  }
+  
 </script>
 

@@ -8,4 +8,40 @@
     </ul>
 </nav>
 
+<% if not @fixed_versions.nil? %>
 
+<form method="get">
+
+<div style="float: right; margin-top: 2px">
+	<label for="select_versions">Versions &nbsp; </label> 
+	<select name="versions[]" id="select_versions" multiple="multiple">
+	<% @fixed_versions.each do |version| %>
+	
+		<% if @selected_versions.include? (version.id) %>
+		<option selected="selected" value="<%= version.id %>"><%= version.name %></option>
+		<% else %>
+		<option value="<%= version.id %>"><%= version.name %></option>
+		<% end %>
+		
+	<% end %>
+	</select>
+	
+	<input class="btn btn-info btn_submit" type="submit" value="Filter">
+	
+</div>
+
+</form>
+
+<script>
+
+	$("#menu ul li a").each(function() {
+		var query_index = location.href.indexOf('?');
+		var query = query_index === -1 ? '' : location.href.substr(query_index)
+		$(this).attr("href", $(this).attr("href") + query);
+	});
+	
+	$("#select_versions").select2({width: "250px"});
+		
+</script>
+
+<% end %>

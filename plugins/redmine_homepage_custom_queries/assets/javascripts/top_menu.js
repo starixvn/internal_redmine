@@ -43,7 +43,7 @@ if(my_ul == "<ul></ul>") {
 $("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " ▽");
 $("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
-$('#top-menu ul').dropit();
+$('#top-menu ul').dropit({ action: 'hover' });
 
 // Append header toggle button
 var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png" style=" \

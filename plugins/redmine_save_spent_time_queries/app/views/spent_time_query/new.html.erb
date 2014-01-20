@@ -1,4 +1,4 @@
-﻿<h2>New spent time query</h2>
+<h2 id="spent_time_header">Save spent time query</h2>
 
 <%= form_tag() do %>
 
@@ -18,9 +18,17 @@
 		<input name="query[value]" type="hidden" value="<%= CGI.unescape(request.query_string) %>" />
 		
 		<p><%= submit_tag l(:button_save) %></p>
-	</div>
-	
+	</div>	
 
 </div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		if(location.href.indexOf("#query=") != -1) {	
+			var query = location.href.substr(location.href.indexOf("#query=") + 7);	
+			$("#query_name").val(decodeURIComponent(query));
+		}	
+	});
+</script>
 
 <% end %>

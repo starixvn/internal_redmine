@@ -262,6 +262,7 @@ img.icon
 .version_row
 {
 	background-color: #DFF0D8;
+	color: blue;
 }
 #create_issue p span
 {
@@ -375,4 +376,33 @@ img.icon
 #div_completed
 {
 	background-color:#5BA1CF;
+}
+
+span.time-sum
+{
+	visibility: hidden;
+	margin-left: 100px;
+	font-size: 11px;
+	background: #ffffff;
+	border: 1px solid #999;
+	border-radius: 2px;
+	moz-border-radius: 2px;
+	webkit-border-radius: 2px;
+	padding: 1px 10px 1px 10px;
+}
+
+.table th, .table td {
+	padding: 4px;
+	line-height: 20px;
+	text-align: left;
+	vertical-align: top;
+	border-top: 1px solid #dddddd;
+}
+
+table#table_issues {
+	border: 1px solid #C7C7C7 !important;
+}
+
+.ui-progressbar .ui-progressbar-value {
+	background: #AECCD7 none repeat scroll 0%;
 }
