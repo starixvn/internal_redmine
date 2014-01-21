@@ -21,6 +21,12 @@ $(document).ready(function(){
 	$("#main").css("visibility", "visible");
 });
 
+// Auto show
+setTimeout(function(){
+	$("#top-menu").css("visibility", "visible");
+	$("#main").css("visibility", "visible");
+}, 100);
+
 // Decorate
 if(location.href.indexOf("#query=") != -1 && location.href.indexOf("/time_entries?") != -1) {	
 	var query = location.href.substr(location.href.indexOf("#query="));	

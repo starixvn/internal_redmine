@@ -24,8 +24,9 @@ class McTimeMgmtProjectController < ApplicationController
     else
       @selected_versions = filter_versions
     end  
-    filter_versions_s = (filter_versions * ",") + ",null"
-    filter_versions.push(nil)
+    
+    filter_versions.push("null")
+    filter_versions_s = (filter_versions * ",")
 
     # total issues from the project and subprojects
     @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects], :fixed_version_id => filter_versions).count
