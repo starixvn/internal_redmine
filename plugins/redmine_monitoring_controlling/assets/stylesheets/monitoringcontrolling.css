@@ -1,6 +1,7 @@
 #menu ul {
-    padding:5px;
+    padding:2px;
     margin:0 auto;
+    height: 25px;
     float: left;
     width: 100%;
     background-color:#EDEDED;

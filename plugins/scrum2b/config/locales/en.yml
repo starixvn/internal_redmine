@@ -2,7 +2,7 @@
 en:
   label_scrum2b: "Taskboard"
 
-  label_scrum2b_board: "Scrum Board"
+  label_scrum2b_board: "Taskboard"
   label_scrum2b_list: "Sprint Backlogs"
   label_close_all_issues: "Close"
   label_select_issues_all_working: "All Issues Working"
