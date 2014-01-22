@@ -1,33 +1,22 @@
 <hr />
-<div id="issue_spm">
+<div id="issue_spm" style="<%= cookies[:issue_spm_toggle]? 'height 260px; ' : '' %>background-color: #fff; display: block; padding-right: 5px">
 <div class="contextual">
+  <a id="issue_spm_max" href="javascript: void(0)">Maximize</a>
+  <span id="spm_expand_section">
+  &nbsp;|&nbsp;
   <a id="issue_spm_toggle" href="javascript: void(0)"><%= cookies[:issue_spm_toggle]? 'Collapse' : 'Expand'%></a>
+  </span>
+  
 </div>
 <p><strong>Related store procedures</strong></p>
 
-<div id="issue_spm_widgets" style="<%= cookies[:issue_spm_toggle]? '' : 'display: none'%>">
+<div id="issue_spm_widgets" style="<%= cookies[:issue_spm_toggle]? '' : 'display: none; '%>margin:0px;padding:0px;overflow:hidden">
 	<iframe 
 	src="https://10.18.200.105:3000/widgets/issue/<%= @issue.id %>/storeprocedure.html?author=<%= Base64.encode64(User.current.login) %>" 
-	width="99%" height="250px" frameborder="0" scrolling="no"></iframe>	
+    style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"
+    frameborder="0" scrolling="no"></iframe>	
 </div>
 
-<script>
-	
-	function issue_spm_toggle(){
-		if($.cookie("issue_spm_toggle")) {
-			$("#issue_spm_widgets").hide();
-			$("#issue_spm_toggle").html("Expand");
-			$.removeCookie("issue_spm_toggle", {path: "/"});	
-		}
-		else {
-			$("#issue_spm_widgets").show();
-			$("#issue_spm_toggle").html("Collapse");			
-			$.cookie("issue_spm_toggle", "show", {path: "/"});
-		}		
-	}
-
-	$("#issue_spm_toggle").click(issue_spm_toggle);	
-	
-</script>
+<%= javascript_include_tag 'spm-redmine-widgets.js', :plugin => 'redmine_spm' %>
 
 </div>
