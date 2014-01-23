@@ -38,16 +38,17 @@ class SpentTimeQueryController < ApplicationController
     else
         value = '/projects/' + project_id + '/time_entries' + report + '?' + params[:query][:value]
     end
-           
+
     query = SpentTimeQuery.find_by_name(params[:query][:name])
     if not query.nil?     
       query.query = value
+      query.name = params[:query][:new_name]
       query.is_public = params[:query][:is_public]
       query.user_id = User.current.id
       query.save
     else
       query = SpentTimeQuery.create(
-                :name => params[:query][:name], 
+                :name => params[:query][:new_name], 
                 :query => value, 
                 :is_public => params[:query][:is_public],
                 :user_id => User.current.id
