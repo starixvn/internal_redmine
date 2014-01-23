@@ -28,7 +28,7 @@ setTimeout(function(){
 }, 100);
 
 // Decorate
-if(location.href.indexOf("#query=") != -1 && location.href.indexOf("/time_entries?") != -1) {	
+if(location.href.indexOf("#query=") != -1 && location.href.indexOf("/time_entries") != -1) {	
 	var query = location.href.substr(location.href.indexOf("#query="));	
 	
 	// Modify form action
@@ -47,7 +47,7 @@ if(location.href.indexOf("#query=") != -1 && location.href.indexOf("/time_entrie
 	});		
 	
 	$("#content div.contextual").css("margin-top", "16px");
-	$("#content div.contextual").html('<a href="/spent_time_query/" class="icon icon-edit">Your spent time queries</a>');
+	$("#content div.contextual").html('<a href="/spent_time_query/" class="icon icon-edit">Saved queries</a>');
 	$("#content p.breadcrumb").remove();
 	$("#content div.tabs").remove();
 	

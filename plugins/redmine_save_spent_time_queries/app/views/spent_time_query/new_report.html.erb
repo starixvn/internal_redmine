@@ -1,0 +1,36 @@
+<h2 id="spent_time_header">Save spent time query</h2>
+
+<%= form_tag() do %>
+
+<div class="box">
+	<div class="tabular">
+		<p>
+			<label for="query_name">Name</label>
+			<input id="query_name" name="query[name]" size="80" type="text" value="" />
+		</p>
+		
+		<p>
+			<label for="query_is_public">Public</label>
+			<input name="query[is_public]" type="hidden" value="0" />
+			<input id="query_is_public" name="query[is_public]" type="checkbox" value="1" />
+		</p>
+		
+		<input name="query[type]" type="hidden" value="report" />
+		<input name="query[project]" type="hidden" value="<%= @project_id %>" />
+		<input name="query[value]" type="hidden" value="<%= CGI.unescape(request.query_string) %>" />
+		
+		<p><%= submit_tag l(:button_save) %></p>
+	</div>	
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		if(location.href.indexOf("#query=") != -1) {	
+			var query = location.href.substr(location.href.indexOf("#query=") + 7);	
+			$("#query_name").val(decodeURIComponent(query));
+		}	
+	});
+</script>
+
+<% end %>
