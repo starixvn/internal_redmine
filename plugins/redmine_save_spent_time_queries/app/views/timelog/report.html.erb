@@ -84,3 +84,14 @@ table.list tbody td, table.list tbody tr:hover td {
 	
 </style>
 
+<script>
+	$(document).ready(function(){
+		$("#time-report td").each(function(){
+			var self = $(this);
+			var text = $.trim(self.text());
+			if(text.length > 50) {
+				self.attr("title", text);
+			}
+		});
+	});
+</script>
