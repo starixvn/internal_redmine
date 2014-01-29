@@ -3,5 +3,6 @@ encoding//app/views/layouts/base.html.erb=UTF-8
 encoding//plugins/redmine_homepage_custom_queries/app/views/_menu_queries.html.erb=UTF-8
 encoding//plugins/redmine_homepage_custom_queries/assets/javascripts/top_menu.js=UTF-8
 encoding//plugins/redmine_save_spent_time_queries/assets/javascripts/save_spent_time_queries.js=UTF-8
+encoding//plugins/redmine_save_spent_time_queries/lib/spent_time_application_controller_patch.rb=UTF-8
 encoding//public/plugin_assets/redmine_homepage_custom_queries/javascripts/top_menu.js=UTF-8
 encoding//public/plugin_assets/redmine_save_spent_time_queries/javascripts/save_spent_time_queries.js=UTF-8
