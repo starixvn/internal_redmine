@@ -368,6 +368,12 @@ input[type="text"], input[type="password"] { padding: 3px; }
 input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus { border: 1px solid #888866; }
 option { border-bottom: 1px dotted #d7d7d7; }
 
+input, select {
+	vertical-align: middle;
+	margin-top: 0px;
+	margin-bottom: 1px;
+}
+
 /* Forum */
 
 .controller-messages.action-show .message.reply {
@@ -424,9 +430,9 @@ option { border-bottom: 1px dotted #d7d7d7; }
 /* Misc */
 
 #quick-search #q {
-	border-radius: 12px;
-	-moz-border-radius: 12px;
-	-webkit-border-radius: 12px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
 	box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-moz-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-webkit-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
@@ -611,9 +617,9 @@ div.filters .live_search {
 }
 
 input.live_search_field {
-	border-radius: 12px;
-	-moz-border-radius: 12px;
-	-webkit-border-radius: 12px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
 	box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-moz-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-webkit-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);

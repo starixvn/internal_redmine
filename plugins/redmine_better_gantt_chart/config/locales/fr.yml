@@ -1,0 +1,10 @@
+# French strings go here for Rails i18n
+fr:
+  field_duration: "Durée"
+  work_on_weekends_label: "Travail le week-end"
+  smart_sorting_label: "Classement intelligent"
+  task_moved_journal_entry: "en raison d'un changement dans une tâche liée"
+  label_enabled: "Activé"
+  label_disabled: "Désactivé"
+  description_enabled: "une semaine a 7 jours ouvrés. Les demandes peuvent commencer et finir les weekends lors des réordonnancements automatiques. Les durées des demandes incluent les weekends."
+  description_disabled: "une semaine a 5 jours ouvrés. Si la date de début ou la date de fin tombe un weekend lors d'un réordonnancement automatique, elle est déplacée au lundi suivant. La date de début et la date de fin peuvent toujours être manuellement définies le weekend."

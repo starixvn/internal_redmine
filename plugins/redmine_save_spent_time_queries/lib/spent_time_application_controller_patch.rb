@@ -1,6 +1,5 @@
 require_dependency 'application_controller'
 
-
 module SpentTimeQueryHelper
   
   def spent_time_queries
@@ -9,6 +8,5 @@ module SpentTimeQueryHelper
   end  
   
 end
-
 
 ApplicationController.send(:helper, SpentTimeQueryHelper)

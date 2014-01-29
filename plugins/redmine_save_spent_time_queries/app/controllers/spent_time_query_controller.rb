@@ -40,12 +40,21 @@ class SpentTimeQueryController < ApplicationController
     end
 
     query = SpentTimeQuery.find_by_name(params[:query][:name])
-    if not query.nil?     
-      query.query = value
-      query.name = params[:query][:new_name]
-      query.is_public = params[:query][:is_public]
-      query.user_id = User.current.id
-      query.save
+    if not query.nil?   
+      
+      if query.user_id != User.current.id && !User.current.admin
+        render_404
+      else
+        query.query = value
+        query.name = params[:query][:new_name]
+        query.is_public = params[:query][:is_public]
+        
+        if !User.current.admin
+          query.user_id = User.current.id
+        end
+        
+        query.save
+      end
     else
       query = SpentTimeQuery.create(
                 :name => params[:query][:new_name], 
