@@ -285,6 +285,7 @@
           total_est_new += isNaN(est) ? 0 : parseFloat(est);
       });
       
+      total_est_new = Math.round(total_est_new * 10) / 10;
       $("#total-est-new").html(estText + total_est_new + hourText);
 
       var total_spent_new = 0;
@@ -293,6 +294,7 @@
           total_spent_new += isNaN(spent) ? 0 : parseFloat(spent);
       });
       
+      total_spent_new = Math.round(total_spent_new * 10) / 10;
       $("#total-spent-new").html(spentText + total_spent_new + hourText);
       $("#div_news span.time-sum").css("visibility", "visible");
       
@@ -304,6 +306,7 @@
           total_est_inprogress += isNaN(est) ? 0 : parseFloat(est);
       });
       
+      total_est_inprogress = Math.round(total_est_inprogress * 10) / 10;
       $("#total-est-inprogress").html(estText + total_est_inprogress + hourText);
 
       var total_spent_inprogress = 0;
@@ -312,6 +315,7 @@
           total_spent_inprogress += isNaN(spent) ? 0 : parseFloat(spent);
       });
       
+      total_spent_inprogress = Math.round(total_spent_inprogress * 10) / 10;
       $("#total-spent-inprogress").html(spentText + total_spent_inprogress + hourText);
       $("#div_progress span.time-sum").css("visibility", "visible");
       
@@ -322,6 +326,7 @@
           total_est_completed += isNaN(est) ? 0 : parseFloat(est);
       });
       
+      total_est_completed = Math.round(total_est_completed * 10) / 10;
       $("#total-est-completed").html(estText + total_est_completed + hourText);
 
       var total_spent_completed = 0;
@@ -330,6 +335,7 @@
           total_spent_completed += isNaN(spent) ? 0 : parseFloat(spent);
       });
       
+      total_spent_completed = Math.round(total_spent_completed * 10) / 10;
       $("#total-spent-completed").html(spentText + total_spent_completed + hourText); 
       $("#div_completed span.time-sum").css("visibility", "visible");          
 
