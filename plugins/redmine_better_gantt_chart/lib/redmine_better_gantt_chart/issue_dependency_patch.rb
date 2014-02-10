@@ -21,7 +21,7 @@ module RedmineBetterGanttChart
       def reschedule_following_issues_with_fast_update
         if start_date_changed? || due_date_changed?
           cache_and_apply_changes do
-            reschedule_dependent_issue
+            #reschedule_dependent_issue
           end
         end
       end
