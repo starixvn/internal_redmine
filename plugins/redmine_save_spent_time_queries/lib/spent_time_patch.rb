@@ -80,7 +80,7 @@ module TimelogControllerPatch
     
     def index_with_group
       
-      if !@issue.nil?
+      if !@issue.nil? || !@project.nil?
         index_without_group
         return
       end

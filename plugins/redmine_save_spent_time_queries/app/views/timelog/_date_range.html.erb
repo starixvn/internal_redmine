@@ -30,7 +30,7 @@
   <%= link_to_function l(:button_apply), 'submit_query_form("query_form")', :class => 'icon icon-checked' %>
   <%= link_to l(:button_clear), {:project_id => @project, :issue_id => @issue}, :class => 'icon icon-reload'  %>
   
-  <% if @issue.nil? %>
+  <% if @issue.nil? && @project.nil? %>
   
   <% if can_edit_current_query %>
 
