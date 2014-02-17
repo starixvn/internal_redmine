@@ -38,7 +38,7 @@ $("#new, #started, #completed").sortable({
                 if (res.status == "completed") {
                     makeSlider(issue_id, res.done_ratio);
                 }
-                
+
                 makeSumEstTimeNSpentTime();
             }
         });
@@ -59,22 +59,24 @@ $("#new, #started, #completed").sortable({
             data: 'issue_id=' + issue_id + '&id_prev=' + id_prev + '&project_id=' + project_id + '&id_next=' + id_next + '&new_status=' + new_status + '&old_status=' + old_status,
             dataType: "text",
             success: function () {
-            	makeSumEstTimeNSpentTime();
+                makeSumEstTimeNSpentTime();
             }
         });
     }
 });
 
 makeSumEstTimeNSpentTime();
-$('#div_screen_board .board_issue').each(function(){	  	
-	$(this).qtip({ // Grab some elements to apply the tooltip to
-	    content: {
-	        text: $("textarea[name='issue[description]']", this).text()
-	    },
-	    position: {
-	        at: 'bottom left',
-	        viewport: $(window)
-	    }		    
-	});
-});  
+$('#div_screen_board .board_issue').each(function () {
+    var text = $("textarea[name='issue[description]']", this).text();
+    if (text == "") return;
+    $(this).qtip({ // Grab some elements to apply the tooltip to
+        content: {
+            text: text
+        },
+        position: {
+            at: 'bottom left',
+            viewport: $(window)
+        }
+    });
+});
 $("#div_screen_board").css("visibility", "visible");

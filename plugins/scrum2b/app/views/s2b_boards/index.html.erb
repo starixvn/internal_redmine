@@ -228,10 +228,12 @@
       makeSumEstTimeNSpentTime();
       $("#div_screen_board").css("visibility", "visible");
 
-	  $('#div_screen_board .board_issue').each(function(){	  	
+	  $('#div_screen_board .board_issue').each(function() {
+	  	var text = $("textarea[name='issue[description]']", this).text();
+	  	if(text == "") return;
 		$(this).qtip({ // Grab some elements to apply the tooltip to
 		    content: {
-		        text: $("textarea[name='issue[description]']", this).text()
+		        text: text
 		    },
 		    position: {
 		        at: 'bottom left',
