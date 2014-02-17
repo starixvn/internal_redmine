@@ -1,31 +1,22 @@
 
 // Create top menu
+var spent_time_queries_menu = $("#top-menu ul li a.spent-time-query").parent();	
+var spent_time_ul = "<ul>";
 
-$(document).ready(function(){	
-	var spent_time_queries_menu = $("#top-menu ul li a.spent-time-query").parent();	
-	var spent_time_ul = "<ul>";
-	
-	$("#spent_time_queries a").each(function() {
-		spent_time_ul += "<li>" + $(this).clone().wrap('<div>').parent().html() + "</li>";		
-	});
-	
-	spent_time_ul += "</ul>";
-	
-	if($('#top-menu ul').dropit && spent_time_ul != '<ul></ul>'){
-		spent_time_queries_menu.append(spent_time_ul);		
-		$("#top-menu ul li a.spent-time-query").html($("#top-menu ul li a.spent-time-query").html() + " ▽");	
-		$('#top-menu ul').dropit({ action: 'hover' });		
-	}
-	
-	$("#top-menu").css("visibility", "visible");
-	$("#main").css("visibility", "visible");
+$("#spent_time_queries a").each(function() {
+	spent_time_ul += "<li>" + $(this).clone().wrap('<div>').parent().html() + "</li>";		
 });
 
-// Auto show
-setTimeout(function(){
-	$("#top-menu").css("visibility", "visible");
-	$("#main").css("visibility", "visible");
-}, 100);
+spent_time_ul += "</ul>";
+
+if($('#top-menu ul').dropit && spent_time_ul != '<ul></ul>'){
+	spent_time_queries_menu.append(spent_time_ul);		
+	$("#top-menu ul li a.spent-time-query").html($("#top-menu ul li a.spent-time-query").html() + " ▽");	
+	$('#top-menu ul').dropit({ action: 'hover' });		
+}
+
+$("#top-menu").css("visibility", "visible");
+$("#main").css("visibility", "visible");
 
 // Decorate
 var href = decodeURIComponent(location.href);

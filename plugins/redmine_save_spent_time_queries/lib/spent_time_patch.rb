@@ -80,6 +80,11 @@ module TimelogControllerPatch
     
     def index_with_group
       
+      if !@issue.nil?
+        index_without_group
+        return
+      end
+      
       default_params = {"f"=>["spent_on", ""], "op"=>{"spent_on"=>"w"}, "c"=>["project", "spent_on", "user", "activity", "issue", "comments", "hours"], "query"=>{"group_by"=>"user"}}
       if params[:spent_on].nil? && params[:op].nil? && params[:c].nil? && params[:query].nil?
         params.merge!(default_params)
