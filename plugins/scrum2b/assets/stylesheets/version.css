@@ -382,12 +382,6 @@ span.time-sum
 {
 	visibility: hidden;
 	margin-left: 100px;
-	font-size: 11px;
-	background: #ffffff;
-	border: 1px solid #999;
-	border-radius: 2px;
-	moz-border-radius: 2px;
-	webkit-border-radius: 2px;
 	padding: 1px 10px 1px 10px;
 }
 

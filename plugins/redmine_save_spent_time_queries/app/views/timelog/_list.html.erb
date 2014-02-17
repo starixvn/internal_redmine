@@ -25,7 +25,7 @@
 <tbody>
 <% entries.each do |entry| -%>
 
-  <% if @query.grouped? && (group = @query.group_by_column.value(entry)) != previous_group %>
+  <% if @project.nil? && @issue.nil? && @query.grouped? && (group = @query.group_by_column.value(entry)) != previous_group %>
     <% reset_cycle %>
     <tr class="group open">
       <td colspan="<%= query.inline_columns.size + 2 %>">

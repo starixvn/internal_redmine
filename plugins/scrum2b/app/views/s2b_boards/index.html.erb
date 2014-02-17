@@ -5,8 +5,8 @@
 
 </div>
 <script>
-  $(document).ready(function () {
-      
+
+  function initialize() {
       $("#completed").find(".icon_close_issue").show();
 
       $(".icon_close_issue").live("click", function () {
@@ -24,7 +24,7 @@
               data: 'issue_id=' + issue_id + '&project_id=' + project_id,
               dataType: "script",
               success: function () {
-              	makeSumEstTimeNSpentTime();
+                  makeSumEstTimeNSpentTime();
               }
           });
           return false;
@@ -40,10 +40,9 @@
               type: "POST",
               data: 'select_version=' + select_version + '&select_member=' + select_member + '&project_id=' + project_id,
               dataType: "script",
-              success: function () {              	
-              }
+              success: function () {}
           });
-          
+
           return false;
       });
 
@@ -76,9 +75,9 @@
                   dataType: "json",
                   success: function (res) {
                       if (res.status == "completed") {
-                          makeSlider(issue_id, res.done_ratio);                          
+                          makeSlider(issue_id, res.done_ratio);
                       }
-                      
+
                       makeSumEstTimeNSpentTime();
                   },
                   error: makeSumEstTimeNSpentTime
@@ -100,7 +99,7 @@
                   data: 'issue_id=' + issue_id + '&id_prev=' + id_prev + '&project_id=' + project_id + '&id_next=' + id_next + '&new_status=' + new_status + '&old_status=' + old_status,
                   dataType: "text",
                   success: function () {
-                  	makeSumEstTimeNSpentTime();
+                      makeSumEstTimeNSpentTime();
                   },
                   error: makeSumEstTimeNSpentTime
               });
@@ -183,7 +182,7 @@
                   } else {
                       alert(data.message);
                   }
-                  
+
                   makeSumEstTimeNSpentTime();
               },
               error: makeSumEstTimeNSpentTime
@@ -225,9 +224,23 @@
           $("#edit_issue_").show();
           $("#edit_issue_").addClass("board_issue");
       });
-      
+
       makeSumEstTimeNSpentTime();
-  });
+      $("#div_screen_board").css("visibility", "visible");
+
+	  $('#div_screen_board .board_issue').each(function(){	  	
+		$(this).qtip({ // Grab some elements to apply the tooltip to
+		    content: {
+		        text: $("textarea[name='issue[description]']", this).text()
+		    },
+		    position: {
+		        at: 'bottom left',
+		        viewport: $(window)
+		    }		    
+		});
+	  });  
+
+  };
 
   function form_edit(id) {
       $("#p_status_" + id).hide();
@@ -273,18 +286,21 @@
           }
       });
       $("#amount" + id).val($("#slider" + id).slider("value"));
-      $("#main-menu .s2b-lists").addClass("selected");
+      $("#main-menu .s2b-lists").addClass("selected");          
   }
 
   function makeSumEstTimeNSpentTime() {
-  	  var estText = "Est. ", spentText = "Spent ", hourText = "h", roundNo = 100;
+      var estText = "Est. ",
+          spentText = "Spent ",
+          hourText = "h",
+          roundNo = 100;
       // new column
       var total_est_new = 0;
       $("#new p.estimated span").each(function () {
           var est = $(this).html();
           total_est_new += isNaN(est) ? 0 : parseFloat(est);
       });
-      
+
       total_est_new = Math.round(total_est_new * roundNo) / roundNo;
       $("#total-est-new").html(estText + total_est_new + hourText);
 
@@ -293,11 +309,11 @@
           var spent = $(this).html();
           total_spent_new += isNaN(spent) ? 0 : parseFloat(spent);
       });
-      
+
       total_spent_new = Math.round(total_spent_new * roundNo) / roundNo;
       $("#total-spent-new").html(spentText + total_spent_new + hourText);
       $("#div_news span.time-sum").css("visibility", "visible");
-      
+
 
       // inprogress column
       var total_est_inprogress = 0;
@@ -305,7 +321,7 @@
           var est = $(this).html();
           total_est_inprogress += isNaN(est) ? 0 : parseFloat(est);
       });
-      
+
       total_est_inprogress = Math.round(total_est_inprogress * roundNo) / roundNo;
       $("#total-est-inprogress").html(estText + total_est_inprogress + hourText);
 
@@ -314,18 +330,18 @@
           var spent = $(this).html();
           total_spent_inprogress += isNaN(spent) ? 0 : parseFloat(spent);
       });
-      
+
       total_spent_inprogress = Math.round(total_spent_inprogress * roundNo) / roundNo;
       $("#total-spent-inprogress").html(spentText + total_spent_inprogress + hourText);
       $("#div_progress span.time-sum").css("visibility", "visible");
-      
+
       // completed column
       var total_est_completed = 0;
       $("#completed p.estimated span").each(function () {
           var est = $(this).html();
           total_est_completed += isNaN(est) ? 0 : parseFloat(est);
       });
-      
+
       total_est_completed = Math.round(total_est_completed * roundNo) / roundNo;
       $("#total-est-completed").html(estText + total_est_completed + hourText);
 
@@ -334,10 +350,13 @@
           var spent = $(this).html();
           total_spent_completed += isNaN(spent) ? 0 : parseFloat(spent);
       });
-      
+
       total_spent_completed = Math.round(total_spent_completed * roundNo) / roundNo;
-      $("#total-spent-completed").html(spentText + total_spent_completed + hourText); 
-      $("#div_completed span.time-sum").css("visibility", "visible");          
+      $("#total-spent-completed").html(spentText + total_spent_completed + hourText);
+      $("#div_completed span.time-sum").css("visibility", "visible");
 
   }
+
+  initialize();
+
 </script>

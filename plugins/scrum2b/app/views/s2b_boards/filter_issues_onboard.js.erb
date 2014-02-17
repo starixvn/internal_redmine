@@ -1,4 +1,4 @@
-$("#div_screen_board").html("<%= raw escape_javascript(@return_content) %>");
+$("#div_screen_board").parent().html("<%= raw escape_javascript(@return_content) %>");
 $("#div_screen_board").find(".board_issue").each(function () {
     var id = $(this).attr("id");
     var slide_value = $(this).attr("slide_value");
@@ -66,3 +66,15 @@ $("#new, #started, #completed").sortable({
 });
 
 makeSumEstTimeNSpentTime();
+$('#div_screen_board .board_issue').each(function(){	  	
+	$(this).qtip({ // Grab some elements to apply the tooltip to
+	    content: {
+	        text: $("textarea[name='issue[description]']", this).text()
+	    },
+	    position: {
+	        at: 'bottom left',
+	        viewport: $(window)
+	    }		    
+	});
+});  
+$("#div_screen_board").css("visibility", "visible");

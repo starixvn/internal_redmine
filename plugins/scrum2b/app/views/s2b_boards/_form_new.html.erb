@@ -7,7 +7,7 @@
     <input type="hidden" name="issue[project_id]" value="<%= @project.id %>"/>
   	<input type="hidden" name="issue[author_id]" value="<%= User.current.id %>"/>
   <p><input name="issue[subject]" class="span12 value_content" id="new_subject_<%= issue.id %>" type="text" value="<%= issue.subject %>"></p>
-  <textarea name ="issue[description]" class="span12 value_content" id="new_description_<%= issue.id %>" style="height: 150px;margin-top:0"><%= issue.description %></textarea></p>
+  <textarea name ="issue[description]" class="span12 value_content" id="new_description_<%= issue.id %>" style="height: 150px;margin-top:0; font-family: monospace;"><%= issue.description %></textarea></p>
   
   <div class="span12" style="margin:0 0 5px 0;">
     <div class="span6">
