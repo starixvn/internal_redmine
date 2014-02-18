@@ -25,7 +25,6 @@ if(href.indexOf("&v[query]=") != -1 && href.indexOf("/time_entries") != -1) {
 	
 	// Modify form action
 	$("#content form").each(function(){
-		$(this).attr("action", $(this).attr("action") + query);
 		$(this).append("<input type='hidden' name='v[query]' value='" + encodeURIComponent(query.substr(query.indexOf("=") + 1)) + "' />");
 	});	
 	
