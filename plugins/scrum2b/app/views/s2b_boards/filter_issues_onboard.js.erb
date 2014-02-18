@@ -66,17 +66,5 @@ $("#new, #started, #completed").sortable({
 });
 
 makeSumEstTimeNSpentTime();
-$('#div_screen_board .board_issue').each(function () {
-    var text = $("textarea[name='issue[description]']", this).text();
-    if (text == "") return;
-    $(this).qtip({ // Grab some elements to apply the tooltip to
-        content: {
-            text: text
-        },
-        position: {
-            at: 'bottom left',
-            viewport: $(window)
-        }
-    });
-});
+makeTooltip();
 $("#div_screen_board").css("visibility", "visible");

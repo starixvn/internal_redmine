@@ -400,3 +400,17 @@ table#table_issues {
 .ui-progressbar .ui-progressbar-value {
 	background: #AECCD7 none repeat scroll 0%;
 }
+
+.description_tooltip p, .description_tooltip ul, .description_tooltip span, .description_tooltip a, .description_tooltip h3 {
+	font-size: 11px !important;
+	line-height: 12px !important;
+	background-color: transparent !important;
+}
+
+.qtip {
+	max-width: 600px !important;
+}
+
+.subject_issue {
+	cursor: help;
+}

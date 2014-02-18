@@ -226,22 +226,8 @@
       });
 
       makeSumEstTimeNSpentTime();
+      makeTooltip();
       $("#div_screen_board").css("visibility", "visible");
-
-	  $('#div_screen_board .board_issue').each(function() {
-	  	var text = $("textarea[name='issue[description]']", this).text();
-	  	if(text == "") return;
-		$(this).qtip({ // Grab some elements to apply the tooltip to
-		    content: {
-		        text: text
-		    },
-		    position: {
-		        at: 'bottom left',
-		        viewport: $(window)
-		    }		    
-		});
-	  });  
-
   };
 
   function form_edit(id) {
@@ -357,6 +343,32 @@
       $("#total-spent-completed").html(spentText + total_spent_completed + hourText);
       $("#div_completed span.time-sum").css("visibility", "visible");
 
+  }
+
+  function makeTooltip() {
+	  $('#div_screen_board .board_issue').each(function() {
+	  	var text = $("textarea[name='issue[description]']", this).text();
+	  	var title = $(".subject", this).text();
+	  	if(text == "") return;
+		$(".subject", this).qtip({ // Grab some elements to apply the tooltip to
+		    content: {
+		    	title: title,
+		        text: text
+		    },
+		    style: { 
+		    	classes: 'qtip-bootstrap qtip-shadow qtip-rounded description_tooltip'
+		    },
+		    position: {
+		    	at: "bottom right",
+		        target: $(".id", this),
+		        viewport: $(window),
+	            hide: {
+	                fixed: true,
+	                delay: 2000
+	            }
+		    }
+		});
+	  });  
   }
 
   initialize();
