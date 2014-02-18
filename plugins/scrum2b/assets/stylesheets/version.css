@@ -409,6 +409,8 @@ table#table_issues {
 
 .qtip {
 	max-width: 600px !important;
+	max-height: 400px !important;
+	overflow: auto;	
 }
 
 .subject_issue {

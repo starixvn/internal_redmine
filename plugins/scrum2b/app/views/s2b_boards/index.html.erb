@@ -349,7 +349,7 @@
 	  $('#div_screen_board .board_issue').each(function() {
 	  	var text = $("textarea[name='issue[description]']", this).text();
 	  	var title = $(".subject", this).text();
-	  	if(text == "") return;
+
 		$(".subject", this).qtip({ // Grab some elements to apply the tooltip to
 		    content: {
 		    	title: title,
