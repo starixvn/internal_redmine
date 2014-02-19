@@ -44,7 +44,7 @@
     // begin
     var ran = 0;
     if(xlogs["x1" + x1] == undefined) {
-    	xlogs["x1" + x1] = {rans: [0, 5, 9, 13], ran_idx: 0};
+    	xlogs["x1" + x1] = {rans: [0, 3, 7, 11, 9, 5], ran_idx: 0};
     }
     else {
     	var xlog = xlogs["x1" + x1];
