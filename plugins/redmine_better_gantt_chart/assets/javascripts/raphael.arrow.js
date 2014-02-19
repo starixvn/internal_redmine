@@ -2,6 +2,7 @@
   /*
   This plugin draws arrows on Redmine gantt chart.
   */  var __slice = Array.prototype.slice;
+  var xlogs = {};  
   Raphael.fn.ganttArrow = function(coords, relationType) {
     var L1, M, arrow, arrowhead, cmd, deltaX, deltaY, l2, line, m, relationDash, triangle, x1, x2, x3, x4, x5, x6, y1, y2, y3, y4, y5, y6, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
     if (relationType == null) {
@@ -38,9 +39,28 @@
       return "".concat(M(cx, cy), m(0, -1 * r * .58), l2(r * .5, r * .87, -r, 0), " z");
     };
     x1 = coords[0], y1 = coords[1], x6 = coords[2], y6 = coords[3];
-    x1 += 3;
+    
+    // Separate similar x position line by @Qui - 20140219
+    // begin
+    var ran = 0;
+    if(xlogs["x1" + x1] == undefined) {
+    	xlogs["x1" + x1] = {rans: [0, 5, 9, 13], ran_idx: 0};
+    }
+    else {
+    	var xlog = xlogs["x1" + x1];
+    	xlog.ran_idx = (xlog.ran_idx < xlog.rans.length - 1) ? (xlog.ran_idx + 1) : 0;
+    	ran = xlog.rans[xlog.ran_idx];
+    }
+    // end
+    
+    x1 += 3;    
     arrow = this.set();
-    deltaX = 7;
+    
+    // Separate similar x position line by @Qui - 20140219
+    // @org deltaX = 7;
+    deltaX = 7 + ran;
+    // end
+    
     deltaY = 8;
     _ref = [x1 + deltaX - 3, y1], x2 = _ref[0], y2 = _ref[1];
     _ref2 = [x6 - deltaX, y6], x5 = _ref2[0], y5 = _ref2[1];
@@ -59,11 +79,16 @@
     arrow.push(this.path(line(x3, y3, x4, y4)));
     arrow.push(this.path(line(x4, y4, x5, y5)));
     arrow.push(this.path(line(x5, y6, x6, y6)));
-    arrowhead = arrow.push(this.path(triangle(x6 + deltaX - 5, y6 + 1, 5)).rotate(90));
+    
+    // Separate similar x position line by @Qui - 20140219
+    // @org arrowhead = arrow.push(this.path(triangle(x6 + deltaX - 5, y6 + 1, 5)).rotate(90));
+    arrowhead = arrow.push(this.path(triangle(x6 + deltaX - 5 - ran, y6 + 1, 5)).rotate(90));
+    // end
+    
     arrow.toFront();
     return arrow.attr({
-      fill: "#444",
-      stroke: "#222",
+      fill: "#fff222",
+      stroke: "#000",
       "stroke-dasharray": relationDash[relationType]
     });
   };
