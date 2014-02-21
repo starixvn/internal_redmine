@@ -386,12 +386,19 @@ module Redmine
 
       def line_for_issue(issue, options)
         return unless issue.is_a?(Issue)
+        
+        # Auto set done_ratio = 10 when spent_hours > 0
+        done_ratio = issue.done_ratio
+        if issue.spent_hours > 0 && done_ratio == 0
+          done_ratio = 10
+        end
+        
         if issue.due_before
-          coords = coordinates(issue.start_date, issue.due_before, issue.done_ratio, options[:zoom])
+          coords = coordinates(issue.start_date, issue.due_before, done_ratio, options[:zoom])
           label = "#{ issue.status.name }"
           label += " #{ issue.done_ratio }%" if issue.done_ratio > 0 && issue.done_ratio < 100
-        else
-          coords = coordinates(issue.start_date, issue.start_date, 0, options[:zoom])
+        else          
+          coords = coordinates(issue.start_date, nil, done_ratio, options[:zoom])
           label = "#{ issue.status.name }"
         end
 
@@ -671,6 +678,12 @@ module Redmine
 
       def coordinates(start_date, end_date, progress, zoom=nil)
         zoom ||= @zoom
+        
+        set_end_date = true
+        if end_date.nil?
+          set_end_date = false
+          end_date = start_date
+        end        
 
         coords = {}
         if start_date && end_date && start_date < self.date_to && end_date > self.date_from
@@ -691,7 +704,7 @@ module Redmine
             workdays = work_days_in(end_date, start_date) + 1
             progress_days = workdays * (progress / 100.0)
             progress_date = date_for_workdays(start_date, progress_days)
-            if progress_date > self.date_from && progress_date > start_date
+            if progress_date > self.date_from && progress_date > start_date && progress > 0
               if progress_date < self.date_to
                 coords[:bar_progress_end] = work_days_in(progress_date, self.date_from)
               else
@@ -701,7 +714,7 @@ module Redmine
 
             if progress_date < Date.today
               late_date = [Date.today, end_date].min
-              if late_date > self.date_from && late_date > start_date
+              if late_date > self.date_from && (late_date > start_date || set_end_date)
                 if late_date < self.date_to
                   coords[:bar_late_end] = work_days_in(late_date, self.date_from) + 1
                 else
