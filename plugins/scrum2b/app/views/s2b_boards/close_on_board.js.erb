@@ -1,4 +1,4 @@
-$("#div_screen_board").html("<%= raw escape_javascript(@return_content) %>");
+$("#div_screen_board").parent().html("<%= raw escape_javascript(@return_content) %>");
 $("#div_screen_board").find(".board_issue").each(function () {
     var id = $(this).attr("id");
     var slide_value = $(this).attr("slide_value");

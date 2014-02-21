@@ -226,8 +226,7 @@
       });
 
       makeSumEstTimeNSpentTime();
-      makeTooltip();
-      $("#div_screen_board").css("visibility", "visible");
+      makeTooltip();      
   };
 
   function form_edit(id) {
@@ -343,6 +342,7 @@
       $("#total-spent-completed").html(spentText + total_spent_completed + hourText);
       $("#div_completed span.time-sum").css("visibility", "visible");
 
+	  $("#div_screen_board").css("visibility", "visible");
   }
 
   function makeTooltip() {

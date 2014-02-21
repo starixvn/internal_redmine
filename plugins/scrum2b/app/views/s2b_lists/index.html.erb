@@ -97,8 +97,7 @@
           });
       });
 
-      makeSumEstTimeNSpentTime();
-      $("#div_screen_list").css("visibility", "visible");      
+      makeSumEstTimeNSpentTime(); 
   }
 
   function makeSumEstTimeNSpentTime() {
@@ -135,6 +134,8 @@
           totalSpentSpan.html(Math.round(totalSpent * roundNo) / roundNo + hourText);
           totalEstSpan.html(Math.round(totalEst * roundNo) / roundNo + hourText);
       }
+      
+      $("#div_screen_list").css("visibility", "visible");
   }
   
   initialize();
