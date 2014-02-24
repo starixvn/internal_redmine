@@ -383,6 +383,8 @@ span.time-sum
 	visibility: hidden;
 	margin-left: 100px;
 	padding: 1px 10px 1px 10px;
+	font-size: 12px;
+	text-shadow: 1px 1px transparent, -1px -1px #B8B8B8;	
 }
 
 .table th, .table td {
