@@ -113,11 +113,8 @@
     	});
     });
     
-    // Make tooltip ext
-    // Remove z-index of svg
-    $("#gantt_lines svg").css("z-index", 0);
-    $(".tooltip-ext").each(function(){
-    	
+    // Make tooltip ext    
+    $(".tooltip-ext").each(function(){    	
 	  	var text = $(".tip", this).html();
 	  	$("span.tip", this).hide();
 
@@ -147,20 +144,20 @@
 <%= javascript_include_tag "jquery.qtip.min.js", :plugin => 'scrum2b' %>
 
 <style>
-	.ui-slider
-	{
+	.ui-slider {
 		height: 2px;
 		background-color: #ddd;
 		cursor: pointer;
 	}
-	.ui-slider-handle
-	{
+	.ui-slider-handle {
 		cursor: w-resize !important;
 	}
 	
-	.task-tooltip
-	{
+	.task-tooltip {
 		max-width: 500px;
+	}
+	.tooltip-ext {
+		z-index: 30; 
 	}
 </style>
 <table style="width:100%; border:0; border-collapse: collapse;">
