@@ -113,8 +113,39 @@
     	});
     });
     
+    // Make tooltip ext
+    // Remove z-index of svg
+    $("#gantt_lines svg").css("z-index", 0);
+    $(".tooltip-ext").each(function(){
+    	
+	  	var text = $(".tip", this).html();
+	  	$("span.tip", this).hide();
+
+		$(this).qtip({ // Grab some elements to apply the tooltip to
+		    content: {
+		        text: text
+		    },
+		    style: { 
+		    	classes: 'qtip-light qtip-shadow qtip-rounded task-tooltip'
+		    },
+		    position: {
+		    	at: "bottom right",
+		        viewport: $("#gantt_lines")
+		    },
+            hide: {
+                fixed: true,
+                delay: 300
+            }
+		});    	
+    	
+    });
+    
   });
 </script>
+
+<%= stylesheet_link_tag 'jquery.qtip.min.css', :plugin => 'scrum2b' %>
+<%= javascript_include_tag "jquery.qtip.min.js", :plugin => 'scrum2b' %>
+
 <style>
 	.ui-slider
 	{
@@ -125,6 +156,11 @@
 	.ui-slider-handle
 	{
 		cursor: w-resize !important;
+	}
+	
+	.task-tooltip
+	{
+		max-width: 500px;
 	}
 </style>
 <table style="width:100%; border:0; border-collapse: collapse;">

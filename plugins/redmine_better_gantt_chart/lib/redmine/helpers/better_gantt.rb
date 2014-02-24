@@ -845,8 +845,8 @@ module Redmine
       end
 
       def html_task(params, coords, options={})
-		top = (params[:top] + 4).to_s
-	    text_top = (params[:top] + 1).to_s
+		    top = (params[:top] + 4).to_s
+	      text_top = (params[:top] + 1).to_s
         output = ''
         # Renders the task bar, with progress and late
         
@@ -893,7 +893,7 @@ module Redmine
         end
         # Renders the tooltip
         if options[:issue] && coords[:bar_start] && coords[:bar_end]
-          output << "<div class='tooltip' style='position: absolute;top:#{ params[:top] }px;left:#{ coords[:bar_start] }px;width:#{ coords[:bar_end] - coords[:bar_start] }px;height:12px;'>"
+          output << "<div class='tooltip-ext' style='position: absolute;top:#{ params[:top] }px;left:#{ coords[:bar_start] }px;width:#{ coords[:bar_end] - coords[:bar_start] }px;height:12px;'>"
           output << '<span class="tip">'
           output << view.render_extended_issue_tooltip(options[:issue])
           output << "</span></div>"
