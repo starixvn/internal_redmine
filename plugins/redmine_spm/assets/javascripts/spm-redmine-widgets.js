@@ -48,6 +48,10 @@ $(document).ready(function() {
 	$("#issue_spm_toggle").click(issue_spm_toggle);
 	$("#issue_spm_max").click(issue_spm_maximize);
 	issue_save_spm_state();
+	
+	if(location.href.indexOf("#spm") != -1){
+		issue_spm_maximize();
+	}
 });
 
 function issue_spm_set_state(state){
