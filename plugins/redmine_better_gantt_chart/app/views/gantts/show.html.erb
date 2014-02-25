@@ -127,10 +127,9 @@
 		    	classes: 'qtip-light qtip-shadow qtip-rounded task-tooltip'
 		    },
 		    position: {
-		    	my: 'top left',
-		    	at: "bottom right",
+		    	at: "bottom left",
 		    	target: self,
-		        viewport: $("#gantt_lines")
+		        viewport: $(window)
 		    },
             hide: {
                 fixed: true,
@@ -190,6 +189,7 @@
 	
 	.task-tooltip {
 		max-width: 500px;
+		min-width: 200px;
 	}
 	.tooltip-ext {
 		z-index: 30; 
