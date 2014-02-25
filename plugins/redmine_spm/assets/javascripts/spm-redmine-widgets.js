@@ -22,7 +22,7 @@ function issue_save_spm_state(){
 }
 
 function issue_spm_widgets_show() {
-	$("#issue_spm_widgets").show();
+	$("#issue_spm_widgets").show();		
 	$("#issue_spm_toggle").html("Collapse");
 	$("#issue_spm").css("height", "260px");
 	$.cookie("issue_spm_toggle", "show", {path: "/"});		
@@ -49,7 +49,7 @@ $(document).ready(function() {
 	$("#issue_spm_max").click(issue_spm_maximize);
 	issue_save_spm_state();
 	
-	if(location.href.indexOf("#spm") != -1){
+	if(location.href.indexOf("#spm_max") != -1){
 		issue_spm_maximize();
 	}
 });
@@ -89,6 +89,9 @@ function issue_spm_maximize(){
 	if(maximized === true) {
 		issue_spm_set_state(max_state);
 		$("#issue_spm_max").html("Minimize");
+		setTimeout(function(){
+			$("#issue_spm_max").attr("href", "#spm_min");
+		}, 100);
 		$("#issue_spm_widgets").show();
 		$("#spm_expand_section").hide();
 		$("#issue_spm").parents().each(function(){
@@ -128,6 +131,9 @@ function issue_spm_maximize(){
 		issue_spm_set_state(normal_state);
 		issue_spm_widgets_show();
 		$("#issue_spm_max").html("Maximize");
+		setTimeout(function(){
+			$("#issue_spm_max").attr("href", "#spm_max");
+		}, 100);
 		$("#spm_expand_section").show();
 		$("#issue_spm").parents().each(function(){
 			var p = $(this);
