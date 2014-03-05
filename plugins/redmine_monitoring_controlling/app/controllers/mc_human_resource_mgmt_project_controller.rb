@@ -29,18 +29,22 @@ class McHumanResourceMgmtProjectController < ApplicationController
     filter_versions_s = (filter_versions * ",") + ",null"  
     
     # total issues from the project and subprojects
-    @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects], :fixed_version_id => filter_versions).count
-
+    if filter_versions.count == 1
+      @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects]).count
+    else
+      @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects], :fixed_version_id => filter_versions).count
+    end
+    
     @statusesByAssigneds = Issue.find_by_sql("select assigned_to_id, (select firstname from users where id = assigned_to_id) as assigned_first_name, (select lastname from users where id = assigned_to_id) as assigned_last_name,
                                               issue_statuses.id, issue_statuses.name, 
                                          	    (select COUNT(1) 
                                                from issues i 
                                                where i.project_id in (#{stringSqlProjectsSubProjects})
-                                               and fixed_version_id in (#{filter_versions_s})
+                                               and (fixed_version_id in (#{filter_versions_s}) or fixed_version_id is null)
                                                and ((i.assigned_to_id = issues.assigned_to_id and i.assigned_to_id is not null)or(i.assigned_to_id is null and issues.assigned_to_id is null)) and i.status_id = issue_statuses.id) as totalassignedbystatuses
                                                from issues, issue_statuses  
                                                where project_id in (#{stringSqlProjectsSubProjects}) 
-                                               and fixed_version_id in (#{filter_versions_s})
+                                               and (fixed_version_id in (#{filter_versions_s}) or fixed_version_id is null)
                                                group by assigned_to_id, assigned_first_name, assigned_last_name, issue_statuses.id, issue_statuses.name
                                                order by 2,3;")  || nil  
   end

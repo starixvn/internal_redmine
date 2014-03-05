@@ -29,20 +29,24 @@ class McTimeMgmtProjectController < ApplicationController
     filter_versions_s = (filter_versions * ",")
 
     # total issues from the project and subprojects
-    @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects], :fixed_version_id => filter_versions).count
+    if filter_versions.count == 1
+      @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects]).count
+    else
+      @totalIssues = Issue.where(:project_id => [stringSqlProjectsSubProjects], :fixed_version_id => filter_versions).count
+    end
 
     @issuesSpentHours = Issue.find_by_sql("select issues.due_date, sum(issues.estimated_hours) as estimated_hours,
                                                   (select sum(i.estimated_hours)
                                                   from issues i
                                                   where i.project_id in (#{stringSqlProjectsSubProjects})
-                                                  and fixed_version_id in (#{filter_versions_s})
+                                                  and (fixed_version_id in (#{filter_versions_s}) or fixed_version_id is null)
                                                   /*and i.due_date is not null*/
                                                   and i.due_date <= issues.due_date and i.parent_id is null) as sumestimatedhours,
                                                   (select sum(hours) from time_entries where project_id in (#{stringSqlProjectsSubProjects}) and spent_on <= issues.due_date ) as sumspenthours
                                                   from issues
                                                   where issues.project_id in (#{stringSqlProjectsSubProjects})
                                             /*and due_date is not null*/
-                                            and fixed_version_id in (#{filter_versions_s})
+                                            and (fixed_version_id in (#{filter_versions_s}) or fixed_version_id is null)
                                             and due_date <= issues.due_date
                                             and parent_id is null
                                             group by issues.due_date
