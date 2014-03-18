@@ -430,9 +430,9 @@ input, select {
 /* Misc */
 
 #quick-search #q {
-	border-radius: 3px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-moz-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 	-webkit-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
