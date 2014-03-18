@@ -1,4 +1,5 @@
 require 'redmine'
+require 'reschedule_following_issues'
 require 'dispatcher' unless Rails::VERSION::MAJOR >= 3
 
 if Rails::VERSION::MAJOR >= 3
