@@ -17,7 +17,7 @@ module IssueRelationPatch
     def set_issue_to_dates_with_recursive
       soonest_start = self.successor_soonest_start
       
-      if !Setting['plugin_redmine_better_gantt_chart']['work_on_weekends']
+      if soonest_start && !Setting['plugin_redmine_better_gantt_chart']['work_on_weekends']
         soonest_start += 8 - soonest_start.cwday if soonest_start.cwday >= 6
       end
       
