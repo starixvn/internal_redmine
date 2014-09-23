@@ -38,6 +38,12 @@
             <td><%= l(:button_show) %></td>
             <td><%= available_block_columns_tags(@query) %></td>
           </tr>
+          <tr>
+          	<td>Sort by parent task</td>
+            <td>
+				 <%= check_box_tag 'sort_by_parent', '1', @is_short_by_parent %>
+            </td>
+          </tr>
         </table>
       </div>
     </fieldset>

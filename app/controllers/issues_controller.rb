@@ -54,6 +54,10 @@ class IssuesController < ApplicationController
 
   def index
     retrieve_query
+    @is_short_by_parent = params['sort_by_parent'] == '1'
+    if @is_short_by_parent && params[:sort].nil?
+      params[:sort] = "parent:desc"
+    end
     sort_init(@query.sort_criteria.empty? ? [['id', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
     @query.sort_criteria = sort_criteria.to_a
