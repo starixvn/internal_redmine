@@ -184,12 +184,13 @@ class Issue < ActiveRecord::Base
     super
   end
 
-  alias :base_reload :reload
+  #alias :base_reload :reload
   def reload(*args)
     @workflow_rule_by_attribute = nil
     @assignable_versions = nil
     @relations = nil
-    base_reload(*args)
+    super
+    #base_reload(*args)
   end
 
   # Overrides Redmine::Acts::Customizable::InstanceMethods#available_custom_fields

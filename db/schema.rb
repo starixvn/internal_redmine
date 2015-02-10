@@ -370,6 +370,13 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
   add_index "issue_categories", ["assigned_to_id"], :name => "index_issue_categories_on_assigned_to_id"
   add_index "issue_categories", ["project_id"], :name => "issue_categories_project_id"
 
+  create_table "issue_checklists", :force => true do |t|
+    t.boolean "is_done",  :default => false
+    t.string  "subject"
+    t.integer "position", :default => 1
+    t.integer "issue_id",                    :null => false
+  end
+
   create_table "issue_relations", :force => true do |t|
     t.integer "issue_from_id",                 :null => false
     t.integer "issue_to_id",                   :null => false
@@ -597,21 +604,28 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.string  "salt",       :null => false
   end
 
+  create_table "polls", :force => true do |t|
+    t.string  "question"
+    t.integer "yes"
+    t.integer "no"
+  end
+
   create_table "projects", :force => true do |t|
-    t.string   "name",              :default => "",    :null => false
+    t.string   "name",                  :default => "",    :null => false
     t.text     "description"
-    t.string   "homepage",          :default => ""
-    t.boolean  "is_public",         :default => true,  :null => false
+    t.string   "homepage",              :default => ""
+    t.boolean  "is_public",             :default => true,  :null => false
     t.integer  "parent_id"
     t.datetime "created_on"
     t.datetime "updated_on"
     t.string   "identifier"
-    t.integer  "status",            :default => 1,     :null => false
+    t.integer  "status",                :default => 1,     :null => false
     t.integer  "lft"
     t.integer  "rgt"
     t.text     "dmsf_description"
     t.boolean  "dmsf_notification"
-    t.boolean  "inherit_members",   :default => false, :null => false
+    t.boolean  "inherit_members",       :default => false, :null => false
+    t.string   "project_meeting_rooms"
   end
 
   add_index "projects", ["lft"], :name => "index_projects_on_lft"
@@ -692,17 +706,20 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
 
   create_table "spent_time_queries", :force => true do |t|
     t.string  "name"
-    t.string  "query"
+    t.string  "query",     :limit => 500
     t.boolean "is_public"
     t.integer "user_id"
   end
 
   create_table "spm_databases", :primary_key => "Id", :force => true do |t|
-    t.string  "Name",        :limit => 100, :null => false
-    t.string  "Description", :limit => 100
-    t.integer "ServerId"
-    t.string  "UserID",      :limit => 100, :null => false
-    t.string  "Password",    :limit => 300, :null => false
+    t.string   "Name",         :limit => 100, :null => false
+    t.string   "Description",  :limit => 100
+    t.integer  "ServerId"
+    t.string   "UserID",       :limit => 100, :null => false
+    t.string   "Password",     :limit => 300, :null => false
+    t.datetime "ModifiedDate"
+    t.integer  "ModifiedBy"
+    t.binary   "IsDeleted",    :limit => 1
   end
 
   create_table "spm_favorities_issues", :primary_key => "Id", :force => true do |t|
@@ -710,31 +727,62 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.string  "UserId",  :limit => 45, :null => false
   end
 
-  add_index "spm_favorities_issues", ["IssueId", "UserId"], :name => "IssueId_UserId"
+  add_index "spm_favorities_issues", ["UserId", "IssueId"], :name => "IssueId_UserId"
+
+  create_table "spm_log_action", :primary_key => "Id", :force => true do |t|
+    t.string  "ActionName",   :limit => 50
+    t.integer "ActionTypeId"
+    t.string  "SpName",       :limit => 50
+    t.text    "Items"
+    t.text    "SubItems"
+  end
+
+  create_table "spm_log_action_type", :primary_key => "Id", :force => true do |t|
+    t.string "Name", :limit => 250
+  end
+
+  create_table "spm_log_details", :primary_key => "Id", :force => true do |t|
+    t.integer  "UserId"
+    t.string   "SpName",       :limit => 50
+    t.datetime "LogDate"
+    t.integer  "ObjectId"
+    t.integer  "ObjectTypeId"
+    t.integer  "ActionId"
+    t.text     "Data"
+    t.text     "OldData"
+  end
 
   create_table "spm_servers", :primary_key => "Id", :force => true do |t|
-    t.string "Name",         :limit => 100, :null => false
-    t.string "IPLocal",      :limit => 50
-    t.string "IPUAT",        :limit => 50
-    t.string "IPProduction", :limit => 50
-    t.string "Description",  :limit => 100
-  end
-
-  create_table "spm_storeprocedures", :primary_key => "Id", :force => true do |t|
-    t.integer  "ServerId",                                        :null => false
-    t.integer  "DatabaseId",                                      :null => false
-    t.string   "Name",         :limit => 300,                     :null => false
-    t.binary   "IsFunction",   :limit => 1,   :default => "b'0'", :null => false
-    t.string   "ActionName",   :limit => 10
-    t.integer  "ModifiedBy",                                      :null => false
-    t.integer  "Status",                                          :null => false
-    t.string   "Description",  :limit => 300,                     :null => false
-    t.integer  "IssueId",                                         :null => false
+    t.string   "Name",         :limit => 100, :null => false
+    t.string   "IPLocal",      :limit => 50
+    t.string   "IPUAT",        :limit => 50
+    t.string   "IPProduction", :limit => 50
+    t.string   "Description",  :limit => 100
     t.datetime "ModifiedDate"
-    t.integer  "DeveloperId",                                     :null => false
+    t.integer  "ModifiedBy"
+    t.binary   "IsDeleted",    :limit => 1
   end
 
-  add_index "spm_storeprocedures", ["IssueId"], :name => "IssueId"
+  create_table "spm_storedprocedure_issues", :primary_key => "Id", :force => true do |t|
+    t.binary   "IsFunction",        :limit => 1,   :default => "b'0'", :null => false
+    t.string   "ActionName",        :limit => 10
+    t.integer  "ModifiedBy",                                           :null => false
+    t.integer  "Status",                                               :null => false
+    t.string   "Description",       :limit => 300,                     :null => false
+    t.integer  "IssueId",                                              :null => false
+    t.datetime "ModifiedDate"
+    t.integer  "DeveloperId",                                          :null => false
+    t.binary   "IsDeleted",         :limit => 1
+    t.integer  "StoredProcedureId"
+  end
+
+  add_index "spm_storedprocedure_issues", ["IssueId"], :name => "IssueId"
+
+  create_table "spm_storedprocedures", :primary_key => "Id", :force => true do |t|
+    t.integer "ServerId"
+    t.integer "DatabaseId"
+    t.string  "Name",       :limit => 300
+  end
 
   create_table "taggings", :force => true do |t|
     t.integer  "tag_id"
