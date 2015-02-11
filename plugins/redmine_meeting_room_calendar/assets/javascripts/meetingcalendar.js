@@ -747,7 +747,7 @@
               return false;
           }
       });
-
+		
       loadCalendar();
       // intial load calendar
 

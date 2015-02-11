@@ -3818,6 +3818,21 @@ function AgendaEventRenderer() {
 		slotSegmentContainer[0].innerHTML = html; // faster than html()
 		eventElements = slotSegmentContainer.children();
 		
+		// stop propagation if click event Id
+		$('a.eventIssue').click(function (e) {
+			if (!e)
+			  e = window.event;
+
+			//IE9 & Other Browsers
+			if (e.stopPropagation) {
+			  e.stopPropagation();
+			}
+			//IE8 and Lower
+			else {
+			  e.cancelBubble = true;
+			}
+		});
+		
 		// retrieve elements, run through eventRender callback, bind event handlers
 		for (i=0; i<segCnt; i++) {
 			seg = segs[i];
@@ -3883,8 +3898,7 @@ function AgendaEventRenderer() {
 			}
 		}
 					
-	}
-	
+	}	
 	
 	function slotSegHtml(event, seg) {
 		var html = "<";
@@ -3892,6 +3906,8 @@ function AgendaEventRenderer() {
 		var skinCss = getSkinCss(event, opt);
 		var skinCssAttr = (skinCss ? " style='" + skinCss + "'" : '');
 		var classes = ['fc-event', 'fc-event-skin', 'fc-event-vert'];
+		var eventContentUrl = "<a class='eventIssue' href='" + htmlEscape('/issues/' + event.event_id) + "'>" + 
+										htmlEscape('#' + event.event_id) + "</a>";
 		if (isEventDraggable(event)) {
 			classes.push('fc-event-draggable');
 		}
@@ -3910,6 +3926,7 @@ function AgendaEventRenderer() {
 		}else{
 			html += "div";
 		}
+		
 		html +=
 			" class='" + classes.join(' ') + "'" +
 			" style='position:absolute;z-index:8;top:" + seg.top + "px;left:" + seg.left + "px;" + skinCss + "'" +
@@ -3922,7 +3939,7 @@ function AgendaEventRenderer() {
 			"</div>" +
 			"<div class='fc-event-content'>" +
 			"<div class='fc-event-title'>" +
-			htmlEscape(event.title) +
+			eventContentUrl + ' - ' + htmlEscape(event.title) +
 			"</div>" +
 			"</div>" +
 			"<div class='fc-event-bg'></div>" +
