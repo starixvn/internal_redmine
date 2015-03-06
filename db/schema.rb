@@ -604,12 +604,6 @@ ActiveRecord::Schema.define(:version => 20131003230330) do
     t.string  "salt",       :null => false
   end
 
-  create_table "polls", :force => true do |t|
-    t.string  "question"
-    t.integer "yes"
-    t.integer "no"
-  end
-
   create_table "projects", :force => true do |t|
     t.string   "name",                  :default => "",    :null => false
     t.text     "description"
