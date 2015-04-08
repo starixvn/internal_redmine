@@ -22,14 +22,18 @@ class S2bBoardsController < ApplicationController
     end
     
     session[:view_issue] = "board"
+    session[:params_select_version_onboard] = ""
     
     #TODO: thua code 2 dong du
     @list_versions_open = opened_versions_list
     @list_versions_closed = closed_versions_list
 
-    @new_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_no_start']).order(:s2b_position)
-    @started_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_inprogress']).order(:s2b_position)
-    @completed_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_completed']).order(:s2b_position)     
+    #@new_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_no_start']).order(:s2b_position)
+    #@started_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_inprogress']).order(:s2b_position)
+    #@completed_issues = @project.issues.where(session[:conditions]).where("status_id IN (?)" , STATUS_IDS['status_completed']).order(:s2b_position)    +
+    @new_issues = []
+    @started_issues = []
+    @completed_issues = []
   end
   
   def update_status
@@ -100,6 +104,7 @@ class S2bBoardsController < ApplicationController
   end
   
   def close_on_board
+
     array_id= Array.new
     array_id = params[:issue_id]
     
