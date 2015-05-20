@@ -175,8 +175,9 @@
                   } else if (data.result == "create_success") {
                       $("#edit_issue_").find(".value_content").val("");
                       $("#edit_issue_").hide();
-                      $("#edit_issue_").after(data.content)
+                      $("#edit_issue_").after(data.content);                      
                       makeSlider(data.id, 0);
+                      $("#" + data.id).wrap("<li id='"+ data.id +"'>");
                       editDate(data.id);
                       form_edit(data.id);
                   } else {
@@ -220,9 +221,10 @@
       $("#ate_start_").datepicker("option", "dateFormat", "yy-mm-dd");
       $("#date_end_").datepicker("option", "dateFormat", "yy-mm-dd");
 
-      $(".icon_new_issue").click(function () {
-          $("#edit_issue_").show();
-          $("#edit_issue_").addClass("board_issue");
+      $(".icon_new_issue").live("click", function () {
+      	 $("#edit_issue_").show();     
+         $("#edit_issue_").addClass("board_issue");
+         editDate("");
       });
 
       makeSumEstTimeNSpentTime();
