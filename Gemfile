@@ -6,7 +6,7 @@ gem "i18n", "~> 0.6.0"
 gem "coderay", "~> 1.0.6"
 gem "fastercsv", "~> 1.5.0", :platforms => [:mri_18, :mingw_18, :jruby]
 gem "builder", "3.0.0"
-
+gem "mysql2", "~> 0.3.10"
 
 # Optional gem for LDAP authentication
 group :ldap do
@@ -47,7 +47,6 @@ if File.exist?(database_file)
     adapters.each do |adapter|
       case adapter
       when 'mysql2'
-        gem "mysql2", "~> 0.3.11", :platforms => [:mri, :mingw]
         gem "activerecord-jdbcmysql-adapter", :platforms => :jruby
       when 'mysql'
         gem "mysql", "~> 2.8.1", :platforms => [:mri, :mingw]
