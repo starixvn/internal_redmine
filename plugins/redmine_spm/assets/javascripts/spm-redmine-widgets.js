@@ -10,7 +10,7 @@ var normal_state = {},
 function issue_save_spm_state(){
 	normal_state = {
 		width: "",
-		height: "260px"
+		height: "350px"
 	};	
 	
 	max_state = {
@@ -24,7 +24,7 @@ function issue_save_spm_state(){
 function issue_spm_widgets_show() {
 	$("#issue_spm_widgets").show();		
 	$("#issue_spm_toggle").html("Collapse");
-	$("#issue_spm").css("height", "260px");
+	$("#issue_spm").css("height", "365px");
 	$.cookie("issue_spm_toggle", "show", {path: "/"});		
 }
 
