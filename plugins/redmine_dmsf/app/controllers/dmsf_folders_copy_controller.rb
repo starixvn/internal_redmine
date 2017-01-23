@@ -18,13 +18,11 @@
 
 class DmsfFoldersCopyController < ApplicationController
   unloadable
-  
+
   menu_item :dmsf
-  
+
   before_filter :find_folder
   before_filter :authorize
-
-#  verify :method => :post, :only => [:copy_to], :render => { :nothing => true, :status => :method_not_allowed }
 
   def new
     @target_project = DmsfFolder.allowed_target_projects_on_copy.detect {|p| p.id.to_s == params[:target_project_id]} if params[:target_project_id]
@@ -34,10 +32,10 @@ class DmsfFoldersCopyController < ApplicationController
     else
       @target_project ||= DmsfFolder.allowed_target_projects_on_copy[0]
     end
-    
+
     @target_folder = DmsfFolder.visible.find(params[:target_folder_id]) unless params[:target_folder_id].blank?
-    @target_folder ||= @folder.folder if @target_project == @project
-    
+    @target_folder ||= @folder.dmsf_folder if @target_project == @project
+
     render :layout => !request.xhr?
   end
 
@@ -49,37 +47,30 @@ class DmsfFoldersCopyController < ApplicationController
     end
     @target_folder = DmsfFolder.visible.find(params[:target_folder_id]) unless params[:target_folder_id].blank?
     if !@target_folder.nil? && @target_folder.project != @target_project
-      raise DmsfAccessError, l(:error_entry_project_does_not_match_current_project) 
+      raise DmsfAccessError, l(:error_entry_project_does_not_match_current_project)
     end
 
-    if (!@target_folder.nil? && @target_folder == @folder.folder) || 
-        (@target_folder.nil? && @folder.folder.nil? && @target_project == @folder.project)
+    if (@target_folder && @target_folder == @folder.dmsf_folder) ||
+        (@target_folder.nil? && @folder.dmsf_folder.nil? && @target_project == @folder.project)
       flash[:error] = l(:error_target_folder_same)
-      redirect_to :action => "new", :id => @folder, :target_project_id => @target_project, :target_folder_id => @target_folder
+      redirect_to :action => 'new', :id => @folder, :target_project_id => @target_project, :target_folder_id => @target_folder
       return
     end
 
     new_folder = @folder.copy_to(@target_project, @target_folder)
-    
+
     unless new_folder.errors.empty?
-      flash[:error] = "#{l(:error_folder_cannot_be_copied)}: #{new_folder.errors.full_messages.join(", ")}"
-      redirect_to :action => "new", :id => @folder, :target_project_id => @target_project, :target_folder_id => @target_folder
+      flash[:error] = "#{l(:error_folder_cannot_be_copied)}: #{new_folder.errors.full_messages.join(', ')}"
+      redirect_to :action => 'new', :id => @folder, :target_project_id => @target_project, :target_folder_id => @target_folder
       return
     end
 
     new_folder.reload
-    
+
     flash[:notice] = l(:notice_folder_copied)
-    log_activity(new_folder, "was copied (is copy)")
-    
-    #TODO: implement proper notification for all new files
-    #begin 
-    #  DmsfMailer.files_updated(User.current, [new_file]).deliver
-    #rescue ActionView::MissingTemplate => e
-    #  Rails.logger.error "Could not send email notifications: " + e
-    #end
-    
-    redirect_to :controller => "dmsf", :action => "show", :id => @target_project, :folder_id => new_folder
+    log_activity(new_folder, 'was copied (is copy)')
+
+    redirect_to dmsf_folder_path(:id => @target_project, :folder_id => new_folder)
   end
 
   private
@@ -92,5 +83,5 @@ class DmsfFoldersCopyController < ApplicationController
     @folder = DmsfFolder.visible.find(params[:id])
     @project = @folder.project
   end
-  
+
 end

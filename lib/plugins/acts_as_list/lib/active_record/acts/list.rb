@@ -31,6 +31,7 @@ module ActiveRecord
         #   to give it an entire string that is interpolated if you need a tighter scope than just a foreign key.
         #   Example: <tt>acts_as_list :scope => 'todo_list_id = #{todo_list_id} AND completed = 0'</tt>
         def acts_as_list(options = {})
+          ActiveSupport::Deprecation.warn "The acts_as_list plugin will be removed from Redmine 4 core, use the acts_as_list gem or similar implementation instead."
           configuration = { :column => "position", :scope => "1 = 1" }
           configuration.update(options) if options.is_a?(Hash)
 
@@ -137,7 +138,8 @@ module ActiveRecord
         def reset_positions_in_list
           acts_as_list_class.where(scope_condition).reorder("#{position_column} ASC, id ASC").each_with_index do |item, i|
             unless item.send(position_column) == (i + 1)
-              acts_as_list_class.update_all({position_column => (i + 1)}, {:id => item.id})
+              acts_as_list_class.where({:id => item.id}).
+                update_all({position_column => (i + 1)})
             end
           end
         end
@@ -233,39 +235,39 @@ module ActiveRecord
 
           # This has the effect of moving all the higher items up one.
           def decrement_positions_on_higher_items(position)
-            acts_as_list_class.update_all(
-              "#{position_column} = (#{position_column} - 1)", "#{scope_condition} AND #{position_column} <= #{position}"
-            )
+            acts_as_list_class.
+              where("#{scope_condition} AND #{position_column} <= #{position}").
+              update_all("#{position_column} = (#{position_column} - 1)")
           end
 
           # This has the effect of moving all the lower items up one.
           def decrement_positions_on_lower_items
             return unless in_list?
-            acts_as_list_class.update_all(
-              "#{position_column} = (#{position_column} - 1)", "#{scope_condition} AND #{position_column} > #{send(position_column).to_i}"
-            )
+            acts_as_list_class.
+              where("#{scope_condition} AND #{position_column} > #{send(position_column).to_i}").
+              update_all("#{position_column} = (#{position_column} - 1)")
           end
 
           # This has the effect of moving all the higher items down one.
           def increment_positions_on_higher_items
             return unless in_list?
-            acts_as_list_class.update_all(
-              "#{position_column} = (#{position_column} + 1)", "#{scope_condition} AND #{position_column} < #{send(position_column).to_i}"
-            )
+            acts_as_list_class.
+              where("#{scope_condition} AND #{position_column} < #{send(position_column).to_i}").
+              update_all("#{position_column} = (#{position_column} + 1)")
           end
 
           # This has the effect of moving all the lower items down one.
           def increment_positions_on_lower_items(position)
-            acts_as_list_class.update_all(
-              "#{position_column} = (#{position_column} + 1)", "#{scope_condition} AND #{position_column} >= #{position}"
-           )
+            acts_as_list_class.
+              where("#{scope_condition} AND #{position_column} >= #{position}").
+              update_all("#{position_column} = (#{position_column} + 1)")
           end
 
           # Increments position (<tt>position_column</tt>) of all items in the list.
           def increment_positions_on_all_items
-            acts_as_list_class.update_all(
-              "#{position_column} = (#{position_column} + 1)",  "#{scope_condition}"
-            )
+            acts_as_list_class.
+              where("#{scope_condition}").
+              update_all("#{position_column} = (#{position_column} + 1)")
           end
 
           def insert_at_position(position)

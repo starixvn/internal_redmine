@@ -18,11 +18,13 @@ module RedmineFavoriteProjects
         # Adds a rates tab to the user administration page
         def render_project_jump_box_with_only_favorites
           return unless User.current.logged?
-          favorite_projects = FavoriteProject.find(:all, :conditions => {:user_id => User.current.id})
-          favorite_projects_ids = favorite_projects.map(&:project_id)
-          projects = User.current.memberships.collect(&:project).compact.uniq.select{|p| !favorite_projects_ids.include?(p.id) && p.active? }
+          favorite_projects_ids = FavoriteProject.where(:user_id => User.current.id).map(&:project_id)
+          projects = Project.visible.where(:id => favorite_projects_ids)
+
+          projects = Project.visible unless projects.any?
+
           if projects.any?
-            s = '<select id="project_quick_jump_box" onchange="if (this.value != \'\') { window.location = this.value; }">' +
+            s = '<select onchange="if (this.value != \'\') { window.location = this.value; }">' +
             "<option value=''>#{ l(:label_jump_to_a_project) }</option>" +
             '<option value="" disabled="disabled">---</option>'
             s << project_tree_options_for_select(projects, :selected => @project) do |p|
@@ -39,8 +41,7 @@ module RedmineFavoriteProjects
   end
 end
 
-ActionDispatch::Reloader.to_prepare do  
-  unless ApplicationHelper.included_modules.include?(RedmineFavoriteProjects::Patches::ApplicationHelperPatch)
-    ApplicationHelper.send(:include, RedmineFavoriteProjects::Patches::ApplicationHelperPatch)
-  end
+
+unless ApplicationHelper.included_modules.include?(RedmineFavoriteProjects::Patches::ApplicationHelperPatch)
+  ApplicationHelper.send(:include, RedmineFavoriteProjects::Patches::ApplicationHelperPatch)
 end

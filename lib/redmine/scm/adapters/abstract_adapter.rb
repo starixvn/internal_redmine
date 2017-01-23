@@ -1,5 +1,5 @@
 # Redmine - project management software
-# Copyright (C) 2006-2013  Jean-Philippe Lang
+# Copyright (C) 2006-2016  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,21 +16,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require 'cgi'
-
-if RUBY_VERSION < '1.9'
-  require 'iconv'
-end
+require 'redmine/scm/adapters'
 
 module Redmine
   module Scm
     module Adapters
-      class CommandFailed < StandardError #:nodoc:
-      end
-
       class AbstractAdapter #:nodoc:
 
         # raised if scm command exited with error, e.g. unknown revision.
-        class ScmCommandAborted < CommandFailed; end
+        class ScmCommandAborted < ::Redmine::Scm::Adapters::CommandFailed; end
 
         class << self
           def client_command
@@ -184,7 +178,7 @@ module Redmine
         def without_trailling_slash(path)
           path ||= ''
           (path[-1,1] == "/") ? path[0..-2] : path
-         end
+        end
 
         def shell_quote(str)
           self.class.shell_quote(str)
@@ -289,22 +283,13 @@ module Redmine
 
         def scm_iconv(to, from, str)
           return nil if str.nil?
-          return str if to == from
-          if str.respond_to?(:force_encoding)
-            str.force_encoding(from)
-            begin
-              str.encode(to)
-            rescue Exception => err
-              logger.error("failed to convert from #{from} to #{to}. #{err}")
-              nil
-            end
-          else
-            begin
-              Iconv.conv(to, from, str)
-            rescue Iconv::Failure => err
-              logger.error("failed to convert from #{from} to #{to}. #{err}")
-              nil
-            end
+          return str if to == from && str.encoding.to_s == from
+          str.force_encoding(from)
+          begin
+            str.encode(to)
+          rescue Exception => err
+            logger.error("failed to convert from #{from} to #{to}. #{err}")
+            nil
           end
         end
 

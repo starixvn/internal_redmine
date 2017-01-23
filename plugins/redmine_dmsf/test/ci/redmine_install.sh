@@ -35,7 +35,7 @@ clone_redmine()
   rm -rf $PATH_TO_REDMINE
   git clone -b $REDMINE_GIT_TAG --depth=100 --quiet $REDMINE_GIT_REPO $PATH_TO_REDMINE
   cd $PATH_TO_REDMINE
-  git checkout $REDMINE_GIT_TAG
+  git checkout $REDMINE_GIT_TAG  
 }
 
 run_tests()
@@ -43,13 +43,9 @@ run_tests()
   # exit if tests fail
   set -e
 
-  cd $PATH_TO_REDMINE
+  cd $PATH_TO_REDMINE 
 
-
-  mkdir -p coverage
-  ln -sf `pwd`/coverage $WORKSPACE
-
-  #Run tests within application - for some reason redmine:plugins:test wont work under 1.8
+  # Run tests within application
   bundle exec rake redmine:plugins:test:units NAME=redmine_dmsf
   bundle exec rake redmine:plugins:test:functionals NAME=redmine_dmsf
   bundle exec rake redmine:plugins:test:integration NAME=redmine_dmsf
@@ -58,52 +54,48 @@ run_tests()
 uninstall()
 {
   set -e # exit if migrate fails
+
   cd $PATH_TO_REDMINE
+
   # clean up database
-  bundle exec rake $MIGRATE_PLUGINS NAME=redmine_dmsf VERSION=0 RAILS_ENV=test
-  bundle exec rake $MIGRATE_PLUGINS NAME=redmine_dmsf VERSION=0 RAILS_ENV=development
+  bundle exec rake $MIGRATE_PLUGINS NAME=redmine_dmsf VERSION=0 RAILS_ENV=test  
 }
 
 run_install()
 {
-  # exit if install fails
+  # Exit if install fails
   set -e
 
   # cd to redmine folder
   cd $PATH_TO_REDMINE
   echo current directory is `pwd`
 
-  # create a link to the dmsf plugin
+  # Create a link to the dmsf plugin
   ln -sf $PATH_TO_DMSF $PATH_TO_PLUGINS/redmine_dmsf
-
-  #ignore redmine-master's test-unit dependency, we need 1.2.3
-  #sed -i -e 's=.*gem ["'\'']test-unit["'\''].*==g' ${PATH_TO_REDMINE}/Gemfile
-  # install gems
+  
+  # Install gems
   mkdir -p vendor/bundle
 
-  # copy database.yml
+  # Copy database.yml
   cp $WORKSPACE/database.yml config/
 
-  #Not ideal, but at present Travis-CI will not install with xapian enabled.
-  #02-04-2013 bundle install needs to happen AFTER database configuration
-  bundle install --path vendor/bundle --without xapian
+  # Not ideal, but at present Travis-CI will not install with xapian enabled:
+  #     configure: error: Neither uuid/uuid.h nor uuid.h found - required for brass, 
+  #         chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package
+  # sudo apt-get install uuid-dev => sudo not allowed
+  bundle install --path vendor/bundle --without xapian  
 
-  # run redmine database migrations
-  bundle exec rake db:migrate RAILS_ENV=test --trace
-  bundle exec rake db:migrate RAILS_ENV=development --trace
+  # Run Redmine database migrations
+  bundle exec rake db:migrate RAILS_ENV=test --trace  
 
-  # install redmine database
-  bundle exec rake redmine:load_default_data REDMINE_LANG=en RAILS_ENV=development
+  # Load Redmine database default data  
+  bundle exec rake redmine:load_default_data REDMINE_LANG=en RAILS_ENV=test
 
   # generate session store/secret token
   bundle exec rake $GENERATE_SECRET
-
-  # enable development features
-  touch dmsf.dev
-
-  # run dmsf database migrations
-  bundle exec rake $MIGRATE_PLUGINS RAILS_ENV=test
-  bundle exec rake $MIGRATE_PLUGINS RAILS_ENV=development
+  
+  # Run the plugin database migrations
+  bundle exec rake $MIGRATE_PLUGINS RAILS_ENV=test  
 }
 
 while getopts :irtu opt

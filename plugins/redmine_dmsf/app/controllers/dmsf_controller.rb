@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+#
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2011   Vít Jonáš <vit.jonas@gmail.com>
+# Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
+# Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,192 +22,254 @@
 
 class DmsfController < ApplicationController
   unloadable
-  
+
   before_filter :find_project
-  before_filter :authorize, :except => [:delete_entries] 
+  before_filter :authorize, :except => [:expand_folder]
   before_filter :find_folder, :except => [:new, :create, :edit_root, :save_root]
   before_filter :find_parent, :only => [:new, :create]
-  
+  before_filter :tree_view, :only => [:delete, :show]
+
+  accept_api_auth :show, :create
+
   helper :all
 
+  def expand_folder
+    @tree_view = true
+    get_display_params
+    @idnt = params[:idnt].present? ? params[:idnt].to_i + 1 : 0
+    @pos = params[:pos].present? ? params[:pos].to_f : 0.0
+    respond_to do |format|
+      format.js { render :action => 'dmsf_rows' }
+    end
+  end
+
   def show
-    if @folder.nil?
-      @subfolders = @project.dmsf_folders.visible
-      @files = @project.dmsf_files.visible
-    else 
-      @subfolders = @folder.subfolders.visible
-      @files = @folder.files.visible
+    get_display_params
+    if @folder && @folder.deleted?
+      render_404
+      return
     end
-    
-    @files.sort! do |a,b|
-      a.last_revision.title <=> b.last_revision.title
+    respond_to do |format|
+      format.html {
+        render :layout => !request.xhr?
+      }
+      format.api
     end
+  end
+
+  def trash
+    @folder_manipulation_allowed = User.current.allowed_to? :folder_manipulation, @project
+    @file_manipulation_allowed = User.current.allowed_to? :file_manipulation, @project
+    @file_delete_allowed = User.current.allowed_to? :file_delete, @project
+    @subfolders = DmsfFolder.deleted.where(:project_id => @project.id)
+    @files = DmsfFile.deleted.where(:project_id => @project.id)
+    @dir_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => DmsfFolder.model_name.to_s)
+    @file_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => DmsfFile.model_name.to_s)
+    @url_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => 'DmsfUrl')
+  end
+
+  def download_email_entries
+    send_file(
+        params[:path],
+        :filename => 'Documents.zip',
+        :type => 'application/zip',
+        :disposition => 'attachment')
+    rescue Exception => e
+      flash[:error] = e.message
   end
 
   def entries_operation
-    selected_folders = params[:subfolders]
-    selected_files = params[:files]
-    
-    if selected_folders.nil? && selected_files.nil?
+    # Download/Email
+    selected_folders = params[:subfolders] || []
+    selected_files = params[:files] || []
+    selected_dir_links = params[:dir_links] || []
+    selected_file_links = params[:file_links] || []
+    selected_url_links = params[:url_links] || []
+
+    if selected_folders.blank? && selected_files.blank? &&
+      selected_dir_links.blank? && selected_file_links.blank? &&
+      selected_url_links.blank?
       flash[:warning] = l(:warning_no_entries_selected)
-      redirect_to :action => "show", :id => @project, :folder_id => @folder
+      redirect_to :back
       return
     end
-    
-    if !params[:email_entries].blank?
+
+    if selected_dir_links.present? &&
+      (params[:email_entries].present? || params[:download_entries].present?)
+        selected_dir_links.each do |id|
+          link = DmsfLink.find_by_id id
+          selected_folders << link.target_id if link && !selected_folders.include?(link.target_id.to_s)
+      end
+    end
+
+    if selected_file_links.present? &&
+      (params[:email_entries].present? || params[:download_entries].present?)
+        selected_file_links.each do |id|
+          link = DmsfLink.find_by_id id
+          selected_files << link.target_id if link && !selected_files.include?(link.target_id.to_s)
+      end
+    end
+
+    if params[:email_entries].present?
       email_entries(selected_folders, selected_files)
+    elsif params[:restore_entries].present?
+      restore_entries(selected_folders, selected_files, selected_dir_links, selected_file_links, selected_url_links)
+      redirect_to :back
+    elsif params[:delete_entries].present?
+      delete_entries(selected_folders, selected_files, selected_dir_links, selected_file_links, selected_url_links, false)
+      redirect_to :back
+    elsif params[:destroy_entries].present?
+      delete_entries(selected_folders, selected_files, selected_dir_links, selected_file_links, selected_url_links, true)
+      redirect_to :back
     else
       download_entries(selected_folders, selected_files)
     end
-  rescue ZipMaxFilesError
-    flash[:error] = l(:error_max_files_exceeded, :number => Setting.plugin_redmine_dmsf["dmsf_max_file_download"].to_i.to_s)
-    redirect_to({:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder})
-  rescue EmailMaxFileSize
-    flash[:error] = l(:error_max_email_filesize_exceeded, :number => Setting.plugin_redmine_dmsf["dmsf_max_email_filesize"].to_s)
-    redirect_to({:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder})
+  rescue FileNotFound
+    render_404
   rescue DmsfAccessError
     render_403
+  rescue Exception => e
+    flash[:error] = e.message
+    Rails.logger.error e.message
+    redirect_to :back
+  end
+
+  def tag_changed
+    # Tag filter
+    if params[:dmsf_folder] && params[:dmsf_folder][:custom_field_values].present?
+      redirect_to dmsf_folder_path(
+        :id => @project,
+        :custom_field_id => params[:dmsf_folder][:custom_field_values].first[0],
+        :custom_value => params[:dmsf_folder][:custom_field_values].first[1])
+    else
+      redirect_to :back
+    end
   end
 
   def entries_email
-    @email_params = params[:email]
-    if @email_params["to"].strip.blank?
-      flash.now[:error] = l(:error_email_to_must_be_entered)
-      render :action => "email_entries"
-      return
-    end
-    DmsfMailer.send_documents(User.current, @email_params["to"], @email_params["cc"],
-      @email_params["subject"], @email_params["zipped_content"], @email_params["body"]).deliver
-    File.delete(@email_params["zipped_content"])
-    flash[:notice] = l(:notice_email_sent, @email_params["to"])
-    redirect_to({:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder})
-  end
-
-  class ZipMaxFilesError < StandardError
-  end
-
-  class EmailMaxFileSize < StandardError
-  end
-
-  def delete_entries
-    selected_folders = params[:subfolders]
-    selected_files = params[:files]
-    if selected_folders.nil? && selected_files.nil?
-      flash[:warning] = l(:warning_no_entries_selected)
+    if params[:email][:to].strip.blank?
+      flash[:error] = l(:error_email_to_must_be_entered)
     else
-      failed_entries = []
-      deleted_files = []
-      deleted_folders = []
-      unless selected_folders.nil?
-        if User.current.allowed_to?(:folder_manipulation, @project)
-          selected_folders.each do |subfolderid|
-            subfolder = DmsfFolder.visible.find(subfolderid)
-            next if subfolder.nil?
-            if subfolder.project != @project || !subfolder.delete
-              failed_entries.push(subfolder) 
-            else
-              deleted_folders.push(subfolder)
-            end
-          end
-        else
-          flash[:error] = l(:error_user_has_not_right_delete_folder)
-        end
-      end
-      unless selected_files.nil?
-        if User.current.allowed_to?(:file_manipulation, @project)
-          selected_files.each do |fileid|
-            file = DmsfFile.visible.find(fileid)
-            next if file.nil?
-            if file.project != @project || !file.delete
-              failed_entries.push(file)
-            else
-              deleted_files.push(file)
-            end
-          end
-        else
-          flash[:error] = l(:error_user_has_not_right_delete_file)
-        end
-      end
-      unless deleted_files.empty?
-        deleted_files.each {|f| log_activity(f, "deleted")}
-        DmsfMailer.files_deleted(User.current, deleted_files).deliver
-      end
-      if failed_entries.empty?
-        flash[:notice] = l(:notice_entries_deleted)
-      else
-        flash[:warning] = l(:warning_some_entries_were_not_deleted, :entries => failed_entries.map{|e| e.title}.join(", "))
-      end
+      DmsfMailer.send_documents(@project, User.current, params[:email]).deliver
+      File.delete(params[:email][:zipped_content])
+      flash[:notice] = l(:notice_email_sent, params[:email][:to])
     end
-    
-    redirect_to :controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder
+    redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
   end
-
-  # Folder manipulation
 
   def new
-    @folder = DmsfFolder.new #Bugfix form error
+    @folder = DmsfFolder.new
     @pathfolder = @parent
-    render :action => "edit"
+    render :action => 'edit'
   end
 
   def create
-    @folder = DmsfFolder.new(params[:dmsf_folder])
+    @folder = DmsfFolder.new
+    @folder.title = params[:dmsf_folder][:title].strip
+    @folder.description = params[:dmsf_folder][:description].strip
+    @folder.dmsf_folder_id = params[:dmsf_folder][:dmsf_folder_id]
     @folder.project = @project
     @folder.user = User.current
-    if @folder.save
-      flash[:notice] = l(:notice_folder_created)
-      redirect_to({:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder})
-    else
-      @pathfolder = @parent
-      render :action => "edit"
+
+    # Custom fields
+    if params[:dmsf_folder][:custom_field_values].present?
+      params[:dmsf_folder][:custom_field_values].each_with_index do |v, i|
+        @folder.custom_field_values[i].value = v[1]
+      end
     end
+
+    saved = @folder.save
+
+    respond_to do |format|
+      format.js
+      format.api  {
+        unless saved
+          render_validation_errors(@folder)
+        end
+      }
+      format.html {
+        if saved
+          flash[:notice] = l(:notice_folder_created)
+          redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
+        else
+          @pathfolder = @parent
+          render :action => 'edit'
+        end
+      }
+    end
+
   end
 
   def edit
-    @parent = @folder.folder
+    @parent = @folder.dmsf_folder
     @pathfolder = copy_folder(@folder)
+    @force_file_unlock_allowed = User.current.allowed_to?(:force_file_unlock, @project)
   end
 
   def save
     unless params[:dmsf_folder]
-      redirect_to :controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder
+      redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
       return
     end
     @pathfolder = copy_folder(@folder)
-    @folder.attributes = params[:dmsf_folder]
+    @folder.title = params[:dmsf_folder][:title].strip
+    @folder.description = params[:dmsf_folder][:description].strip
+    @folder.dmsf_folder_id = params[:dmsf_folder][:dmsf_folder_id]
+
+    # Custom fields
+    if params[:dmsf_folder][:custom_field_values].present?
+      params[:dmsf_folder][:custom_field_values].each_with_index do |v, i|
+        @folder.custom_field_values[i].value = v[1]
+      end
+    end
+
     if @folder.save
       flash[:notice] = l(:notice_folder_details_were_saved)
-      redirect_to :controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder
+      redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
     else
-      render :action => "edit"
+      render :action => 'edit'
     end
   end
 
   def delete
-    check_project(@delete_folder = DmsfFolder.visible.find(params[:delete_folder_id]))
-    if !@delete_folder.nil?
-      if @delete_folder.delete
-        flash[:notice] = l(:notice_folder_deleted)
-      else
-        flash[:error] = @delete_folder.errors[:base][0]
-      end
+    commit = params[:commit] == 'yes'
+    if @folder.delete(commit)
+      flash[:notice] = l(:notice_folder_deleted)
+    else
+      flash[:error] = @folder.errors.full_messages.to_sentence
     end
-    redirect_to :controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder
-  rescue DmsfAccessError
-    render_403  
+    if commit || @tree_view
+      redirect_to :back
+    else
+      redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder.dmsf_folder)
+    end
+  end
+
+  def restore
+    if @folder.restore
+      flash[:notice] = l(:notice_dmsf_folder_restored)
+    else
+      flash[:error] = @folder.errors.full_messages.to_sentence
+    end
+    redirect_to :back
   end
 
   def edit_root
   end
 
   def save_root
-    @project.dmsf_description = params[:project][:dmsf_description]
-    @project.save!
-    flash[:notice] = l(:notice_folder_details_were_saved)
-    redirect_to :controller => "dmsf", :action => "show", :id => @project
+    if params[:project]
+      @project.dmsf_description = params[:project][:dmsf_description]
+      if @project.save
+        flash[:notice] = l(:notice_folder_details_were_saved)
+      else
+        flash[:error] = @project.errors.full_messages.to_sentence
+      end
+    end
+    redirect_to dmsf_folder_path(:id => @project)
   end
 
-  def notify_activate        
+  def notify_activate
     if((@folder && @folder.notification) || (@folder.nil? && @project.dmsf_notification))
       flash[:warning] = l(:warning_folder_notifications_already_activated)
     else
@@ -216,15 +281,9 @@ class DmsfController < ApplicationController
       end
       flash[:notice] = l(:notice_folder_notifications_activated)
     end
-    if params[:current]
-      redirect_to params[:current]
-    elsif @folder
-      redirect_to({:controller => 'dmsf', :action => 'show', :id => @project, :folder_id => @folder.folder})
-    else
-      redirect_to({:controller => 'dmsf', :action => 'show', :id => @project})
-    end    
+    redirect_to :back
   end
-  
+
   def notify_deactivate
     if((@folder && !@folder.notification) || (@folder.nil? && !@project.dmsf_notification))
       flash[:warning] = l(:warning_folder_notifications_already_deactivated)
@@ -232,20 +291,13 @@ class DmsfController < ApplicationController
       if @folder
         @folder.notify_deactivate
       else
-        @project.dmsf_notification = false
+        @project.dmsf_notification = nil
         @project.save
       end
       flash[:notice] = l(:notice_folder_notifications_deactivated)
     end
-    if params[:current]
-      redirect_to params[:current]
-    elsif @folder
-      redirect_to({:controller => 'dmsf', :action => 'show', :id => @project, :folder_id => @folder.folder})
-    else
-      redirect_to({:controller => 'dmsf', :action => 'show', :id => @project})
-    end    
+    redirect_to :back
   end
-
 
   def lock
     if @folder.nil?
@@ -256,8 +308,7 @@ class DmsfController < ApplicationController
       @folder.lock!
       flash[:notice] = l(:notice_folder_locked)
     end
-      redirect_to params[:current] ? params[:current] :
-        {:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder.folder}
+      redirect_to :back
   end
 
   def unlock
@@ -273,25 +324,8 @@ class DmsfController < ApplicationController
         flash[:error] = l(:error_only_user_that_locked_folder_can_unlock_it)
       end
     end
-    redirect_to params[:current] ? params[:current] :
-        {:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder.folder}
+     redirect_to :back
   end
-  
-#  def assign    
-#  end
-#  
-#  def assignment
-#    revision = DmsfFileRevision.find_by_id params[:dmsf_file_revision_id]
-#    if revision
-#      revision.set_workflow(params[:dmsf_workflow_id], params[:action])
-#      revision.assign_workflow(params[:dmsf_workflow_id])
-#      if request.post? && revision.save
-#        flash[:notice] = l(:notice_successful_create)
-#      end
-#    end
-#    redirect_to params[:current] ? params[:current] :
-#        {:controller => "dmsf", :action => "show", :id => @project, :folder_id => @folder.folder} 
-#  end
 
   private
 
@@ -300,106 +334,335 @@ class DmsfController < ApplicationController
   end
 
   def email_entries(selected_folders, selected_files)
-    zip = DmsfZip.new
-    zip_entries(zip, selected_folders, selected_files)
-    
-    ziped_content = "#{DmsfHelper.temp_dir}/#{DmsfHelper.temp_filename("dmsf_email_sent_documents.zip")}";
-    
-    File.open(ziped_content, "wb") do |f|
-      zip_file = File.open(zip.finish, "rb")
-      while (buffer = zip_file.read(8192))
-        f.write(buffer)
-      end
-    end
+    begin
+      zip = DmsfZip.new
+      zip_entries(zip, selected_folders, selected_files)
 
-    max_filesize = Setting.plugin_redmine_dmsf["dmsf_max_email_filesize"].to_f
-    if max_filesize > 0 && File.size(ziped_content) > max_filesize * 1048576
-      raise EmailMaxFileSize
+      zipped_content = "#{DmsfHelper.temp_dir}/#{DmsfHelper.temp_filename('dmsf_email_sent_documents.zip')}";
+
+      File.open(zipped_content, 'wb') do |f|
+        zip_file = File.open(zip.finish, 'rb')
+        while (buffer = zip_file.read(8192))
+          f.write(buffer)
+        end
+      end
+
+      max_filesize = Setting.plugin_redmine_dmsf['dmsf_max_email_filesize'].to_f
+      if max_filesize > 0 && File.size(zipped_content) > max_filesize * 1048576
+        raise EmailMaxFileSize
+      end
+
+      zip.files.each do |f|
+        log_activity(f, 'emailing zip')
+        audit = DmsfFileRevisionAccess.new
+        audit.user = User.current
+        audit.dmsf_file_revision = f.last_revision
+        audit.action = DmsfFileRevisionAccess::EmailAction
+        audit.save!
+      end
+
+      @email_params = {
+        :zipped_content => zipped_content,
+        :folders => selected_folders,
+        :files => selected_files,
+        :subject => "#{@project.name} #{l(:label_dmsf_file_plural).downcase}"
+      }
+      render :action => 'email_entries'
+    rescue Exception
+      raise
+    ensure
+      zip.close if zip
     end
-    
-    zip.files.each do |f| 
-      log_activity(f,"emailing zip")
-      audit = DmsfFileRevisionAccess.new(:user_id => User.current.id, :dmsf_file_revision_id => f.last_revision.id, 
-        :action => DmsfFileRevisionAccess::EmailAction)
-      audit.save!
-    end
-    
-    @email_params = {"zipped_content" => ziped_content}
-    render :action => "email_entries"
-  ensure
-    zip.close unless zip.nil? 
   end
 
   def download_entries(selected_folders, selected_files)
-    zip = DmsfZip.new
-    zip_entries(zip, selected_folders, selected_files)
-    
-    zip.files.each do |f| 
-      log_activity(f,"download zip")
-      audit = DmsfFileRevisionAccess.new(:user_id => User.current.id, :dmsf_file_revision_id => f.last_revision.id, 
-        :action => DmsfFileRevisionAccess::DownloadAction)
-      audit.save!
+    begin
+      zip = DmsfZip.new
+      zip_entries(zip, selected_folders, selected_files)
+
+      zip.files.each do |f|
+        log_activity(f, 'download zip')
+        audit = DmsfFileRevisionAccess.new
+        audit.user = User.current
+        audit.dmsf_file_revision = f.last_revision
+        audit.action = DmsfFileRevisionAccess::DownloadAction
+        audit.save!
+      end
+
+      send_file(zip.finish,
+        :filename => filename_for_content_disposition("#{@project.name}-#{DateTime.now.strftime('%y%m%d%H%M%S')}.zip"),
+        :type => 'application/zip',
+        :disposition => 'attachment')
+    rescue Exception
+      raise
+    ensure
+      zip.close if zip
     end
-    
-    send_file(zip.finish, 
-      :filename => filename_for_content_disposition(@project.name + "-" + DateTime.now.strftime("%y%m%d%H%M%S") + ".zip"),
-      :type => "application/zip", 
-      :disposition => "attachment")
-  ensure
-    zip.close unless zip.nil? 
   end
-  
+
   def zip_entries(zip, selected_folders, selected_files)
+    member = Member.where(:user_id => User.current.id, :project_id => @project.id).first
     if selected_folders && selected_folders.is_a?(Array)
       selected_folders.each do |selected_folder_id|
-        check_project(folder = DmsfFolder.visible.find(selected_folder_id))
-        zip.add_folder(folder, (@folder.dmsf_path_str unless @folder.nil?)) unless folder.nil?
+        folder = DmsfFolder.visible.find_by_id selected_folder_id
+        if folder
+          zip.add_folder(folder, member, (folder.dmsf_folder.dmsf_path_str if folder.dmsf_folder))
+        else
+          raise FileNotFound
+        end
       end
     end
     if selected_files && selected_files.is_a?(Array)
       selected_files.each do |selected_file_id|
-        check_project(file = DmsfFile.visible.find(selected_file_id))
-        zip.add_file(file, (@folder.dmsf_path_str unless @folder.nil?)) unless file.nil?
+        file = DmsfFile.visible.find_by_id selected_file_id
+        unless file && file.last_revision && File.exist?(file.last_revision.disk_file)
+          raise FileNotFound
+        end
+        unless (file.project == @project) || User.current.allowed_to?(:view_dmsf_files, file.project)
+          raise DmsfAccessError
+        end
+        zip.add_file(file, member, (file.dmsf_folder.dmsf_path_str if file.dmsf_folder)) if file
       end
     end
-    
-    max_files = 0
-    max_files = Setting.plugin_redmine_dmsf["dmsf_max_file_download"].to_i
+    max_files = Setting.plugin_redmine_dmsf['dmsf_max_file_download'].to_i
     if max_files > 0 && zip.files.length > max_files
-      raise ZipMaxFilesError, zip.files.length
+      raise ZipMaxFilesError#, zip.files.length
     end
-    
     zip
   end
-  
-  def find_project
-    @project = Project.find(params[:id])
+
+  def restore_entries(selected_folders, selected_files, selected_dir_links, selected_file_links, selected_url_links)
+    # Folders
+    selected_folders.each do |id|
+      folder = DmsfFolder.find_by_id id
+      if folder
+        unless folder.restore
+          flash[:error] = folder.errors.full_messages.to_sentence
+        end
+      else
+        raise FileNotFound
+      end
+    end
+    # Files
+    selected_files.each do |id|
+      file = DmsfFile.find_by_id id
+      if file
+        unless file.restore
+          flash[:error] = file.errors.full_messages.to_sentence
+        end
+      else
+        raise FileNotFound
+      end
+    end
+    # Links
+    (selected_dir_links + selected_file_links + selected_url_links).each do |id|
+      link = DmsfLink.find_by_id id
+      if link
+        unless link.restore
+          flash[:error] = link.errors.full_messages.to_sentence
+        end
+      else
+        raise FileNotFound
+      end
+    end
   end
-  
+
+  def delete_entries(selected_folders, selected_files, selected_dir_links, selected_file_links, selected_url_links, commit)
+    # Folders
+    selected_folders.each do |id|
+      folder = DmsfFolder.find_by_id id
+      if folder
+        unless folder.delete commit
+          flash[:error] = folder.errors.full_messages.to_sentence
+          return
+        end
+      elsif !commit
+        raise FileNotFound
+      end
+    end
+    # Files
+    deleted_files = []
+    not_deleted_files = []
+    selected_files.each do |id|
+      file = DmsfFile.find_by_id id
+      if file
+        if file.delete(commit)
+          deleted_files << file unless commit
+        else
+          not_deleted_files << file
+        end
+      elsif !commit
+        raise FileNotFound
+      end
+    end
+    # Activities
+    if !deleted_files.empty?
+      deleted_files.each do |f|
+        log_activity(f, 'deleted')
+      end
+      begin
+        recipients = DmsfMailer.get_notify_users(@project, deleted_files)
+        recipients.each do |u|
+          DmsfMailer.files_deleted(u, @project, deleted_files).deliver
+        end
+        if Setting.plugin_redmine_dmsf[:dmsf_display_notified_recipients] == '1'
+          unless recipients.empty?
+            to = recipients.collect{ |r| r.name }.first(DMSF_MAX_NOTIFICATION_RECEIVERS_INFO).join(', ')
+            to << ((recipients.count > DMSF_MAX_NOTIFICATION_RECEIVERS_INFO) ? ',...' : '.')
+            flash[:warning] = l(:warning_email_notifications, :to => to)
+          end
+        end
+      rescue Exception => e
+        Rails.logger.error "Could not send email notifications: #{e.message}"
+      end
+    end
+    unless not_deleted_files.empty?
+      flash[:warning] = l(:warning_some_entries_were_not_deleted, :entries => not_deleted_files.map{|e| e.title}.join(', '))
+    end
+    # Links
+    (selected_dir_links + selected_file_links + selected_url_links).each do |id|
+      link = DmsfLink.find_by_id id
+      link.delete commit if link
+    end
+    if flash[:error].blank? && flash[:warning].blank?
+      flash[:notice] = l(:notice_entries_deleted)
+    end
+  end
+
   def find_folder
-    @folder = DmsfFolder.visible.find(params[:folder_id]) if params.keys.include?("folder_id")
-    check_project(@folder)
+    @folder = DmsfFolder.find params[:folder_id] if params[:folder_id].present?
   rescue DmsfAccessError
     render_403
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def find_parent
-    @parent = DmsfFolder.visible.find(params[:parent_id]) if params.keys.include?("parent_id")
-    check_project(@parent)
+    @parent = DmsfFolder.visible.find params[:parent_id] if params[:parent_id].present?
   rescue DmsfAccessError
     render_403
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
-  def check_project(entry)
-    if !entry.nil? && entry.project != @project
-      raise DmsfAccessError, l(:error_entry_project_does_not_match_current_project) 
-    end
+  def tree_view
+    tag = params[:custom_field_id].present? && params[:custom_value].present?
+    @tree_view = (User.current.pref[:dmsf_tree_view] == '1') && (!%w(atom xml json).include?(params[:format])) && !tag
   end
 
   def copy_folder(folder)
     copy = folder.clone
     copy.id = folder.id
     copy
+  end
+
+  private
+
+  def get_display_params
+    @folder_manipulation_allowed = User.current.allowed_to?(:folder_manipulation, @project)
+    @file_manipulation_allowed = User.current.allowed_to?(:file_manipulation, @project)
+    @file_delete_allowed = User.current.allowed_to?(:file_delete, @project)
+    @file_view_allowed = User.current.allowed_to?(:view_dmsf_files, @project)
+    @force_file_unlock_allowed = User.current.allowed_to?(:force_file_unlock, @project)
+    @workflows_available = DmsfWorkflow.where(['project_id = ? OR project_id IS NULL', @project.id]).exists?
+    @file_approval_allowed = User.current.allowed_to?(:file_approval, @project)
+    tag = params[:custom_field_id].present? && params[:custom_value].present?
+    @folder = nil if tag
+    if @tree_view
+      @locked_for_user = false
+    else
+      unless @folder
+        if tag
+          @subfolders = []
+          DmsfFolder.where(:project_id => @project.id).visible.each do |f|
+            f.custom_field_values.each do |v|
+              if v.custom_field_id == params[:custom_field_id].to_i
+                if v.custom_field.compare_values?(v.value, params[:custom_value])
+                  @subfolders << f
+                  break
+                end
+              end
+            end
+          end
+          @files = []
+          DmsfFile.where(:project_id => @project.id).visible.each do |f|
+            r = f.last_revision
+            if r
+              r.custom_field_values.each do |v|
+                if v.custom_field_id == params[:custom_field_id].to_i
+                  if v.custom_field.compare_values?(v.value, params[:custom_value])
+                    @files << f
+                    break
+                  end
+                end
+              end
+            end
+          end
+          @dir_links = []
+          DmsfLink.where(:project_id => @project.id, :target_type => DmsfFolder.model_name.to_s).visible.each do |l|
+            l.target_folder.custom_field_values.each do |v|
+              if v.custom_field_id == params[:custom_field_id].to_i
+                if v.custom_field.compare_values?(v.value, params[:custom_value])
+                  @dir_links << l
+                  break
+                end
+              end
+            end
+          end
+          @file_links = []
+          DmsfLink.where(:project_id => @project.id, :target_type => DmsfFile.model_name.to_s).visible.each do |l|
+            r = l.target_file.last_revision if l.target_file
+            if r
+              r.custom_field_values.each do |v|
+                if v.custom_field_id == params[:custom_field_id].to_i
+                  if v.custom_field.compare_values?(v.value, params[:custom_value])
+                    @file_links << l
+                    break
+                  end
+                end
+              end
+            end
+          end
+          @url_links = []
+          DmsfLink.where(:project_id => @project.id, :target_type => 'DmsfUrl').visible.each do |l|
+            r = l.target_file.last_revision if l.target_file
+            if r
+              r.custom_field_values.each do |v|
+                if v.custom_field_id == params[:custom_field_id].to_i
+                  if v.custom_field.compare_values?(v.value, params[:custom_value])
+                    @file_links << l
+                    break
+                  end
+                end
+              end
+            end
+          end
+        else
+          @subfolders = @project.dmsf_folders.visible
+          @files = @project.dmsf_files.visible
+          @dir_links = @project.folder_links.visible
+          @file_links = @project.file_links.visible
+          @url_links = @project.url_links.visible
+        end
+        @locked_for_user = false
+      else
+        @subfolders = @folder.dmsf_folders.visible
+        @files = @folder.dmsf_files.visible
+        @dir_links = @folder.folder_links.visible
+        @file_links = @folder.file_links.visible
+        @url_links = @folder.url_links.visible
+        @locked_for_user = @folder.locked_for_user?
+      end
+    end
+
+    @ajax_upload_size = Setting.plugin_redmine_dmsf['dmsf_max_ajax_upload_filesize'].present? ? Setting.plugin_redmine_dmsf['dmsf_max_ajax_upload_filesize'] : 100
+
+    # Trash
+    @trash_visible = @folder_manipulation_allowed && @file_manipulation_allowed &&
+      @file_delete_allowed && !@locked_for_user && !@folder
+    @trash_enabled = DmsfFolder.deleted.where(:project_id => @project.id).any? ||
+      DmsfFile.deleted.where(:project_id => @project.id).any? ||
+      DmsfLink.deleted.where(:project_id => @project.id).any?
   end
 
 end

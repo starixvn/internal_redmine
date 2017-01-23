@@ -1,3 +1,0 @@
-= redmine_save_spent_time_queries
-
-Description goes here

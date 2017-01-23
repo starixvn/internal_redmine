@@ -14,7 +14,7 @@ module ObjectHelpers
 
   def User.add_to_project(user, project, roles=nil)
     roles = Role.find(1) if roles.nil?
-    roles = [roles] unless roles.is_a?(Array)
+    roles = [roles] if roles.is_a?(Role)
     Member.create!(:principal => user, :project => project, :roles => roles)
   end
 
@@ -39,18 +39,39 @@ module ObjectHelpers
     project
   end
 
-  def Project.generate_with_parent!(parent, attributes={})
-    project = Project.generate!(attributes)
-    project.set_parent!(parent)
+  def Project.generate_with_parent!(*args)
+    attributes = args.last.is_a?(Hash) ? args.pop : {}
+    parent = args.size > 0 ? args.first : Project.generate!
+
+    project = Project.generate!(attributes) do |p|
+      p.parent = parent
+    end
+    parent.reload if parent
     project
   end
 
-  def Tracker.generate!(attributes={})
+  def IssueStatus.generate!(attributes={})
+    @generated_status_name ||= 'Status 0'
+    @generated_status_name.succ!
+    status = IssueStatus.new(attributes)
+    status.name = @generated_status_name.dup if status.name.blank?
+    yield status if block_given?
+    status.save!
+    status
+  end
+
+  def Tracker.generate(attributes={})
     @generated_tracker_name ||= 'Tracker 0'
     @generated_tracker_name.succ!
     tracker = Tracker.new(attributes)
     tracker.name = @generated_tracker_name.dup if tracker.name.blank?
+    tracker.default_status ||= IssueStatus.order('position').first || IssueStatus.generate!
     yield tracker if block_given?
+    tracker
+  end
+
+  def Tracker.generate!(attributes={}, &block)
+    tracker = Tracker.generate(attributes, &block)
     tracker.save!
     tracker
   end
@@ -65,13 +86,20 @@ module ObjectHelpers
     role
   end
 
-  def Issue.generate!(attributes={})
+  # Generates an unsaved Issue
+  def Issue.generate(attributes={})
     issue = Issue.new(attributes)
     issue.project ||= Project.find(1)
     issue.tracker ||= issue.project.trackers.first
     issue.subject = 'Generated' if issue.subject.blank?
     issue.author ||= User.find(2)
     yield issue if block_given?
+    issue
+  end
+
+  # Generates a saved Issue
+  def Issue.generate!(attributes={}, &block)
+    issue = Issue.generate(attributes, &block)
     issue.save!
     issue
   end
@@ -82,6 +110,12 @@ module ObjectHelpers
     child = Issue.generate!(:project => issue.project, :subject => 'Child1', :parent_issue_id => issue.id)
     Issue.generate!(:project => issue.project, :subject => 'Child2', :parent_issue_id => issue.id)
     Issue.generate!(:project => issue.project, :subject => 'Child11', :parent_issue_id => child.id)
+    issue.reload
+  end
+
+  def Issue.generate_with_child!(attributes={})
+    issue = Issue.generate!(attributes)
+    Issue.generate!(:parent_issue_id => issue.id)
     issue.reload
   end
 
@@ -99,6 +133,7 @@ module ObjectHelpers
     @generated_version_name.succ!
     version = Version.new(attributes)
     version.name = @generated_version_name.dup if version.name.blank?
+    version.project ||= Project.find(1)
     yield version if block_given?
     version.save!
     version
@@ -107,10 +142,11 @@ module ObjectHelpers
   def TimeEntry.generate!(attributes={})
     entry = TimeEntry.new(attributes)
     entry.user ||= User.find(2)
-    entry.issue ||= Issue.find(1)
+    entry.issue ||= Issue.find(1) unless entry.project
     entry.project ||= entry.issue.project
     entry.activity ||= TimeEntryActivity.first
     entry.spent_on ||= Date.today
+    entry.hours ||= 1.0
     entry.save!
     entry
   end
@@ -147,4 +183,94 @@ module ObjectHelpers
     attachment.save!
     attachment
   end
+
+  def CustomField.generate!(attributes={})
+    @generated_custom_field_name ||= 'Custom field 0'
+    @generated_custom_field_name.succ!
+    field = new(attributes)
+    field.name = @generated_custom_field_name.dup if field.name.blank?
+    field.field_format = 'string' if field.field_format.blank?
+    yield field if block_given?
+    field.save!
+    field
+  end
+
+  def IssueCustomField.generate!(attributes={})
+    super do |field|
+      field.is_for_all = true unless attributes.key?(:is_for_all)
+      field.tracker_ids = Tracker.all.ids unless attributes.key?(:tracker_ids) || attributes.key?(:trackers)
+    end
+  end
+
+  def Changeset.generate!(attributes={})
+    @generated_changeset_rev ||= '123456'
+    @generated_changeset_rev.succ!
+    changeset = new(attributes)
+    changeset.repository ||= Project.find(1).repository
+    changeset.revision ||= @generated_changeset_rev
+    changeset.committed_on ||= Time.now
+    yield changeset if block_given?
+    changeset.save!
+    changeset
+  end
+
+  def Query.generate!(attributes={})
+    query = new(attributes)
+    query.name = "Generated query" if query.name.blank?
+    query.user ||= User.find(1)
+    query.save!
+    query
+  end
+
+  def generate_import(fixture_name='import_issues.csv')
+    import = IssueImport.new
+    import.user_id = 2
+    import.file = uploaded_test_file(fixture_name, 'text/csv')
+    import.save!
+    import
+  end
+
+  def generate_import_with_mapping(fixture_name='import_issues.csv')
+    import = generate_import(fixture_name)
+
+    import.settings = {
+      'separator' => ";", 'wrapper' => '"', 'encoding' => "UTF-8",
+      'mapping' => {'project_id' => '1', 'tracker' => '13', 'subject' => '1'}
+    }
+    import.save!
+    import
+  end
 end
+
+module TrackerObjectHelpers
+  def generate_transitions!(*args)
+    options = args.last.is_a?(Hash) ? args.pop : {}
+    if args.size == 1
+      args << args.first
+    end
+    if options[:clear]
+      WorkflowTransition.where(:tracker_id => id).delete_all
+    end
+    args.each_cons(2) do |old_status_id, new_status_id|
+      WorkflowTransition.create!(
+        :tracker => self,
+        :role_id => (options[:role_id] || 1),
+        :old_status_id => old_status_id,
+        :new_status_id => new_status_id
+      )
+    end
+  end
+end
+Tracker.send :include, TrackerObjectHelpers
+
+module IssueObjectHelpers
+  def close!
+    self.status = IssueStatus.where(:is_closed => true).first
+    save!
+  end
+
+  def generate_child!(attributes={})
+    Issue.generate!(attributes.merge(:parent_issue_id => self.id))
+  end
+end
+Issue.send :include, IssueObjectHelpers

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
 
-class LayoutTest < ActionController::IntegrationTest
+class LayoutTest < Redmine::IntegrationTest
   fixtures :projects, :trackers, :issue_statuses, :issues,
            :enumerations, :users,
            :projects_trackers,
@@ -8,14 +8,14 @@ class LayoutTest < ActionController::IntegrationTest
            :member_roles,
            :members,
            :enabled_modules,
-           :workflows, 
+           :workflows,
            :issue_templates
 
   def test_issue_template_not_visible_when_module_off
     # module -> disabled
     log_user('admin', 'admin')
     post '/projects/ecookbook/modules',
-         :enabled_module_names => ['issue_tracking'], :commit => 'Save', :id => 'ecookbook'
+         enabled_module_names: ['issue_tracking'], commit: 'Save', id: 'ecookbook'
 
     get '/projects/ecookbook/issues'
     assert_response :success
@@ -29,17 +29,12 @@ class LayoutTest < ActionController::IntegrationTest
     # module -> enabled
     log_user('admin', 'admin')
     post '/projects/ecookbook/modules',
-         :enabled_module_names => ['issue_tracking', 'issue_templates'], :commit => 'Save', :id => 'ecookbook'
+         enabled_module_names: %w(issue_tracking issue_templates), commit: 'Save', id: 'ecookbook'
 
     get '/projects/ecookbook/issues'
     assert_response :success
     assert_select 'h3.template'
-    assert_tag :a, :content => "Add template",
-               :attributes => { :href => "/projects/ecookbook/issue_templates/new",
-                                }
-
-    # TODO: This test is failed and figure out the reason.
-    #get '/projects/ecookbook/issues/new'
-    #assert_select 'div#template_area'
+    assert_tag :a, content: 'Add template',
+                   attributes: { href: '/projects/ecookbook/issue_templates/new' }
   end
 end

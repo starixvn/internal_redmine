@@ -51,8 +51,8 @@ sr:
         one:   "приближно један сат"
         other: "приближно %{count} сати"
       x_hours:
-        one:   "1 hour"
-        other: "%{count} hours"
+        one:   "1 сат"
+        other: "%{count} сати"
       x_days:
         one:   "један дан"
         other: "%{count} дана"
@@ -130,6 +130,7 @@ sr:
         not_same_project: "не припада истом пројекту"
         circular_dependency: "Ова веза ће створити кружну референцу"
         cant_link_an_issue_with_a_descendant: "Проблем не може бити повезан са једним од својих подзадатака"
+        earlier_than_minimum_start_date: "cannot be earlier than %{date} because of preceding issues"
 
   actionview_instancetag_blank_option: Молим одаберите
 
@@ -141,11 +142,12 @@ sr:
   general_csv_separator: ','
   general_csv_decimal_separator: '.'
   general_csv_encoding: UTF-8
-  general_pdf_encoding: UTF-8
+  general_pdf_fontname: freesans
+  general_pdf_monospaced_fontname: freemono
   general_first_day_of_week: '1'
 
   notice_account_updated: Налог је успешно ажуриран.
-  notice_account_invalid_creditentials: Неисправно корисничко име или лозинка.
+  notice_account_invalid_credentials: Неисправно корисничко име или лозинка.
   notice_account_password_updated: Лозинка је успешно ажурирана.
   notice_account_wrong_password: Погрешна лозинка
   notice_account_register_done: Кориснички налог је успешно креиран. Кликните на линк који сте добили у е-поруци за активацију.
@@ -162,7 +164,7 @@ sr:
   notice_not_authorized: Нисте овлашћени за приступ овој страни.
   notice_email_sent: "E-порука је послата на %{value}"
   notice_email_error: "Догодила се грешка приликом слања е-поруке (%{value})"
-  notice_feeds_access_key_reseted: Ваш RSS приступни кључ је поништен.
+  notice_feeds_access_key_reseted: Ваш Atom приступни кључ је поништен.
   notice_api_access_key_reseted: Ваш API приступни кључ је поништен.
   notice_failed_to_save_issues: "Неуспешно снимање %{count} проблема од %{total} одабраних: %{ids}."
   notice_failed_to_save_members: "Неуспешно снимање члана(ова): %{errors}."
@@ -535,10 +537,6 @@ sr:
   label_open_issues_plural: отворених
   label_closed_issues: затворен
   label_closed_issues_plural: затворених
-  label_x_open_issues_abbr_on_total:
-    zero:  0 отворених / %{total}
-    one:   1 отворен / %{total}
-    other: "%{count} отворених / %{total}"
   label_x_open_issues_abbr:
     zero:  0 отворених
     one:   1 отворен
@@ -559,7 +557,6 @@ sr:
   label_used_by: Користио
   label_details: Детаљи
   label_add_note: Додај белешку
-  label_per_page: По страни
   label_calendar: Календар
   label_months_from: месеци од
   label_gantt: Гантов дијаграм
@@ -674,10 +671,6 @@ sr:
   label_blocked_by: одбијених од
   label_precedes: претходи
   label_follows: праћених
-  label_end_to_start: од краја до почетка
-  label_end_to_end: од краја до краја
-  label_start_to_start: од почетка до почетка
-  label_start_to_end: од почетка до краја
   label_stay_logged_in: Останите пријављени
   label_disabled: онемогућено
   label_show_completed_versions: Приказивање завршене верзије
@@ -702,9 +695,9 @@ sr:
   label_language_based: Базирано на језику корисника
   label_sort_by: "Сортирано по %{value}"
   label_send_test_email: Слање пробне е-поруке
-  label_feeds_access_key: RSS приступни кључ
-  label_missing_feeds_access_key: RSS приступни кључ недостаје
-  label_feeds_access_key_created_on: "RSS приступни кључ је направљен пре %{value}"
+  label_feeds_access_key: Atom приступни кључ
+  label_missing_feeds_access_key: Atom приступни кључ недостаје
+  label_feeds_access_key_created_on: "Atom приступни кључ је направљен пре %{value}"
   label_module_plural: Модули
   label_added_time_by: "Додао %{author} пре %{age}"
   label_updated_time_by: "Ажурирао %{author} пре %{age}"
@@ -1083,8 +1076,136 @@ sr:
   setting_jsonp_enabled: Enable JSONP support
   field_inherit_members: Inherit members
   field_closed_on: Closed
+  field_generate_password: Generate password
   setting_default_projects_tracker_ids: Default trackers for new projects
   label_total_time: Укупно
   text_scm_config: You can configure your SCM commands in config/configuration.yml. Please restart the application after editing it.
   text_scm_command_not_available: SCM command is not available. Please check settings on the administration panel.
   setting_emails_header: Email header
+  notice_account_not_activated_yet: You haven't activated your account yet. If you want
+    to receive a new activation email, please <a href="%{url}">click this link</a>.
+  notice_account_locked: Your account is locked.
+  label_hidden: Hidden
+  label_visibility_private: to me only
+  label_visibility_roles: to these roles only
+  label_visibility_public: to any users
+  field_must_change_passwd: Must change password at next logon
+  notice_new_password_must_be_different: The new password must be different from the
+    current password
+  setting_mail_handler_excluded_filenames: Exclude attachments by name
+  text_convert_available: ImageMagick convert available (optional)
+  label_link: Link
+  label_only: only
+  label_drop_down_list: drop-down list
+  label_checkboxes: checkboxes
+  label_link_values_to: Link values to URL
+  setting_force_default_language_for_anonymous: Force default language for anonymous
+    users
+  setting_force_default_language_for_loggedin: Force default language for logged-in
+    users
+  label_custom_field_select_type: Select the type of object to which the custom field
+    is to be attached
+  label_issue_assigned_to_updated: Assignee updated
+  label_check_for_updates: Check for updates
+  label_latest_compatible_version: Latest compatible version
+  label_unknown_plugin: Unknown plugin
+  label_radio_buttons: radio buttons
+  label_group_anonymous: Anonymous users
+  label_group_non_member: Non member users
+  label_add_projects: Add projects
+  field_default_status: Default status
+  text_subversion_repository_note: 'Examples: file:///, http://, https://, svn://, svn+[tunnelscheme]://'
+  field_users_visibility: Users visibility
+  label_users_visibility_all: All active users
+  label_users_visibility_members_of_visible_projects: Members of visible projects
+  label_edit_attachments: Edit attached files
+  setting_link_copied_issue: Link issues on copy
+  label_link_copied_issue: Link copied issue
+  label_ask: Ask
+  label_search_attachments_yes: Search attachment filenames and descriptions
+  label_search_attachments_no: Do not search attachments
+  label_search_attachments_only: Search attachments only
+  label_search_open_issues_only: Open issues only
+  field_address: Е-адреса
+  setting_max_additional_emails: Maximum number of additional email addresses
+  label_email_address_plural: Emails
+  label_email_address_add: Add email address
+  label_enable_notifications: Enable notifications
+  label_disable_notifications: Disable notifications
+  setting_search_results_per_page: Search results per page
+  label_blank_value: blank
+  permission_copy_issues: Copy issues
+  error_password_expired: Your password has expired or the administrator requires you
+    to change it.
+  field_time_entries_visibility: Time logs visibility
+  setting_password_max_age: Require password change after
+  label_parent_task_attributes: Parent tasks attributes
+  label_parent_task_attributes_derived: Calculated from subtasks
+  label_parent_task_attributes_independent: Independent of subtasks
+  label_time_entries_visibility_all: All time entries
+  label_time_entries_visibility_own: Time entries created by the user
+  label_member_management: Member management
+  label_member_management_all_roles: All roles
+  label_member_management_selected_roles_only: Only these roles
+  label_password_required: Confirm your password to continue
+  label_total_spent_time: Целокупно утрошено време
+  notice_import_finished: "%{count} items have been imported"
+  notice_import_finished_with_errors: "%{count} out of %{total} items could not be imported"
+  error_invalid_file_encoding: The file is not a valid %{encoding} encoded file
+  error_invalid_csv_file_or_settings: The file is not a CSV file or does not match the
+    settings below
+  error_can_not_read_import_file: An error occurred while reading the file to import
+  permission_import_issues: Import issues
+  label_import_issues: Import issues
+  label_select_file_to_import: Select the file to import
+  label_fields_separator: Field separator
+  label_fields_wrapper: Field wrapper
+  label_encoding: Encoding
+  label_comma_char: Comma
+  label_semi_colon_char: Semicolon
+  label_quote_char: Quote
+  label_double_quote_char: Double quote
+  label_fields_mapping: Fields mapping
+  label_file_content_preview: File content preview
+  label_create_missing_values: Create missing values
+  button_import: Import
+  field_total_estimated_hours: Total estimated time
+  label_api: API
+  label_total_plural: Totals
+  label_assigned_issues: Assigned issues
+  label_field_format_enumeration: Key/value list
+  label_f_hour_short: '%{value} h'
+  field_default_version: Default version
+  error_attachment_extension_not_allowed: Attachment extension %{extension} is not allowed
+  setting_attachment_extensions_allowed: Allowed extensions
+  setting_attachment_extensions_denied: Disallowed extensions
+  label_any_open_issues: any open issues
+  label_no_open_issues: no open issues
+  label_default_values_for_new_users: Default values for new users
+  error_ldap_bind_credentials: Invalid LDAP Account/Password
+  setting_sys_api_key: API кључ
+  setting_lost_password: Изгубљена лозинка
+  mail_subject_security_notification: Security notification
+  mail_body_security_notification_change: ! '%{field} was changed.'
+  mail_body_security_notification_change_to: ! '%{field} was changed to %{value}.'
+  mail_body_security_notification_add: ! '%{field} %{value} was added.'
+  mail_body_security_notification_remove: ! '%{field} %{value} was removed.'
+  mail_body_security_notification_notify_enabled: Email address %{value} now receives
+    notifications.
+  mail_body_security_notification_notify_disabled: Email address %{value} no longer
+    receives notifications.
+  mail_body_settings_updated: ! 'The following settings were changed:'
+  field_remote_ip: IP address
+  label_wiki_page_new: New wiki page
+  label_relations: Relations
+  button_filter: Filter
+  mail_body_password_updated: Your password has been changed.
+  label_no_preview: No preview available
+  error_no_tracker_allowed_for_new_issue_in_project: The project doesn't have any trackers
+    for which you can create an issue
+  label_tracker_all: All trackers
+  label_new_project_issue_tab_enabled: Display the "New issue" tab
+  setting_new_item_menu_tab: Project menu tab for creating new objects
+  label_new_object_tab_enabled: Display the "+" drop-down
+  error_no_projects_with_tracker_allowed_for_new_issue: There are no projects with trackers
+    for which you can create an issue

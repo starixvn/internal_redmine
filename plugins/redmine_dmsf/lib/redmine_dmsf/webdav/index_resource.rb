@@ -1,6 +1,9 @@
+# encoding: utf-8
+#
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2012   Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,26 +22,17 @@
 module RedmineDmsf
   module Webdav
     class IndexResource < BaseResource
-
-      def initialize(public_path, path, request, response, options)
-        super(public_path, path, request, response, options)
-      end
-
-
+      
       def children
-        if @Projects.nil? || @Projects.empty?
-          @Projects = []
-          if User.current.admin?
-            @Projects = Project.visible.find(:all, :order => 'lft')
-          elsif User.current.logged? #If user is not admin, we should only show memberships relevent
-            User.current.memberships.each {|m| @Projects << m.project if m.roles.detect {|r| r.allowed_to?(:view_dmsf_folders)}}
+        unless @projects
+          @projects = []
+          Project.select(:identifier).has_module(:dmsf).where(
+            Project.allowed_to_condition(
+              User.current, :view_dmsf_folders)).order('lft').all.each do |p|
+            @projects << child(p.identifier)
           end
-        end 
-        @Projects.delete_if { |node|  node.module_enabled?('dmsf').nil? } unless @Projects.nil?
-        return [] if @Projects.nil? || @Projects.empty?
-        @Projects.map do |p|
-          child p.identifier
         end
+        @projects
       end
 
       def collection?
@@ -57,7 +51,7 @@ module RedmineDmsf
         MethodNotAllowed
       end
 
-      #Index resource ALWAYS exists
+      # Index resource ALWAYS exists
       def exist?
         true
       end
@@ -67,7 +61,7 @@ module RedmineDmsf
       end
 
       def content_type
-        "inode/directory"
+        'inode/directory'
       end
 
       def content_length

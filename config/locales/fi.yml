@@ -95,8 +95,8 @@ fi:
         one:   "noin tunti"
         other: "noin %{count} tuntia"
       x_hours:
-        one:   "1 hour"
-        other: "%{count} hours"
+        one:   "1 tunti"
+        other: "%{count} tuntia"
       x_days:
         one:   "päivä"
         other: "%{count} päivää"
@@ -154,6 +154,7 @@ fi:
         not_same_project: "ei kuulu samaan projektiin"
         circular_dependency: "Tämä suhde loisi kehän."
         cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
+        earlier_than_minimum_start_date: "cannot be earlier than %{date} because of preceding issues"
 
   actionview_instancetag_blank_option: Valitse, ole hyvä
 
@@ -165,11 +166,12 @@ fi:
   general_csv_separator: ','
   general_csv_decimal_separator: '.'
   general_csv_encoding: ISO-8859-15
-  general_pdf_encoding: UTF-8
+  general_pdf_fontname: freesans
+  general_pdf_monospaced_fontname: freemono
   general_first_day_of_week: '1'
 
   notice_account_updated: Tilin päivitys onnistui.
-  notice_account_invalid_creditentials: Virheellinen käyttäjätunnus tai salasana
+  notice_account_invalid_credentials: Virheellinen käyttäjätunnus tai salasana
   notice_account_password_updated: Salasanan päivitys onnistui.
   notice_account_wrong_password: Väärä salasana
   notice_account_register_done: Tilin luonti onnistui. Aktivoidaksesi tilin seuraa linkkiä joka välitettiin sähköpostiisi.
@@ -186,7 +188,7 @@ fi:
   notice_not_authorized: Sinulla ei ole oikeutta näyttää tätä sivua.
   notice_email_sent: "Sähköposti on lähetty osoitteeseen %{value}"
   notice_email_error: "Sähköpostilähetyksessä tapahtui virhe (%{value})"
-  notice_feeds_access_key_reseted: RSS salasana on nollaantunut.
+  notice_feeds_access_key_reseted: Atom salasana on nollaantunut.
   notice_failed_to_save_issues: "%{count} Tapahtum(an/ien) tallennus epäonnistui %{total} valitut: %{ids}."
   notice_no_issue_selected: "Tapahtumia ei ole valittu! Valitse tapahtumat joita haluat muokata."
   notice_account_pending: "Tilisi on luotu ja odottaa ylläpitäjän hyväksyntää."
@@ -421,10 +423,6 @@ fi:
   label_open_issues_plural: avointa, yhteensä
   label_closed_issues: suljettu
   label_closed_issues_plural: suljettua
-  label_x_open_issues_abbr_on_total:
-    zero:  0 open / %{total}
-    one:   1 open / %{total}
-    other: "%{count} open / %{total}"
   label_x_open_issues_abbr:
     zero:  0 open
     one:   1 open
@@ -445,7 +443,6 @@ fi:
   label_used_by: Käytetty
   label_details: Yksityiskohdat
   label_add_note: Lisää muistiinpano
-  label_per_page: Per sivu
   label_calendar: Kalenteri
   label_months_from: kuukauden päässä
   label_gantt: Gantt
@@ -540,10 +537,6 @@ fi:
   label_blocked_by: estetty
   label_precedes: edeltää
   label_follows: seuraa
-  label_end_to_start: lopusta alkuun
-  label_end_to_end: lopusta loppuun
-  label_start_to_start: alusta alkuun
-  label_start_to_end: alusta loppuun
   label_stay_logged_in: Pysy kirjautuneena
   label_disabled: poistettu käytöstä
   label_show_completed_versions: Näytä valmiit versiot
@@ -563,7 +556,7 @@ fi:
   label_language_based: Pohjautuen käyttäjän kieleen
   label_sort_by: "Lajittele %{value}"
   label_send_test_email: Lähetä testi sähköposti
-  label_feeds_access_key_created_on: "RSS salasana luotiin %{value} sitten"
+  label_feeds_access_key_created_on: "Atom salasana luotiin %{value} sitten"
   label_module_plural: Moduulit
   label_added_time_by: "Lisännyt %{author} %{age} sitten"
   label_updated_time: "Päivitetty %{value} sitten"
@@ -894,11 +887,11 @@ fi:
   label_revision_id: Revision %{value}
   label_api_access_key: API access key
   label_api_access_key_created_on: API access key created %{value} ago
-  label_feeds_access_key: RSS access key
+  label_feeds_access_key: Atom access key
   notice_api_access_key_reseted: Your API access key was reset.
   setting_rest_api_enabled: Enable REST web service
   label_missing_api_access_key: Missing an API access key
-  label_missing_feeds_access_key: Missing a RSS access key
+  label_missing_feeds_access_key: Missing a Atom access key
   button_show: Show
   text_line_separated: Multiple values allowed (one line for each value).
   setting_mail_handler_body_delimiters: Truncate emails after one of these lines
@@ -922,7 +915,7 @@ fi:
   error_can_not_delete_custom_field: Unable to delete custom field
   error_unable_to_connect: Unable to connect (%{value})
   error_can_not_remove_role: This role is in use and can not be deleted.
-  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and cannot be deleted.
   field_principal: Principal
   label_my_page_block: My page block
   notice_failed_to_save_members: "Failed to save member(s): %{errors}."
@@ -1103,8 +1096,136 @@ fi:
   setting_jsonp_enabled: Enable JSONP support
   field_inherit_members: Inherit members
   field_closed_on: Closed
+  field_generate_password: Generate password
   setting_default_projects_tracker_ids: Default trackers for new projects
   label_total_time: Yhteensä
   text_scm_config: You can configure your SCM commands in config/configuration.yml. Please restart the application after editing it.
   text_scm_command_not_available: SCM command is not available. Please check settings on the administration panel.
   setting_emails_header: Email header
+  notice_account_not_activated_yet: You haven't activated your account yet. If you want
+    to receive a new activation email, please <a href="%{url}">click this link</a>.
+  notice_account_locked: Your account is locked.
+  label_hidden: Hidden
+  label_visibility_private: to me only
+  label_visibility_roles: to these roles only
+  label_visibility_public: to any users
+  field_must_change_passwd: Must change password at next logon
+  notice_new_password_must_be_different: The new password must be different from the
+    current password
+  setting_mail_handler_excluded_filenames: Exclude attachments by name
+  text_convert_available: ImageMagick convert available (optional)
+  label_link: Link
+  label_only: only
+  label_drop_down_list: drop-down list
+  label_checkboxes: checkboxes
+  label_link_values_to: Link values to URL
+  setting_force_default_language_for_anonymous: Force default language for anonymous
+    users
+  setting_force_default_language_for_loggedin: Force default language for logged-in
+    users
+  label_custom_field_select_type: Select the type of object to which the custom field
+    is to be attached
+  label_issue_assigned_to_updated: Assignee updated
+  label_check_for_updates: Check for updates
+  label_latest_compatible_version: Latest compatible version
+  label_unknown_plugin: Unknown plugin
+  label_radio_buttons: radio buttons
+  label_group_anonymous: Anonymous users
+  label_group_non_member: Non member users
+  label_add_projects: Add projects
+  field_default_status: Default status
+  text_subversion_repository_note: 'Examples: file:///, http://, https://, svn://, svn+[tunnelscheme]://'
+  field_users_visibility: Users visibility
+  label_users_visibility_all: All active users
+  label_users_visibility_members_of_visible_projects: Members of visible projects
+  label_edit_attachments: Edit attached files
+  setting_link_copied_issue: Link issues on copy
+  label_link_copied_issue: Link copied issue
+  label_ask: Ask
+  label_search_attachments_yes: Search attachment filenames and descriptions
+  label_search_attachments_no: Do not search attachments
+  label_search_attachments_only: Search attachments only
+  label_search_open_issues_only: Open issues only
+  field_address: Sähköposti
+  setting_max_additional_emails: Maximum number of additional email addresses
+  label_email_address_plural: Emails
+  label_email_address_add: Add email address
+  label_enable_notifications: Enable notifications
+  label_disable_notifications: Disable notifications
+  setting_search_results_per_page: Search results per page
+  label_blank_value: blank
+  permission_copy_issues: Copy issues
+  error_password_expired: Your password has expired or the administrator requires you
+    to change it.
+  field_time_entries_visibility: Time logs visibility
+  setting_password_max_age: Require password change after
+  label_parent_task_attributes: Parent tasks attributes
+  label_parent_task_attributes_derived: Calculated from subtasks
+  label_parent_task_attributes_independent: Independent of subtasks
+  label_time_entries_visibility_all: All time entries
+  label_time_entries_visibility_own: Time entries created by the user
+  label_member_management: Member management
+  label_member_management_all_roles: All roles
+  label_member_management_selected_roles_only: Only these roles
+  label_password_required: Confirm your password to continue
+  label_total_spent_time: Overall spent time
+  notice_import_finished: "%{count} items have been imported"
+  notice_import_finished_with_errors: "%{count} out of %{total} items could not be imported"
+  error_invalid_file_encoding: The file is not a valid %{encoding} encoded file
+  error_invalid_csv_file_or_settings: The file is not a CSV file or does not match the
+    settings below
+  error_can_not_read_import_file: An error occurred while reading the file to import
+  permission_import_issues: Import issues
+  label_import_issues: Import issues
+  label_select_file_to_import: Select the file to import
+  label_fields_separator: Field separator
+  label_fields_wrapper: Field wrapper
+  label_encoding: Encoding
+  label_comma_char: Comma
+  label_semi_colon_char: Semicolon
+  label_quote_char: Quote
+  label_double_quote_char: Double quote
+  label_fields_mapping: Fields mapping
+  label_file_content_preview: File content preview
+  label_create_missing_values: Create missing values
+  button_import: Import
+  field_total_estimated_hours: Total estimated time
+  label_api: API
+  label_total_plural: Totals
+  label_assigned_issues: Assigned issues
+  label_field_format_enumeration: Key/value list
+  label_f_hour_short: '%{value} h'
+  field_default_version: Default version
+  error_attachment_extension_not_allowed: Attachment extension %{extension} is not allowed
+  setting_attachment_extensions_allowed: Allowed extensions
+  setting_attachment_extensions_denied: Disallowed extensions
+  label_any_open_issues: any open issues
+  label_no_open_issues: no open issues
+  label_default_values_for_new_users: Default values for new users
+  error_ldap_bind_credentials: Invalid LDAP Account/Password
+  setting_sys_api_key: API avain
+  setting_lost_password: Hukattu salasana
+  mail_subject_security_notification: Security notification
+  mail_body_security_notification_change: ! '%{field} was changed.'
+  mail_body_security_notification_change_to: ! '%{field} was changed to %{value}.'
+  mail_body_security_notification_add: ! '%{field} %{value} was added.'
+  mail_body_security_notification_remove: ! '%{field} %{value} was removed.'
+  mail_body_security_notification_notify_enabled: Email address %{value} now receives
+    notifications.
+  mail_body_security_notification_notify_disabled: Email address %{value} no longer
+    receives notifications.
+  mail_body_settings_updated: ! 'The following settings were changed:'
+  field_remote_ip: IP address
+  label_wiki_page_new: New wiki page
+  label_relations: Relations
+  button_filter: Filter
+  mail_body_password_updated: Your password has been changed.
+  label_no_preview: No preview available
+  error_no_tracker_allowed_for_new_issue_in_project: The project doesn't have any trackers
+    for which you can create an issue
+  label_tracker_all: All trackers
+  label_new_project_issue_tab_enabled: Display the "New issue" tab
+  setting_new_item_menu_tab: Project menu tab for creating new objects
+  label_new_object_tab_enabled: Display the "+" drop-down
+  error_no_projects_with_tracker_allowed_for_new_issue: There are no projects with trackers
+    for which you can create an issue

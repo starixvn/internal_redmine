@@ -1,5 +1,5 @@
 # Redmine - project management software
-# Copyright (C) 2006-2013  Jean-Philippe Lang
+# Copyright (C) 2006-2016  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,23 +24,8 @@ class CustomFieldVersionFormatTest < ActiveSupport::TestCase
     @field = IssueCustomField.create!(:name => 'Tester', :field_format => 'version')
   end
 
-  def test_possible_values_with_no_arguments
-    assert_equal [], @field.possible_values
-    assert_equal [], @field.possible_values(nil)
-  end
-
-  def test_possible_values_with_project_resource
-    project = Project.find(1)
-    possible_values = @field.possible_values(project.issues.first)
-    assert possible_values.any?
-    assert_equal project.shared_versions.sort.collect(&:id).map(&:to_s), possible_values
-  end
-
-  def test_possible_values_with_nil_project_resource
-    assert_equal [], @field.possible_values(Issue.new)
-  end
-
   def test_possible_values_options_with_no_arguments
+    Version.delete_all
     assert_equal [], @field.possible_values_options
     assert_equal [], @field.possible_values_options(nil)
   end

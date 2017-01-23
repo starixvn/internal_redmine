@@ -1,6 +1,9 @@
+# encoding: utf-8
+#
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2012   Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2012    Daniel Munn  <dan.munn@munnster.co.uk>
+# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,99 +19,115 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require 'dav4rack'
+
 module RedmineDmsf
   module Webdav
     class Controller < DAV4Rack::Controller
+      include DAV4Rack::Utils
 
-      #Overload default options
-      def options
-        raise NotFound unless resource.exist?
-        response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
-        response["Dav"] = "1,2,3"
-        response["Ms-Author-Via"] = "DAV"
-        OK
-      end
-
-      # This is just pain DIRTY
-      # to fix some gem bugs we're overriding their controller
-      def lock
-        begin
-          request.env['Timeout'] = request.env['HTTP_TIMEOUT'].split('-',2).join(',') unless request.env['HTTP_TIMEOUT'].nil?
-        rescue
-          #Nothing here
-        end
-
-        request_document.remove_namespaces! if ns.empty? 
-        # We re-imlement the function ns - if its return is empty, there are no usable namespaces
-        # so to prevent never returning data, we stip all namespaces
-
-        super
-      end
-
-
-      #Overload the default propfind function with this
+      # Return response to PROPFIND
       def propfind
         unless(resource.exist?)
           NotFound
         else
-          unless(request_document.xpath("//#{ns}propfind/#{ns}allprop").empty?)
-            names = resource.property_names
+          # Win7 hack start          
+          if request_document.xpath("//#{ns}propfind").empty? || request_document.xpath("//#{ns}propfind/#{ns}allprop").present?
+            properties = resource.properties.map { |prop| DAV4Rack::DAVElement.new(prop.merge(:namespace => DAV4Rack::DAVElement.new(:href => prop[:ns_href]))) }
+          # Win7 hack end
           else
-            names = (
-              ns.empty? ? request_document.remove_namespaces! : request_document
-            ).xpath(
-              "//#{ns}propfind/#{ns}prop"
-            ).children.find_all{ |item|
-              item.element? && item.name.start_with?(ns)
-            }.map{ |item|
-              item.name.sub("#{ns}::", '')
-            }
-            names = resource.property_names if names.empty?
+            check = request_document.xpath("//#{ns}propfind")
+            if(check && !check.empty?)
+              properties = request_document.xpath(
+                "//#{ns}propfind/#{ns}prop"
+              ).children.find_all{ |item|
+                item.element?
+              }.map{ |item|
+                # We should do this, but Nokogiri transforms prefix w/ null href into
+                # something valid.  Oops.
+                # TODO: Hacky grep fix that's horrible
+                hsh = to_element_hash(item)
+                if(hsh.namespace.nil? && !ns.empty?)
+                  raise BadRequest if request_document.to_s.scan(%r{<#{item.name}[^>]+xmlns=""}).empty?
+                end
+                hsh
+              }.compact
+            else
+              raise BadRequest
+            end
           end
           multistatus do |xml|
             find_resources.each do |resource|
               xml.response do
                 unless(resource.propstat_relative_path)
-                  xml.href "#{scheme}://#{host}:#{port}#{url_format(resource)}"
+                  xml.href "#{scheme}://#{host}:#{port}#{url_format(resource)}"                  
                 else
                   xml.href url_format(resource)
                 end
-                propstats(xml, get_properties(resource, names))
+                propstats(xml, get_properties(resource, properties.empty? ? resource.properties : properties))
               end
             end
+          end          
+        end
+      end
+    
+      # args:: Only argument used: :copy
+      # Move Resource to new location. If :copy is provided,
+      # Resource will be copied (implementation ease)
+      # The only reason for overriding is a typing mistake 'include' -> 'include?' 
+      #   and a wrong regular expression for BadGateway check
+      def move(*args)
+        unless(resource.exist?)
+          NotFound
+        else
+          resource.lock_check if resource.supports_locking? && !args.include?(:copy)
+          destination = url_unescape(env['HTTP_DESTINATION'].sub(%r{https?://([^/]+)}, ''))
+          host = $1.gsub(/:\d{2,5}$/, '') if $1
+          host = host.gsub(/^.+@/, '') if host
+          if(host != request.host)
+            BadGateway
+          elsif(destination == resource.public_path)            
+            Forbidden
+          else
+            collection = resource.collection?
+            dest = resource_class.new(destination, clean_path(destination), @request, @response, @options.merge(:user => resource.user))
+            status = nil
+            if(args.include?(:copy))
+              status = resource.copy(dest, overwrite)
+            else
+              return Conflict unless depth.is_a?(Symbol) || depth > 1
+              status = resource.move(dest, overwrite)
+            end
+            response['Location'] = "#{scheme}://#{host}:#{port}#{url_format(dest)}" if status == Created
+            # RFC 2518
+            if collection
+              multistatus do |xml|
+                xml.response do
+                  xml.href "#{scheme}://#{host}:#{port}#{url_format(status == Created ? dest : resource)}"
+                  xml.status "#{http_version} #{status.status_line}"
+                end
+              end
+            else
+              status
+            end
           end
+          true          
         end
       end
 
-      # root_type:: Root tag name
-      # Render XML and set Rack::Response#body= to final XML
-      # Another override (they don't seem to flag UTF-8 [at this point I'm considering forking the gem to fix, 
-      # and making DMSF compliant on that .. *sigh*
-      def render_xml(root_type)
-        raise ArgumentError.new 'Expecting block' unless block_given?
-        doc = Nokogiri::XML::Builder.new(:encoding => 'utf-8') do |xml_base|
-          xml_base.send(root_type.to_s, {'xmlns:D' => 'DAV:'}.merge(resource.root_xml_attributes)) do
-            xml_base.parent.namespace = xml_base.parent.namespace_definitions.first
-            xml = xml_base['D']
-            yield xml
-          end
-        end
-        response.body = doc.to_xml
-        response["Content-Type"] = 'application/xml; charset="utf-8"'
-        response["Content-Length"] = response.body.bytesize.to_s
+      # Escape URL string
+      def url_format(resource)
+        # Additionally escape square brackets, otherwise files with
+        # file names like file[1].pdf are not visible in some WebDAV clients
+        # TODO: The method is obsolete
+        URI.encode(super, '[]')
       end
 
-
-      private 
-      def ns(opt_head = '')
-        _ns = opt_head
-        if(request_document && request_document.root && request_document.root.namespace_definitions.size > 0)
-          _ns = request_document.root.namespace_definitions.first.prefix.to_s
-          _ns += ':' unless _ns.empty?
-        end
-        _ns.empty? ? opt_head : _ns
+      def url_unescape(str)
+        # TODO: The method is obsolete
+        super str
       end
-
+      
     end
   end
 end

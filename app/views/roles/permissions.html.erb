@@ -1,4 +1,4 @@
-<h2><%= link_to l(:label_role_plural), roles_path %> &#187; <%=l(:label_permissions_report)%></h2>
+<%= title [l(:label_role_plural), roles_path], l(:label_permissions_report) %>
 
 <%= form_tag(permissions_roles_path, :id => 'permissions_form') do %>
 <%= hidden_field_tag 'permissions[0]', '', :id => nil %>
@@ -9,9 +9,11 @@
     <th><%=l(:label_permissions)%></th>
     <% @roles.each do |role| %>
     <th>
-        <%= content_tag(role.builtin? ? 'em' : 'span', h(role.name)) %>
-        <%= link_to_function(image_tag('toggle_check.png'), "toggleCheckboxesBySelector('input.role-#{role.id}')",
-                                                            :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}") %>
+        <%= link_to_function('',
+                             "toggleCheckboxesBySelector('input.role-#{role.id}')",
+                             :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}",
+                             :class => 'icon-only icon-checked') %>
+        <%= content_tag(role.builtin? ? 'em' : 'span', role.name) %>
     </th>
     <% end %>
     </tr>
@@ -26,19 +28,21 @@
             <%= l_or_humanize(mod, :prefix => 'project_module_') %>
           </td>
           <% @roles.each do |role| %>
-          <td class="role"><%= h(role.name) %></td>
+          <td class="role"><%= role.name %></td>
           <% end %>
         </tr>
     <% end %>
     <% perms_by_module[mod].each do |permission| %>
         <tr class="<%= cycle('odd', 'even') %> permission-<%= permission.name %>">
-        <td>
-            <%= link_to_function(image_tag('toggle_check.png'), "toggleCheckboxesBySelector('.permission-#{permission.name} input')",
-                                                                :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}") %>
+        <td class="name">
+            <%= link_to_function('',
+                                 "toggleCheckboxesBySelector('.permission-#{permission.name} input')",
+                                 :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}",
+                                 :class => 'icon-only icon-checked') %>
             <%= l_or_humanize(permission.name, :prefix => 'permission_') %>
         </td>
         <% @roles.each do |role| %>
-        <td align="center">
+        <td>
         <% if role.setable_permissions.include? permission %>
           <%= check_box_tag "permissions[#{role.id}][]", permission.name, (role.permissions.include? permission.name), :id => nil, :class => "role-#{role.id}" %>
         <% end %>

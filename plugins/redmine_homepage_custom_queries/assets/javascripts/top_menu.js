@@ -3,8 +3,10 @@
 var my_queries_menu = $("#top-menu ul li a.my-queries-menu").parent();
 var custom_queries_menu = $("#top-menu ul li a.custom-queries-menu").parent();
 
-var my_ul = "<ul>";
-var custom_ul = "<ul>";
+// @Forrest - 05 Jan, 2017. Fix when upgrade to Redmine 3.3.1
+
+var my_ul = "";
+var custom_ul = "";
 var ul = null;
 
 $("#custom_queries").children().each(function() {
@@ -16,36 +18,29 @@ $("#custom_queries").children().each(function() {
 	}
 	else {
 		if(ul === "my_ul") {
-			my_ul += "<li>" + $(this).clone().wrap('<div>').parent().html() + "</li>";
+			my_ul += $(this).clone().wrap('<div>').parent().html();
 		}
 		else if(ul === "custom_ul") {
-			custom_ul += "<li>" + $(this).clone().wrap('<div>').parent().html() + "</li>";
+			custom_ul += $(this).clone().wrap('<div>').parent().html();
 		}
 	}			
 });
 
-my_ul += "</ul>";
-custom_ul += "</ul>";
-
-if($('#top-menu ul').dropit){
-	my_queries_menu.append(my_ul);
-	custom_queries_menu.append(custom_ul);	
-}
-else {
-	custom_queries_menu.hide();
-	my_queries_menu.hide();		
-}
+my_queries_menu.append(my_ul);
+custom_queries_menu.append(custom_ul);	
 
 if(my_ul == "<ul></ul>") {
 	my_queries_menu.hide();
 }
 
+// End Comment
+
 $("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " ▽");
 $("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
-if($('#top-menu ul').dropit){
-	$('#top-menu ul').dropit({ action: 'hover' });
-}
+// @Forrest - 05 Jan, 2017. Fix when upgrade to Redmine 3.3.1
+$('#top-menu ul').dropit({ action: 'mouseover' });
+// End Comment
 
 // Append header toggle button
 var toggle_img = '<img id="toggle_img" src="/plugin_assets/redmine_homepage_custom_queries/images/navigation-up.png" style=" \

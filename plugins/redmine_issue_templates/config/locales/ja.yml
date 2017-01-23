@@ -1,6 +1,6 @@
 # Japanese translation
 ja:
-  issue_templates: テンプレート
+  issue_templates: チケットテンプレート
   issue_template: チケットテンプレート
   issue_template_note: メモ
   label_enabled: "有効"
@@ -26,3 +26,21 @@ ja:
   label_isdefault_help_message: "デフォルト値にチェックすると、チケットの新規登録時に、該当するトラッカーのテンプレートとして読み込まれます。"
   defaulf_template_loaded: "デフォルトテンプレートが「詳細」テキストエリアにロードされました。(トラッカー: %{tracker})"
   text_no_tracker_enabled: "テンプレートはトラッカー毎に設定します。\nプロジェクトが利用するトラッカーの設定が必要です。"
+  label_enabled_sharing: "プロジェクトツリーでの共有を許可"
+  label_inherit_templates: "親プロジェクトのテンプレートを継承"
+  label_inherit_templates_help_message: "親プロジェクトのテンプレートを継承します。ただし、親プロジェクトのテンプレートで、プロジェクトツリーでの利用を許可しているものに限られます。"
+  label_inherited_templates: "継承されたテンプレート"
+  no_issue_templates_for_this_project: "このプロジェクト用のテンプレートは未だ登録されていません。"
+  link_to_index_edit_template: "テンプレート一覧 / 編集"
+  erase_issue_subject_and_description: "タイトルと詳細をクリア"
+  unused_tracker_at_this_project: "このプロジェクトでは利用されていないトラッカーです。必要に応じて、トラッカーとテンプレートの関連付けを修正して下さい。"
+  label_enabledshaing_help_message: "オプションをチェックすると、子プロジェクトでの利用を許可します。（子プロジェクト側での『テンプレートの継承』を設定した場合）"
+  label_should_replaced: "テンプレート読み込みの際に本文とタイトルを上書き"
+  label_should_replaced_help_message: "オプションをチェックすると、テンプレートを適用する際に、入力済みの本文とタイトルを上書きします。（デフォルトはOFFです）"
+  global_issue_templates: "グローバル チケットテンプレート"
+  no_issue_templates_for_this_redmine: "このRedmineにはグローバルチケットテンプレートは定義されていません。"
+  only_admin_can_associate_global_template: "このプロジェクトでグローバルチケットテンプレートを利用するには、Redmine管理者権限が必要です。"
+  text_no_tracker_enabled_for_global: "テンプレートはトラッカー毎に設定します。\nトラッカーの設定をお願いします。"
+  display_and_filter_issue_templates_in_dialog: "テンプレートのフィルタ"
+  label_filter_template: "テンプレートのフィルタ"
+  

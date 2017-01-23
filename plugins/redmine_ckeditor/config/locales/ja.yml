@@ -1,14 +1,16 @@
 ja:
-  ckeditor_toolbar_setting: CKEditorã�®ãƒ„ãƒ¼ãƒ«ãƒ�ãƒ¼è¨­å®š
-  add: è¿½åŠ 
-  remove: å‰Šé™¤
-  separator: ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿
-  line_break: æ”¹è¡Œ
+  ckeditor_skin: スキン
+  ckeditor_ui_color: UIの色
+  ckeditor_enter_mode: エンターキーの動作
+  ckeditor_startup_show_blocks: 初期表示をブロック表示モードにする
+  ckeditor_toolbar_can_collapse: ツールバーの開閉
+  ckeditor_toolbar_location: ツールバーの位置
+  ckeditor_toolbar_buttons: ツールバーのボタン
+  ckeditor_width: 幅
+  ckeditor_height: 高さ
+  add: 追加
+  remove: 削除
+  separator: セパレータ
+  subgroup: サブグループ
+  line_break: 改行
 
-  ckeditor:
-    page_title: "CKEditor Files Manager"
-    confirm_delete: "Delete file?"
-    buttons:
-      cancel: "Cancel"
-      upload: "Upload"
-      delete: "Delete"

@@ -5,9 +5,9 @@ require 'application_controller_patch'
 
 Redmine::Plugin.register :redmine_homepage_custom_queries do
   name 'Redmine Homepage Custom Queries plugin'
-  author 'Qui'
+  author 'Qui & Forrest'
   description 'This plugin allow to show custom queries on top menu'
-  version '0.0.1'
+  version '0.0.2'
   url 'http://example.com/path/to/plugin'
   author_url 'http://example.com/about'
   

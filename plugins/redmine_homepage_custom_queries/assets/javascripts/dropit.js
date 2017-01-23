@@ -24,8 +24,7 @@
                     $el.addClass('dropit')
                     .find('>'+ settings.triggerParentEl +':has('+ settings.submenuEl +')').addClass('dropit-trigger')
                     .find(settings.submenuEl).addClass('dropit-submenu').hide();
-                    
-                    // Open on click
+
                     $el.on(settings.action, settings.triggerParentEl +':has('+ settings.submenuEl +') > '+ settings.triggerEl +'', function(){
                         if($(this).parents(settings.triggerParentEl).hasClass('dropit-open')) return false;
                         settings.beforeHide.call(this);

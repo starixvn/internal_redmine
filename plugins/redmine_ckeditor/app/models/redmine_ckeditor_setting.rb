@@ -7,24 +7,63 @@ class RedmineCkeditorSetting
     ["1", true].include?(setting[:default])
   end
 
+  def self.toolbar_string
+    setting[:toolbar] || RedmineCkeditor.default_toolbar
+  end
+
   def self.toolbar
-    buttons = setting[:toolbar] || RedmineCkeditor::DEFAULT_TOOLBAR
+    bars = []
+    bar = []
+    toolbar_string.split(",").each {|item|
+      case item
+      when '/'
+        bars.push(bar, item)
+        bar = []
+      when '--'
+        bars.push(bar)
+        bar = []
+      else
+        bar.push(item)
+      end
+    }
+    
+    bars.push(bar) unless bar.empty?
+    bars
+  end
 
-    if buttons.is_a?(String)
-      bars = []
-      bar =[]
-      buttons.split(",").each {|item|
-        if item == "/"
-          bars.push(bar, item)
-          bar = []
-        else
-          bar.push(item)
-        end
-      }
-      
-      buttons = bar.size > 0 ? bars.push(bar) : bars
-    end
+  def self.skin
+    setting[:skin] || "moono"
+  end
 
-    buttons
+  def self.ui_color
+    setting[:ui_color] || "#f4f4f4"
+  end
+
+  def self.enter_mode
+    (setting[:enter_mode] || 1).to_i
+  end
+
+  def self.shift_enter_mode
+    enter_mode == 2 ? 1 : 2
+  end
+
+  def self.show_blocks
+    (setting[:show_blocks] || 1).to_i == 1
+  end
+
+  def self.toolbar_can_collapse
+    setting[:toolbar_can_collapse].to_i == 1
+  end
+
+  def self.toolbar_location
+    setting[:toolbar_location] || "top"
+  end
+
+  def self.width
+    setting[:width]
+  end
+
+  def self.height
+    setting[:height] || 400
   end
 end

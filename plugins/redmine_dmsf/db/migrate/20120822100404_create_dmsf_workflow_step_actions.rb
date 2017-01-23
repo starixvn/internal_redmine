@@ -1,6 +1,8 @@
+# encoding: utf-8
+#
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2013 Karel Picman <karel.picman@kontron.com>
+# Copyright (C) 2011-15 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,13 +24,13 @@ class CreateDmsfWorkflowStepActions < ActiveRecord::Migration
       t.references :dmsf_workflow_step_assignment, :null => false
       t.integer :action, :null => false
       t.text :note      
-      t.timestamp :created_at
+      t.timestamp :created_at, :null => false
       t.integer :author_id, :null => false
     end
     add_index :dmsf_workflow_step_actions, 
       :dmsf_workflow_step_assignment_id,
       # The default index name exceeds the index name limit
-      {:name => 'index_dmsf_workflow_step_actions_on_workflow_step_assignment_id'}
+      {:name => 'idx_dmsf_wfstepact_on_wfstepassign_id'}
   end
   def self.down
     drop_table :dmsf_workflow_step_actions

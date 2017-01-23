@@ -1,5 +1,7 @@
+#encoding: utf-8
+#
 # Redmine - project management software
-# Copyright (C) 2006-2013  Jean-Philippe Lang
+# Copyright (C) 2006-2016  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -59,6 +61,10 @@ class Redmine::WikiFormatting::TextileFormatterTest < ActionView::TestCase
     end
   end
 
+  def test_modifier_should_work_with_one_non_ascii_character
+    assert_html_output "*Ä*" => "<strong>Ä</strong>"
+  end
+
   def test_styles
     # single style
     assert_html_output({
@@ -107,6 +113,20 @@ class Redmine::WikiFormatting::TextileFormatterTest < ActionView::TestCase
     assert_html_output(
       'this is @some code@'      => 'this is <code>some code</code>',
       '@<Location /redmine>@'    => '<code>&lt;Location /redmine&gt;</code>'
+    )
+  end
+
+  def test_lang_attribute
+    assert_html_output(
+      '*[fr]French*'      => '<strong lang="fr">French</strong>',
+      '*[fr-fr]French*'   => '<strong lang="fr-fr">French</strong>',
+      '*[fr_fr]French*'   => '<strong lang="fr_fr">French</strong>'
+    )
+  end
+
+  def test_lang_attribute_should_ignore_invalid_value
+    assert_html_output(
+      '*[fr3]French*'      => '<strong>[fr3]French</strong>'
     )
   end
 
@@ -159,11 +179,11 @@ EXPECTED
     )
   end
 
-  def test_acronyms
+  def test_abbreviations
     assert_html_output(
-      'this is an acronym: GPL(General Public License)' => 'this is an acronym: <acronym title="General Public License">GPL</acronym>',
-      '2 letters JP(Jean-Philippe) acronym' => '2 letters <acronym title="Jean-Philippe">JP</acronym> acronym',
-      'GPL(This is a double-quoted "title")' => '<acronym title="This is a double-quoted &quot;title&quot;">GPL</acronym>'
+      'this is an abbreviation: GPL(General Public License)' => 'this is an abbreviation: <abbr title="General Public License">GPL</abbr>',
+      '2 letters JP(Jean-Philippe) abbreviation' => '2 letters <abbr title="Jean-Philippe">JP</abbr> abbreviation',
+      'GPL(This is a double-quoted "title")' => '<abbr title="This is a double-quoted &quot;title&quot;">GPL</abbr>'
     )
   end
 
@@ -229,6 +249,46 @@ EXPECTED
     assert_equal expected.gsub(%r{\s+}, ''), to_html(raw).gsub(%r{\s+}, '')
   end
 
+  def test_table_with_alignment
+    raw = <<-RAW
+|>. right|
+|<. left|
+|<>. justify|
+RAW
+
+    expected = <<-EXPECTED
+<table>
+  <tr><td style="text-align:right;">right</td></tr>
+  <tr><td style="text-align:left;">left</td></tr>
+  <tr><td style="text-align:justify;">justify</td></tr>
+</table>
+EXPECTED
+
+    assert_equal expected.gsub(%r{\s+}, ''), to_html(raw).gsub(%r{\s+}, '')
+  end
+
+  def test_table_with_trailing_whitespace
+    raw = <<-RAW
+This is a table with trailing whitespace in one row:
+
+|cell11|cell12|
+|cell21|cell22| 
+|cell31|cell32|
+RAW
+
+    expected = <<-EXPECTED
+<p>This is a table with trailing whitespace in one row:</p>
+
+<table>
+  <tr><td>cell11</td><td>cell12</td></tr>
+  <tr><td>cell21</td><td>cell22</td></tr>
+  <tr><td>cell31</td><td>cell32</td></tr>
+</table>
+EXPECTED
+
+    assert_equal expected.gsub(%r{\s+}, ''), to_html(raw).gsub(%r{\s+}, '')
+  end
+
   def test_table_with_line_breaks
     raw = <<-RAW
 This is a table with line breaks:
@@ -261,6 +321,42 @@ RAW
     <td>cell31</td>
     <td>cell32<br/>cell32 line2</td>
     <td>cell33</td>
+  </tr>
+</table>
+EXPECTED
+
+    assert_equal expected.gsub(%r{\s+}, ''), to_html(raw).gsub(%r{\s+}, '')
+  end
+
+  def test_tables_with_lists
+    raw = <<-RAW
+This is a table with lists:
+
+|cell11|cell12|
+|cell21|ordered list
+# item
+# item 2|
+|cell31|unordered list
+* item
+* item 2|
+
+RAW
+
+    expected = <<-EXPECTED
+<p>This is a table with lists:</p>
+
+<table>
+  <tr>
+    <td>cell11</td>
+    <td>cell12</td>
+  </tr>
+  <tr>
+    <td>cell21</td>
+    <td>ordered list<br /># item<br /># item 2</td>
+  </tr>
+  <tr>
+    <td>cell31</td>
+    <td>unordered list<br />* item<br />* item 2</td>
   </tr>
 </table>
 EXPECTED

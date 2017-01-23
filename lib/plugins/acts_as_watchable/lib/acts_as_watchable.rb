@@ -14,8 +14,8 @@ module Redmine
             has_many :watcher_users, :through => :watchers, :source => :user, :validate => false
 
             scope :watched_by, lambda { |user_id|
-              { :include => :watchers,
-                :conditions => ["#{Watcher.table_name}.user_id = ?", user_id] }
+              joins(:watchers).
+              where("#{Watcher.table_name}.user_id = ?", user_id)
             }
             attr_protected :watcher_ids, :watcher_user_ids
           end
@@ -40,13 +40,17 @@ module Redmine
 
         # Adds user as a watcher
         def add_watcher(user)
+          # Rails does not reset the has_many :through association
+          watcher_users.reset
           self.watchers << Watcher.new(:user => user)
         end
 
         # Removes user from the watchers list
         def remove_watcher(user)
           return nil unless user && user.is_a?(User)
-          Watcher.delete_all "watchable_type = '#{self.class}' AND watchable_id = #{self.id} AND user_id = #{user.id}"
+          # Rails does not reset the has_many :through association
+          watcher_users.reset
+          watchers.where(:user_id => user.id).delete_all
         end
 
         # Adds/removes watcher
@@ -68,7 +72,7 @@ module Redmine
         end
 
         def notified_watchers
-          notified = watcher_users.active
+          notified = watcher_users.active.to_a
           notified.reject! {|user| user.mail.blank? || user.mail_notification == 'none'}
           if respond_to?(:visible?)
             notified.reject! {|user| !visible?(user)}

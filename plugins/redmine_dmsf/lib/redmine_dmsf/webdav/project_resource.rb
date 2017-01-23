@@ -1,6 +1,9 @@
+# encoding: utf-8
+#
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2012   Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
+# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,31 +22,26 @@
 module RedmineDmsf
   module Webdav
     class ProjectResource < BaseResource
-
-      def initialize(public_path, path, request, response, options)
-        super(public_path, path, request, response, options)
-      end
-
-      def children
-        #caching for repeat usage
-        return @children unless @children.nil?
-        return [] if project.nil? || project.id.nil?
-        @children = []
-        project.dmsf_folders.visible.map do |p|
-          @children.push child(p.title, p)
-        end
-        project.dmsf_files.visible.map do |p|
-          @children.push child(p.name, p)
+      
+      def children        
+        unless @children          
+          @children = []
+          if project
+            project.dmsf_folders.select(:title).visible.map do |p|
+              @children.push child(p.title)
+            end
+            project.dmsf_files.select(:name).visible.map do |p|
+              @children.push child(p.name)              
+            end
+          end
         end
         @children
-      end
+      end      
 
-      #  - 2012-06-18: Issue #5, ensure item is only listed if project is enabled for dmsf
       def exist?
-        return false if (project.nil? || User.current.anonymous?)
-        return false if (project.module_enabled?('dmsf').nil?) #See Issue #5
-        return true if User.current.admin?
-        User.current.allowed_to?(:view_dmsf_folders, project)
+        return false if (project.nil? || User.current.anonymous?)                        
+        return false unless project.module_enabled?('dmsf')        
+        User.current.admin? || User.current.allowed_to?(:view_dmsf_folders, project)
       end
 
       def collection?
@@ -71,7 +69,7 @@ module RedmineDmsf
       end
 
       def content_type
-        "inode/directory"
+        'inode/directory'
       end
 
       def special_type
