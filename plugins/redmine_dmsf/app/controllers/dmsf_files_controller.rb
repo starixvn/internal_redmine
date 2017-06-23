@@ -3,7 +3,7 @@
 # Redmine plugin for Document Management System "Features"
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -33,6 +33,7 @@ class DmsfFilesController < ApplicationController
 
   helper :all
   helper :dmsf_workflows
+  helper :dmsf
 
   def view
     begin
@@ -51,10 +52,15 @@ class DmsfFilesController < ApplicationController
       access.action = DmsfFileRevisionAccess::DownloadAction
       access.save!
       member = Member.where(:user_id => User.current.id, :project_id => @file.project.id).first
+      if member && !member.title_format.nil? && !member.title_format.empty?
+        title_format = member.title_format
+      else
+        title_format = Setting.plugin_redmine_dmsf['dmsf_global_title_format']
+      end
       send_file(@revision.disk_file,
-        :filename => filename_for_content_disposition(@revision.formatted_name(member ? member.title_format : nil)),
+        :filename => filename_for_content_disposition(@revision.formatted_name(title_format)),
         :type => @revision.detect_content_type,
-        :disposition => 'inline')
+        :disposition => @revision.dmsf_file.disposition)
     rescue DmsfAccessError => e
       Rails.logger.error e.message
       render_403
@@ -65,38 +71,6 @@ class DmsfFilesController < ApplicationController
   end
 
   def show
-    # The download is put here to provide more clear and usable links
-    if params.has_key?(:download)
-      begin
-        if params[:download].blank?
-          @revision = @file.last_revision
-        else
-          @revision = DmsfFileRevision.find(params[:download].to_i)
-          raise DmsfAccessError if @revision.dmsf_file != @file
-        end
-        check_project(@revision.dmsf_file)
-        raise ActionController::MissingFile if @revision.dmsf_file.deleted?
-        log_activity('downloaded')
-        access = DmsfFileRevisionAccess.new
-        access.user = User.current
-        access.dmsf_file_revision = @revision
-        access.action = DmsfFileRevisionAccess::DownloadAction
-        access.save!
-        member = Member.where(:user_id => User.current.id, :project_id => @file.project.id).first
-        send_file(@revision.disk_file,
-          :filename => filename_for_content_disposition(@revision.formatted_name(member ? member.title_format : nil)),
-          :type => @revision.detect_content_type,
-          :disposition => 'attachment')
-      rescue DmsfAccessError => e
-        Rails.logger.error e.message
-        render_403
-      rescue Exception => e
-        Rails.logger.error e.message
-        render_404
-      end
-      return
-    end
-
     @revision = @file.last_revision
     @file_delete_allowed = User.current.allowed_to?(:file_delete, @project)
     @file_manipulation_allowed = User.current.allowed_to?(:file_manipulation, @project)
@@ -132,11 +106,10 @@ class DmsfFilesController < ApplicationController
         if version == 3
           revision.major_version = params[:custom_version_major].to_i
           revision.minor_version = params[:custom_version_minor].to_i
-         else
+        else
            revision.increase_version(version)
-         end
-        #file_upload = params[:file_upload]
-        file_upload = params[:attachments]['1'] if params[:attachments].present?
+        end
+        file_upload = params[:dmsf_attachments]['1'] if params[:dmsf_attachments].present?
         unless file_upload
           revision.size = last_revision.size
           revision.disk_filename = last_revision.disk_filename
@@ -148,7 +121,7 @@ class DmsfFilesController < ApplicationController
           end
         else
           upload = DmsfUpload.create_from_uploaded_attachment(@project, @folder, file_upload)
-          revision.size = file_upload.size
+          revision.size = upload.size
           revision.disk_filename = revision.new_storage_filename
           revision.mime_type = upload.mime_type
           revision.digest = DmsfFileRevision.create_digest upload.disk_file
@@ -211,7 +184,7 @@ class DmsfFilesController < ApplicationController
       commit = params[:commit] == 'yes'
       if @file.delete(commit)
         flash[:notice] = l(:notice_file_deleted)
-        if commit
+        if commit && (@file.container_type == 'Project')
           log_activity('deleted')
           begin
             recipients = DmsfMailer.get_notify_users(@project, [@file])
@@ -233,7 +206,7 @@ class DmsfFilesController < ApplicationController
         flash[:error] = @file.errors.full_messages.join(', ')
       end
     end
-    if commit || @tree_view
+    if commit || (@tree_view && params[:details].blank?)
       redirect_to :back
     else
       redirect_to dmsf_folder_path(:id => @project, :folder_id => @file.dmsf_folder)
@@ -243,6 +216,10 @@ class DmsfFilesController < ApplicationController
   def delete_revision
     if @revision
       if @revision.delete(true)
+        if @file.name != @file.last_revision.name
+          @file.name = @file.last_revision.name
+          @file.save
+        end
         flash[:notice] = l(:notice_revision_deleted)
         log_activity('deleted')
       else
@@ -312,6 +289,19 @@ class DmsfFilesController < ApplicationController
       flash[:error] = @file.errors.full_messages.to_sentence
     end
     redirect_to :back
+  end
+
+  def thumbnail
+    if @file.image? && tbnail = @file.thumbnail(:size => params[:size])
+      if stale?(:etag => tbnail)
+        send_file tbnail,
+                  :filename => filename_for_content_disposition(@file.last_revision.disk_file),
+                  :type => @file.last_revision.detect_content_type,
+                  :disposition => 'inline'
+      end
+    else
+      render :nothing => true, :status => 404
+    end
   end
 
   private

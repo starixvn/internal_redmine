@@ -5,7 +5,7 @@
 # Copyright (C) 2011   Vít Jonáš <vit.jonas@gmail.com>
 # Copyright (C) 2012   Daniel Munn <dan.munn@munnster.co.uk>
 # Copyright (C) 2014   Atmis
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -333,3 +333,29 @@ fr:
   label_drag_drop: Modern
 
   error_maximum_upload_filecount: "No more than %{filecount} file(s) can be uploaded."
+
+  label_public_urls: Public URLs valid to
+
+  label_webdav: WebDAV
+  label_full_text: Full-text search
+  link_extension: Ext
+
+  label_memcached_servers: Memcached server address
+  text_memcached_servers: Only a single server is supported, if empty then caching is disabled. After changing this, the application must be restarted!
+
+  label_webdav_ignore: Ignored files patterns
+  note_webdav_ignore: A regular expresion with filenames to ignore by PUT requests.
+
+  label_document_url: Url
+  label_last_revision_id: Revision
+    
+  label_webdav_disable_versioning: No versioning files patterns
+  note_webdav_disable_versioning: A regular expression that disables versioning for matching files. The default pattern matches temporary files created by MsOffice.
+
+  label_dmsf_keep_documents_locked: Keep documents locked
+  note_dmsf_keep_documents_locked: Documents will be kept locked when approved
+  note_global: (global)
+  field_dmsf_not_inheritable: Not inheritable
+  
+  label_webdav_use_project_names: Use project name for project folder
+  note_webdav_use_project_names: Use project names instead of project identifier for project folders.

@@ -11,6 +11,15 @@ function checkExpand(ch) {
         obj.style.display === 'none' ? '' : 'none'
 }
 
+function changeCollapsed(obj) {
+    var target = $(obj);
+    if (target.hasClass("collapsed")) {
+        target.removeClass("collapsed");
+        return;
+    }
+    target.addClass("collapsed");
+}
+
 function eraseSubjectAndDescription() {
     $('#issue_description').val('');
     $('#issue_subject').val('');
@@ -35,14 +44,16 @@ function openDialog(url, title) {
                     dialogClass: "modal overflow_dialog",
                     draggable: true,
                     title: title,
-                    width: 400
+                    minWidth: 400,
+                    width: 'auto',
+                    maxWidth: 'auto'
                 }
             );
         }
     });
 }
 
-function load_template(target_url, confirm_msg, should_replaced) {
+function load_template(target_url, confirm_msg, should_replaced, confirm_to_replace, confirmation, general_text_Yes, general_text_No) {
     var selected_template = $('#issue_template');
     if (selected_template.val() !== '') {
         var template_type = '';
@@ -67,6 +78,12 @@ function load_template(target_url, confirm_msg, should_replaced) {
             var issue_description = $('#issue_description');
 
             var template = JSON.parse(data);
+
+            if (confirm_to_replace !== true && should_replaced === 'true' && (issue_description.val() !== '' || issue_subject.val() !== '')) {
+                confirmToReplace(target_url, confirm_msg, should_replaced, confirmation, general_text_Yes, general_text_No);
+                return;
+            }
+
             if (issue_description.val() !== '' && should_replaced === 'false') {
                 oldVal = issue_description.val() + '\n\n';
             }
@@ -74,6 +91,9 @@ function load_template(target_url, confirm_msg, should_replaced) {
             if (issue_subject.val() !== '' && should_replaced === 'false') {
                 oldSubj = issue_subject.val() + ' ';
             }
+            $('#original_subject').text(escapeHTML(issue_subject.val()));
+            $('#original_description').text(escapeHTML(issue_description.val()));
+
             for (var issue_template in template) {
                 if ({}.hasOwnProperty.call(template, issue_template)) {
 
@@ -81,9 +101,12 @@ function load_template(target_url, confirm_msg, should_replaced) {
                     obj.description = (obj.description === null) ? '' : obj.description;
                     obj.issue_title = (obj.issue_title === null) ? '' : obj.issue_title;
 
-                    if(oldVal.replace(/(?:\r\n|\r|\n)/g, '').trim() != obj.description.replace(/(?:\r\n|\r|\n)/g, '').trim())
+                    issue_description.attr('original_description', $('<div />').text(issue_description.val()).html());
+                    issue_subject.attr('original_title', $('<div />').text(issue_subject.val()).html());
+
+                    if (oldVal.replace(/(?:\r\n|\r|\n)/g, '').trim() != obj.description.replace(/(?:\r\n|\r|\n)/g, '').trim())
                         issue_description.val(oldVal + obj.description);
-                    if(oldSubj.trim() != obj.issue_title.trim())
+                    if (oldSubj.trim() != obj.issue_title.trim())
                         issue_subject.val(oldSubj + obj.issue_title);
 
                     try {
@@ -96,10 +119,61 @@ function load_template(target_url, confirm_msg, should_replaced) {
                     if (confirm_msg)
                         show_loaded_message(confirm_msg, issue_description);
                     addCheckList(obj);
+
+                    if ($('#original_subject').text().length > 0 || $('#original_description').text().length > 0) {
+                        $('#revert_template').removeClass('disabled');
+                    }
                 }
             }
         });
     }
+}
+
+function revertAppliedTemplate() {
+    var issue_subject = $('#issue_subject');
+    var issue_description = $('#issue_description');
+    var old_subject = $('#original_subject');
+    var old_description = $('#original_description');
+
+    issue_subject.val(unescapeHTML(old_subject.text()));
+    issue_description.val(unescapeHTML(old_description.text()));
+    old_description.text = '';
+    old_description.text = '';
+    $('#revert_template').addClass('disabled');
+}
+
+function escapeHTML(val) {
+    return $('<div>').text(val).html();
+}
+
+function unescapeHTML(val) {
+    return $('<div>').html(val).text();
+}
+
+function confirmToReplace(target_url, confirm_msg, should_replaced, confirmation, general_text_Yes, general_text_No) {
+    $("#issue_template_confirm_to_replace_dialog").dialog(
+        {
+            modal: true,
+            dialogClass: "modal overflow_dialog",
+            draggable: true,
+            title: confirmation,
+            width: 400,
+            buttons: [
+                {
+                    text: general_text_Yes,
+                    click: function () {
+                        $(this).dialog("close");
+                        load_template(target_url, confirm_msg, should_replaced, true, confirmation, general_text_Yes, general_text_No)
+                    }
+                },
+                {
+                    text: general_text_No,
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+        }
+    );
 }
 
 function addCheckList(obj) {
@@ -158,7 +232,7 @@ function updateSelect(id, is_global) {
         // default
         options = $.extend({
             text: 'Done',
-            time: 2000,
+            time: 3000,
             how: 'before',
             class_name: ''
         }, options);
@@ -168,7 +242,7 @@ function updateSelect(id, is_global) {
 
             var message = $('<div></div>', {
                 'class': 'flash_message ' + options.class_name,
-                text: options.text
+                html: options.text
                 // display with fade in
             }).hide().fadeIn('fast');
 

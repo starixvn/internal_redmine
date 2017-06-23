@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
 # Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
-# Copyright (C) 2011-15 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-require_dependency 'project'
-
 module RedmineDmsf
   module Patches
     module ProjectPatch
@@ -32,8 +30,8 @@ module RedmineDmsf
           unloadable
           alias_method_chain :copy, :dmsf
 
-          has_many :dmsf_files, -> { where(dmsf_folder_id: nil).order(:name) },
-            :class_name => 'DmsfFile', :foreign_key => 'project_id', :dependent => :destroy
+          has_many :dmsf_files, -> { where(dmsf_folder_id: nil, container_type: 'Project').order(:name) },
+            :class_name => 'DmsfFile', :foreign_key => 'container_id', :dependent => :destroy
           has_many :dmsf_folders, -> { where(dmsf_folder_id: nil).order(:title) },
             :class_name => 'DmsfFolder', :foreign_key => 'project_id',
             :dependent => :destroy

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 201500910153701) do
+ActiveRecord::Schema.define(version: 20170317082100) do
 
   create_table "announcements", force: :cascade do |t|
     t.text     "message",    limit: 65535
@@ -20,6 +20,19 @@ ActiveRecord::Schema.define(version: 201500910153701) do
     t.datetime "ends_at"
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
+  end
+
+  create_table "api_log_for_plugins", force: :cascade do |t|
+    t.text     "plugin_code", limit: 65535,                 null: false
+    t.integer  "error_code",  limit: 4
+    t.text     "description", limit: 65535
+    t.text     "controller",  limit: 65535
+    t.text     "action",      limit: 65535
+    t.text     "params",      limit: 65535
+    t.integer  "user_id",     limit: 4
+    t.boolean  "served",                    default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "attachments", force: :cascade do |t|
@@ -158,12 +171,6 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   add_index "ckeditor_assets", ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable", using: :btree
   add_index "ckeditor_assets", ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type", using: :btree
 
-  create_table "code_theme_user_settings", force: :cascade do |t|
-    t.integer  "user_id",    limit: 4
-    t.string   "code_theme", limit: 255
-    t.datetime "updated_at"
-  end
-
   create_table "comments", force: :cascade do |t|
     t.string   "commented_type", limit: 30,         default: "", null: false
     t.integer  "commented_id",   limit: 4,          default: 0,  null: false
@@ -184,27 +191,28 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   end
 
   create_table "custom_fields", force: :cascade do |t|
-    t.string  "type",            limit: 30,    default: "",    null: false
-    t.string  "name",            limit: 30,    default: "",    null: false
-    t.string  "field_format",    limit: 30,    default: "",    null: false
-    t.text    "possible_values", limit: 65535
-    t.string  "regexp",          limit: 255,   default: ""
-    t.integer "min_length",      limit: 4
-    t.integer "max_length",      limit: 4
-    t.boolean "is_required",                   default: false, null: false
-    t.boolean "is_for_all",                    default: false, null: false
-    t.boolean "is_filter",                     default: false, null: false
-    t.integer "position",        limit: 4
-    t.boolean "searchable",                    default: false
-    t.text    "default_value",   limit: 65535
-    t.boolean "editable",                      default: true
-    t.boolean "visible",                       default: true,  null: false
-    t.boolean "multiple",                      default: false
-    t.boolean "is_for_new",                    default: true,  null: false
-    t.string  "hint",            limit: 255
-    t.text    "format_store",    limit: 65535
-    t.text    "description",     limit: 65535
-    t.boolean "ajaxable",                      default: false
+    t.string  "type",                 limit: 30,    default: "",    null: false
+    t.string  "name",                 limit: 30,    default: "",    null: false
+    t.string  "field_format",         limit: 30,    default: "",    null: false
+    t.text    "possible_values",      limit: 65535
+    t.string  "regexp",               limit: 255,   default: ""
+    t.integer "min_length",           limit: 4
+    t.integer "max_length",           limit: 4
+    t.boolean "is_required",                        default: false, null: false
+    t.boolean "is_for_all",                         default: false, null: false
+    t.boolean "is_filter",                          default: false, null: false
+    t.integer "position",             limit: 4
+    t.boolean "searchable",                         default: false
+    t.text    "default_value",        limit: 65535
+    t.boolean "editable",                           default: true
+    t.boolean "visible",                            default: true,  null: false
+    t.boolean "multiple",                           default: false
+    t.boolean "is_for_new",                         default: true,  null: false
+    t.string  "hint",                 limit: 255
+    t.text    "format_store",         limit: 65535
+    t.text    "description",          limit: 65535
+    t.boolean "dmsf_not_inheritable"
+    t.boolean "ajaxable",                           default: false
   end
 
   add_index "custom_fields", ["id", "type"], name: "index_custom_fields_on_id_and_type", using: :btree
@@ -229,6 +237,32 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   end
 
   add_index "custom_fields_trackers", ["custom_field_id", "tracker_id"], name: "index_custom_fields_trackers_on_custom_field_id_and_tracker_id", unique: true, using: :btree
+
+  create_table "custom_report_series", force: :cascade do |t|
+    t.integer  "custom_report_id", limit: 4
+    t.string   "name",             limit: 255
+    t.text     "filters",          limit: 65535
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "custom_report_series", ["custom_report_id"], name: "index_custom_report_series_on_custom_report_id", using: :btree
+
+  create_table "custom_reports", force: :cascade do |t|
+    t.integer  "project_id",  limit: 4
+    t.integer  "user_id",     limit: 4,     default: 0,      null: false
+    t.boolean  "is_public",                 default: false,  null: false
+    t.string   "name",        limit: 255,   default: "",     null: false
+    t.text     "description", limit: 65535
+    t.string   "group_by",    limit: 255,   default: "",     null: false
+    t.string   "chart_type",  limit: 255
+    t.string   "null_text",   limit: 255,   default: "Null", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "custom_reports", ["project_id"], name: "index_custom_reports_on_project_id", using: :btree
+  add_index "custom_reports", ["user_id"], name: "index_custom_reports_on_user_id", using: :btree
 
   create_table "custom_values", force: :cascade do |t|
     t.string  "customized_type", limit: 30,    default: "", null: false
@@ -291,17 +325,18 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   add_index "dmsf_file_revisions", ["dmsf_file_id"], name: "index_dmsf_file_revisions_on_dmsf_file_id", using: :btree
 
   create_table "dmsf_files", force: :cascade do |t|
-    t.integer  "project_id",         limit: 4,                   null: false
+    t.integer  "container_id",       limit: 4,                       null: false
     t.integer  "dmsf_folder_id",     limit: 4
-    t.string   "name",               limit: 255,                 null: false
+    t.string   "name",               limit: 255,                     null: false
     t.boolean  "notification",                   default: false
-    t.integer  "deleted",            limit: 4,   default: 0,     null: false
+    t.integer  "deleted",            limit: 4,   default: 0,         null: false
     t.integer  "deleted_by_user_id", limit: 4
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+    t.string   "container_type",     limit: 30,  default: "Project", null: false
   end
 
-  add_index "dmsf_files", ["project_id"], name: "index_dmsf_files_on_project_id", using: :btree
+  add_index "dmsf_files", ["container_id", "container_type"], name: "index_dmsf_files_on_container_id_and_container_type", using: :btree
 
   create_table "dmsf_folders", force: :cascade do |t|
     t.integer  "project_id",         limit: 4,                     null: false
@@ -336,18 +371,30 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   add_index "dmsf_links", ["project_id"], name: "index_dmsf_links_on_project_id", using: :btree
 
   create_table "dmsf_locks", force: :cascade do |t|
-    t.integer  "entity_id",     limit: 4,  null: false
-    t.integer  "user_id",       limit: 4,  null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "entity_type",   limit: 4,  null: false
-    t.integer  "lock_type_cd",  limit: 4,  null: false
-    t.integer  "lock_scope_cd", limit: 4,  null: false
-    t.string   "uuid",          limit: 36
+    t.integer  "entity_id",                  limit: 4,  null: false
+    t.integer  "user_id",                    limit: 4,  null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.integer  "entity_type",                limit: 4,  null: false
+    t.integer  "lock_type_cd",               limit: 4,  null: false
+    t.integer  "lock_scope_cd",              limit: 4,  null: false
+    t.string   "uuid",                       limit: 36
     t.datetime "expires_at"
+    t.integer  "dmsf_file_last_revision_id", limit: 4
   end
 
   add_index "dmsf_locks", ["entity_id"], name: "index_dmsf_locks_on_entity_id", using: :btree
+
+  create_table "dmsf_public_urls", force: :cascade do |t|
+    t.string   "token",        limit: 32, null: false
+    t.integer  "dmsf_file_id", limit: 4,  null: false
+    t.integer  "user_id",      limit: 4,  null: false
+    t.datetime "expire_at",               null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "dmsf_public_urls", ["token"], name: "index_dmsf_public_urls_on_token", using: :btree
 
   create_table "dmsf_workflow_step_actions", force: :cascade do |t|
     t.integer  "dmsf_workflow_step_assignment_id", limit: 4,     null: false
@@ -368,10 +415,11 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   add_index "dmsf_workflow_step_assignments", ["dmsf_workflow_step_id", "dmsf_file_revision_id"], name: "index_dmsf_wrkfl_step_assigns_on_wrkfl_step_id_and_frev_id", unique: true, using: :btree
 
   create_table "dmsf_workflow_steps", force: :cascade do |t|
-    t.integer "dmsf_workflow_id", limit: 4, null: false
-    t.integer "step",             limit: 4, null: false
-    t.integer "user_id",          limit: 4, null: false
-    t.integer "operator",         limit: 4, null: false
+    t.integer "dmsf_workflow_id", limit: 4,  null: false
+    t.integer "step",             limit: 4,  null: false
+    t.integer "user_id",          limit: 4,  null: false
+    t.integer "operator",         limit: 4,  null: false
+    t.string  "name",             limit: 30
   end
 
   add_index "dmsf_workflow_steps", ["dmsf_workflow_id"], name: "index_dmsf_workflow_steps_on_dmsf_workflow_id", using: :btree
@@ -448,6 +496,7 @@ ActiveRecord::Schema.define(version: 201500910153701) do
     t.datetime "created_on"
     t.datetime "updated_on"
     t.text     "checklist_json", limit: 65535
+    t.boolean  "is_default",                   default: false, null: false
   end
 
   add_index "global_issue_templates", ["author_id"], name: "index_global_issue_templates_on_author_id", using: :btree
@@ -600,11 +649,13 @@ ActiveRecord::Schema.define(version: 201500910153701) do
     t.text     "notes",            limit: 4294967295
     t.datetime "created_on",                                          null: false
     t.boolean  "private_notes",                       default: false, null: false
+    t.datetime "updated_on"
   end
 
   add_index "journals", ["created_on"], name: "index_journals_on_created_on", using: :btree
   add_index "journals", ["journalized_id", "journalized_type"], name: "journals_journalized_id", using: :btree
   add_index "journals", ["journalized_id"], name: "index_journals_on_journalized_id", using: :btree
+  add_index "journals", ["updated_on"], name: "index_journals_on_updated_on", using: :btree
   add_index "journals", ["user_id"], name: "index_journals_on_user_id", using: :btree
 
   create_table "latest_issues_setups", force: :cascade do |t|
@@ -648,12 +699,11 @@ ActiveRecord::Schema.define(version: 201500910153701) do
   add_index "member_roles", ["role_id"], name: "index_member_roles_on_role_id", using: :btree
 
   create_table "members", force: :cascade do |t|
-    t.integer  "user_id",                limit: 4,     default: 0,     null: false
-    t.integer  "project_id",             limit: 4,     default: 0,     null: false
+    t.integer  "user_id",                limit: 4,   default: 0,     null: false
+    t.integer  "project_id",             limit: 4,   default: 0,     null: false
     t.datetime "created_on"
-    t.boolean  "mail_notification",                    default: false, null: false
+    t.boolean  "mail_notification",                  default: false, null: false
     t.boolean  "dmsf_mail_notification"
-    t.text     "events",                 limit: 65535
     t.text     "title_format",           limit: 255
   end
 
@@ -726,6 +776,27 @@ ActiveRecord::Schema.define(version: 201500910153701) do
     t.string  "salt",       limit: 255, null: false
   end
 
+  create_table "people_announcements", force: :cascade do |t|
+    t.string   "description", limit: 255
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "frequency",   limit: 255
+    t.string   "kind",        limit: 255
+    t.boolean  "active",                  default: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  create_table "people_holidays", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.date     "start_date"
+    t.date     "end_date"
+    t.text     "description", limit: 65535
+    t.boolean  "is_workday"
+    t.datetime "created_on"
+    t.datetime "updated_on"
+  end
+
   create_table "people_information", primary_key: "user_id", force: :cascade do |t|
     t.string  "phone",           limit: 255
     t.string  "address",         limit: 255
@@ -745,16 +816,16 @@ ActiveRecord::Schema.define(version: 201500910153701) do
     t.integer "manager_id",      limit: 4
   end
 
-  create_table "people_notifications", force: :cascade do |t|
-    t.string   "description", limit: 255
-    t.date     "start_date"
-    t.date     "end_date"
-    t.string   "frequency",   limit: 255
-    t.string   "kind",        limit: 255
-    t.boolean  "active",                  default: false
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
+  create_table "people_work_experiences", force: :cascade do |t|
+    t.string   "previous_company_name", limit: 255
+    t.string   "job_title",             limit: 255
+    t.datetime "from_date"
+    t.datetime "to_date"
+    t.text     "description",           limit: 65535
+    t.integer  "user_id",               limit: 4
   end
+
+  add_index "people_work_experiences", ["user_id"], name: "index_people_work_experiences_on_user_id", using: :btree
 
   create_table "projects", force: :cascade do |t|
     t.string   "name",                  limit: 255,   default: "",    null: false

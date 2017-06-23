@@ -1,7 +1,11 @@
 
-<a id="spm_min" name="spm_min">
+<div id="spm_min" name="spm_min">
 	<hr />
-</a>
+	<strong> UAT Links: </strong>
+	<ul id="spm_uat_link" data-issueId="<%= @issue.id %>">
+	</ul>
+</div>
+<hr />
 <div id="issue_spm" style="<%= cookies[:issue_spm_toggle]? 'height 365px; ' : '' %>background-color: #fff; display: block; padding-right: 5px">
 <div class="contextual">
   <a id="issue_spm_max" href="#spm_max">Maximize</a>

@@ -21,8 +21,38 @@
 	  <p><%= information.text_field :middlename, :label => l(:label_people_middlename) %></p>
 		<p><%= f.text_field :lastname, :required => true %></p>
 
-    <% if (@person.available_managers.any? || @person.new_record?) %>
-		  <p><%= information.select :manager_id, options_for_select( @person.available_managers.map{ |u| [u.name, u.id]} , @person.manager_id), :include_blank => true, :label => l(:label_people_manager) %></p>
+    <% if @person.available_managers.any? || @person.new_record? %>
+      <p id="person_information_attributes_manager_id_wrap">
+        <%= information.select :manager_id,
+                               options_for_select(@person.available_managers.where(:id => information.object.manager_id).
+                                                                             map{|manager|[manager.name, manager.id]}, information.object.manager_id),
+                               :label => l(:label_people_manager) %>
+        <%= javascript_tag("$('#person_information_attributes_manager_id').select2({
+          ajax: {
+            url: '#{autocomplete_for_manager_person_path(:id => f.object.id || 'new')}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+              return { q: params.term };
+            },
+            processResults: function (data, params) {
+              return { results: data };
+            },
+            cache: true
+          },
+          placeholder: ' ',
+          allowClear: true,
+          minimumInputLength: 1,
+          width: '60%',
+          templateResult: formatState
+        }).on('select2:open', function (e) {
+          $('.select2-search__field').val(' ').trigger($.Event('input', { which: 13 })).val('');
+        });
+        function formatState (opt) {
+          var $opt = $('<span>' + opt.avatar + '&nbsp;' + opt.text + '</span>');
+          return $opt;
+        };") %>
+      </p>
     <% end %>
 
 		<% if @person.id != User.current.id %>

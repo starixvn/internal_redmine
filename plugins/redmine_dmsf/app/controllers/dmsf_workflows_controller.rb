@@ -2,7 +2,7 @@
 #
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,6 +28,12 @@ class DmsfWorkflowsController < ApplicationController
 
   layout :workflows_layout
 
+  def initialize
+    @dmsf_workflow = nil
+    @project = nil
+    super
+  end
+
   def index
     @status = params[:status] || 1
     @workflow_pages, @workflows = paginate DmsfWorkflow.status(@status).global.sorted, :per_page => 25
@@ -49,7 +55,7 @@ class DmsfWorkflowsController < ApplicationController
             if @dmsf_workflow.try_finish revision, action, (params[:step_action].to_i / 10)
               if revision.dmsf_file
                 begin
-                  revision.dmsf_file.unlock! true
+                  revision.dmsf_file.unlock!(true) unless Setting.plugin_redmine_dmsf['dmsf_keep_documents_locked'].present?
                 rescue DmsfLockError => e
                   flash[:info] = e.message
                 end
@@ -199,6 +205,10 @@ class DmsfWorkflowsController < ApplicationController
   def log
   end
 
+  def edit
+    redirect_to dmsf_workflow_path(@dmsf_workflow)
+  end
+
   def new
     @dmsf_workflow = DmsfWorkflow.new
 
@@ -273,11 +283,13 @@ class DmsfWorkflowsController < ApplicationController
   end
 
   def autocomplete_for_user
-    render :layout => false
+     respond_to do |format|
+       format.js
+     end
   end
 
   def new_step
-    @steps = @dmsf_workflow.dmsf_workflow_steps.collect{|s| s.step}.uniq
+    @steps = @dmsf_workflow.dmsf_workflow_steps.group(:step).to_a
 
     respond_to do |format|
       format.html
@@ -301,6 +313,7 @@ class DmsfWorkflowsController < ApplicationController
           ws.step = step
           ws.user_id = user.id
           ws.operator = operator
+          ws.name = params[:name]
           if ws.save
             @dmsf_workflow.dmsf_workflow_steps << ws
           else
@@ -331,9 +344,7 @@ class DmsfWorkflowsController < ApplicationController
         end
       end
     end
-    respond_to do |format|
-      format.html
-    end
+    redirect_to :back
   end
 
   def reorder_steps
@@ -381,6 +392,58 @@ class DmsfWorkflowsController < ApplicationController
       end
     end
     redirect_to :back
+  end
+
+  def update_step
+    # Name
+    if params[:dmsf_workflow].present?
+      index = params[:step].to_i
+      name =  params[:dmsf_workflow][:name]
+      if name.present?
+        step = @dmsf_workflow.dmsf_workflow_steps[index]
+        step.name = name
+        unless step.save
+           flash[:error] = step.errors.full_messages.to_sentence
+        else
+          @dmsf_workflow.dmsf_workflow_steps.each do |s|
+            if s.step == step.step
+              s.name = step.name
+              s.save
+            end
+          end
+        end
+      end
+    else
+      # Operators
+      params[:operator_step].each do |id, operator|
+        step = DmsfWorkflowStep.find_by_id id
+        if step
+          step.operator = operator.to_i
+          unless step.save
+            flash[:error] = step.errors.full_messages.to_sentence
+          end
+        end
+      end
+    end
+    redirect_to dmsf_workflow_path(@dmsf_workflow)
+  end
+
+  def delete_step
+    step = DmsfWorkflowStep.find_by_id params[:step]
+    if step
+      # Safe the name
+      if step.name.present?
+        @dmsf_workflow.dmsf_workflow_steps.each do |s|
+          if s.step == step.step
+            s.name = step.name
+            s.save
+          end
+        end
+      end
+      # Destroy
+      step.destroy
+    end
+    redirect_to dmsf_workflow_path(@dmsf_workflow)
   end
 
 private

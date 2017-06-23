@@ -5,6 +5,7 @@ if Gem::Version.new(Bundler::VERSION) < Gem::Version.new('1.5.0')
 end
 
 gem "rails", "4.2.7.1"
+gem "addressable", "2.4.0" if RUBY_VERSION < "2.0"
 gem "jquery-rails", "~> 3.1.4"
 gem "coderay", "~> 1.1.1"
 gem "builder", ">= 3.0.4"
@@ -15,16 +16,18 @@ gem "actionpack-action_caching"
 gem "actionpack-xml_parser"
 gem "roadie-rails"
 gem "mimemagic"
+gem 'yard'
 
-# Request at least nokogiri 1.6.7.2 because of security advisories
-gem "nokogiri", ">= 1.6.7.2"
+gem "nokogiri", "~> 1.6.8"
+gem "i18n", "~> 0.7.0"
+gem "ffi", "1.9.14", :platforms => :mingw if RUBY_VERSION < "2.0"
 
 # Request at least rails-html-sanitizer 1.0.3 because of security advisories 
 gem "rails-html-sanitizer", ">= 1.0.3"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :x64_mingw, :mswin, :jruby]
-gem "rbpdf", "~> 1.19.0"
+gem "rbpdf", "~> 1.19.2"
 
 # Optional gem for LDAP authentication
 group :ldap do
@@ -75,7 +78,8 @@ if File.exist?(database_file)
         gem "pg", "~> 0.18.1", :platforms => [:mri, :mingw, :x64_mingw]
         gem "activerecord-jdbcpostgresql-adapter", :platforms => :jruby
       when /sqlite3/
-        gem "sqlite3", :platforms => [:mri, :mingw, :x64_mingw]
+        gem "sqlite3", (RUBY_VERSION < "2.0" && RUBY_PLATFORM =~ /mingw/ ? "1.3.12" : "~>1.3.12"),
+                       :platforms => [:mri, :mingw, :x64_mingw]
         gem "jdbc-sqlite3", ">= 3.8.10.1", :platforms => :jruby
         gem "activerecord-jdbcsqlite3-adapter", :platforms => :jruby
       when /sqlserver/
@@ -93,7 +97,7 @@ else
 end
 
 group :development do
-  gem "rdoc", ">= 2.4.2"
+  gem "rdoc", "~> 4.3"
   gem "yard"
 end
 
@@ -104,7 +108,7 @@ group :test do
   gem "simplecov", "~> 0.9.1", :require => false
   # For running UI tests
   gem "capybara"
-  gem "selenium-webdriver"
+  gem "selenium-webdriver", "~> 2.53.4"
 end
 
 local_gemfile = File.join(File.dirname(__FILE__), "Gemfile.local")

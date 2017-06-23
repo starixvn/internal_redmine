@@ -1,8 +1,8 @@
-# This file is a part of Redmine CRM (redmine_contacts) plugin,
-# customer relationship management plugin for Redmine
+# This file is a part of Redmine People (redmine_people) plugin,
+# humanr resources management plugin for Redmine
 #
-# Copyright (C) 2011-2016 Kirill Bezrukov
-# http://www.redminecrm.com/
+# Copyright (C) 2011-2017 RedmineUP
+# http://www.redmineup.com/
 #
 # redmine_people is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,9 +20,15 @@
 module RedminePeople
   module Hooks
     class ViewsLayoutsHook < Redmine::Hook::ViewListener
-      def view_layouts_base_html_head(context={})
-        return stylesheet_link_tag(:redmine_people, :plugin => 'redmine_people')
+      def view_layouts_base_html_head(_context = {})
+        people_tags = [stylesheet_link_tag(:redmine_people, :plugin => 'redmine_people')]
+        unless RedminePeople.contacts_plugin_with_select2?
+          people_tags += [javascript_include_tag(:people_select2, :plugin => 'redmine_people')]
+        end
+        people_tags.join
       end
+
+      render_on :view_layouts_base_body_bottom, :partial => 'common/layout_bottom'
     end
   end
 end

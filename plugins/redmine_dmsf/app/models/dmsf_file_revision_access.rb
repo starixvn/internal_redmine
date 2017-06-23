@@ -3,7 +3,7 @@
 # Redmine plugin for Document Management System "Features"
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@ class DmsfFileRevisionAccess < ActiveRecord::Base
   delegate :dmsf_file, :to => :dmsf_file_revision, :allow_nil => false
   delegate :project, :to => :dmsf_file, :allow_nil => false
 
-  DownloadAction = 0
-  EmailAction = 1
+  DownloadAction = 0.freeze
+  EmailAction = 1.freeze
 
   acts_as_event :title => Proc.new {|ra| "#{l(:label_dmsf_downloaded)}: #{ra.dmsf_file.dmsf_path_str}"},
     :url => Proc.new {|ra| {:controller => 'dmsf_files', :action => 'show', :id => ra.dmsf_file}},
@@ -41,9 +41,8 @@ class DmsfFileRevisionAccess < ActiveRecord::Base
     :author_key => "#{DmsfFileRevisionAccess.table_name}.user_id",
     :permission => :view_dmsf_file_revision_accesses,
     :scope => select("#{DmsfFileRevisionAccess.table_name}.*").
-      joins(
-        "INNER JOIN #{DmsfFileRevision.table_name} ON #{DmsfFileRevisionAccess.table_name}.dmsf_file_revision_id = #{DmsfFileRevision.table_name}.id " +
-        "INNER JOIN #{DmsfFile.table_name} ON #{DmsfFileRevision.table_name}.dmsf_file_id = #{DmsfFile.table_name}.id " +
-        "INNER JOIN #{Project.table_name} ON #{DmsfFile.table_name}.project_id = #{Project.table_name}.id").
-      where("#{DmsfFile.table_name}.deleted = ?", DmsfFile::STATUS_ACTIVE)
+      joins(:dmsf_file_revision).joins(
+        "LEFT JOIN #{DmsfFile.table_name} ON #{DmsfFileRevision.table_name}.dmsf_file_id = #{DmsfFile.table_name}.id " +
+        "LEFT JOIN #{Project.table_name} ON #{DmsfFile.table_name}.container_id = #{Project.table_name}.id").
+      where("#{DmsfFile.table_name}.deleted = ? AND #{DmsfFile.table_name}.container_type = ?", DmsfFile::STATUS_ACTIVE, 'Project')
 end

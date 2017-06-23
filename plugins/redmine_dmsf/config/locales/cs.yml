@@ -3,7 +3,7 @@
 # Redmine plugin for Document Management System "Features"
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 #
 # This program is free software; you can redistribute it and/or
@@ -333,3 +333,29 @@ cs:
   label_drag_drop: Moderní
 
   error_maximum_upload_filecount: "Nelze nahrát více než %{filecount} soubor(ů)."
+
+  label_public_urls: Veřejné URL platné do
+
+  label_webdav: WebDAV
+  label_full_text: Full-textové vyhledávání
+  link_extension: Příp.
+
+  label_memcached_servers: Adresa Memcached serveru
+  text_memcached_servers: Je podporován pouze jeden server. Pokud není vyplněno, kešování je vypnuté. Při změně adresy je potřeba restartovat aplikaci.
+
+  label_webdav_ignore: Vzory názvů ignorovaných souborů
+  note_webdav_ignore: Regulární výraz pro názvy souborů, které budou ignorovány při volání PUT.
+
+  label_document_url: Url
+  label_last_revision_id: Revize
+  
+  label_webdav_disable_versioning: No versioning files patterns
+  note_webdav_disable_versioning: A regular expression that disables versioning for matching files. The default pattern matches temporary files created by MsOffice.
+
+  label_dmsf_keep_documents_locked: Ponechat dokumenty zamčené
+  note_dmsf_keep_documents_locked: Dokumenty zůstanou i po schválení zamčené.
+  note_global: (globální)
+  field_dmsf_not_inheritable: Není dědičné
+  
+  label_webdav_use_project_names: Použít názvy projektů
+  note_webdav_use_project_names: Použít názvy projektů místo identifikátorů pro názvy adresářů.

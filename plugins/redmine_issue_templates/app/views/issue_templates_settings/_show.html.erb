@@ -1,9 +1,5 @@
 <div id="issue_templates_settings">
-  <% if @project.trackers.blank? %>
-      <div class="nodata">
-        <%= simple_format(l(:text_no_tracker_enabled)) %>
-      </div>
-  <% end %>
+  <%= render partial: "common/nodata", locals: { trackers: @project.trackers } %>
 
   <h2><%= l(:link_to_index_edit_template) %></h2>
   <p>
@@ -33,7 +29,7 @@
               <%= l(:help_for_this_field) %>
             </a>
             <br/>
-            <span id="inherit_templates_help_content" class="help_content" style="display: none;">
+            <span id="inherit_templates_help_content" class="issue_template help_content" style="display: none;">
               <%= l(:label_inherit_templates_help_message) %>
             </span>
           </p>
@@ -45,7 +41,7 @@
               <%= l(:help_for_this_field) %>
             </a>
             <br/>
-            <span id="should_replaced_help_content" class="help_content" style="display: none;">
+            <span id="should_replaced_help_content" class="issue_template help_content" style="display: none;">
               <%= l(:label_should_replaced_help_message) %>
             </span>
           </p>

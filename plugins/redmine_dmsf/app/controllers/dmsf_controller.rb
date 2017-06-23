@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
 # Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -29,7 +29,9 @@ class DmsfController < ApplicationController
   before_filter :find_parent, :only => [:new, :create]
   before_filter :tree_view, :only => [:delete, :show]
 
-  accept_api_auth :show, :create
+  accept_api_auth :show, :create, :save
+
+  skip_before_action :verify_authenticity_token,  if: -> { request.headers['HTTP_X_REDMINE_API_KEY'].present? }
 
   helper :all
 
@@ -44,8 +46,10 @@ class DmsfController < ApplicationController
   end
 
   def show
+    # also try to lookup folder by title if this is API call
+    find_folder_by_title if [:xml, :json].include? request.format.to_sym
     get_display_params
-    if @folder && @folder.deleted?
+    if (@folder && @folder.deleted?) || (params[:folder_title].present? && !@folder)
       render_404
       return
     end
@@ -54,6 +58,13 @@ class DmsfController < ApplicationController
         render :layout => !request.xhr?
       }
       format.api
+      format.csv  {
+        filename = @project.name
+        filename << "_#{@folder.title}" if @folder
+        filename << DateTime.now.strftime('_%Y%m%d%H%M%S.csv')
+        send_data(DmsfHelper.dmsf_to_csv(@folder ? @folder : @project, params[:settings][:dmsf_columns]),
+                  :type => 'text/csv; header=present', :filename => filename)
+      }
     end
   end
 
@@ -62,7 +73,7 @@ class DmsfController < ApplicationController
     @file_manipulation_allowed = User.current.allowed_to? :file_manipulation, @project
     @file_delete_allowed = User.current.allowed_to? :file_delete, @project
     @subfolders = DmsfFolder.deleted.where(:project_id => @project.id)
-    @files = DmsfFile.deleted.where(:project_id => @project.id)
+    @files = DmsfFile.deleted.where(:container_id => @project.id, :container_type => 'Project')
     @dir_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => DmsfFolder.model_name.to_s)
     @file_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => DmsfFile.model_name.to_s)
     @url_links = DmsfLink.deleted.where(:project_id => @project.id, :target_type => 'DmsfUrl')
@@ -180,6 +191,8 @@ class DmsfController < ApplicationController
 
     saved = @folder.save
 
+
+
     respond_to do |format|
       format.js
       format.api  {
@@ -223,11 +236,21 @@ class DmsfController < ApplicationController
       end
     end
 
-    if @folder.save
-      flash[:notice] = l(:notice_folder_details_were_saved)
-      redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
-    else
-      render :action => 'edit'
+    saved = @folder.save
+    respond_to do |format|
+      format.api  {
+        unless saved
+          render_validation_errors(@folder)
+        end
+      }
+      format.html {
+        if saved
+          flash[:notice] = l(:notice_folder_details_were_saved)
+          redirect_to dmsf_folder_path(:id => @project, :folder_id => @folder)
+        else
+          render :action => 'edit'
+        end
+      }
     end
   end
 
@@ -365,7 +388,8 @@ class DmsfController < ApplicationController
         :zipped_content => zipped_content,
         :folders => selected_folders,
         :files => selected_files,
-        :subject => "#{@project.name} #{l(:label_dmsf_file_plural).downcase}"
+        :subject => "#{@project.name} #{l(:label_dmsf_file_plural).downcase}",
+        :from => "#{User.current.name} <#{User.current.mail}>"
       }
       render :action => 'email_entries'
     rescue Exception
@@ -426,7 +450,7 @@ class DmsfController < ApplicationController
     end
     max_files = Setting.plugin_redmine_dmsf['dmsf_max_file_download'].to_i
     if max_files > 0 && zip.files.length > max_files
-      raise ZipMaxFilesError#, zip.files.length
+      raise ZipMaxFilesError
     end
     zip
   end
@@ -537,6 +561,15 @@ class DmsfController < ApplicationController
     render_404
   end
 
+  def find_folder_by_title
+    # find by title has to be scoped to project
+    @folder = DmsfFolder.find_by(title: params[:folder_title], project_id: params[:id]) if params[:folder_title].present?
+  rescue DmsfAccessError
+    render_403
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
   def find_parent
     @parent = DmsfFolder.visible.find params[:parent_id] if params[:parent_id].present?
   rescue DmsfAccessError
@@ -568,6 +601,7 @@ class DmsfController < ApplicationController
     @file_approval_allowed = User.current.allowed_to?(:file_approval, @project)
     tag = params[:custom_field_id].present? && params[:custom_value].present?
     @folder = nil if tag
+    @extra_columns = [l(:field_project), l(:label_document_url), l(:label_last_revision_id)]
     if @tree_view
       @locked_for_user = false
     else
@@ -585,7 +619,7 @@ class DmsfController < ApplicationController
             end
           end
           @files = []
-          DmsfFile.where(:project_id => @project.id).visible.each do |f|
+          DmsfFile.where(:container_id => @project.id, :container_type => 'Project').visible.each do |f|
             r = f.last_revision
             if r
               r.custom_field_values.each do |v|
@@ -661,8 +695,9 @@ class DmsfController < ApplicationController
     @trash_visible = @folder_manipulation_allowed && @file_manipulation_allowed &&
       @file_delete_allowed && !@locked_for_user && !@folder
     @trash_enabled = DmsfFolder.deleted.where(:project_id => @project.id).any? ||
-      DmsfFile.deleted.where(:project_id => @project.id).any? ||
+      DmsfFile.deleted.where(:container_id => @project.id, :container_type => 'Project').any? ||
       DmsfLink.deleted.where(:project_id => @project.id).any?
   end
 
 end
+

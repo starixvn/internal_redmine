@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
 # Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ RedmineApp::Application.routes.draw do
   post '/projects/:id/dmsf/entries', :controller => 'dmsf', :action => 'entries_operation'
   post '/projects/:id/dmsf/tag_changed', :controller => 'dmsf', :action => 'tag_changed', :as => 'tag_changed'
   post '/projects/:id/dmsf/entries/delete', :controller => 'dmsf', :action => 'delete_entries', :as => 'delete_entries'
-  post '/projects/:id/dmsf/entries/email', :controller => 'dmsf', :action => 'entries_email'
+  post '/projects/:id/dmsf/entries/email', :to => 'dmsf#entries_email', :as => 'email_entries'
   get '/projects/:id/dmsf/entries/download_email_entries', :controller => 'dmsf', :action => 'download_email_entries', :as => 'download_email_entries'
   get '/projects/:id/dmsf/lock', :controller => 'dmsf', :action => 'lock', :as => 'lock_dmsf'
   get '/projects/:id/dmsf/unlock', :controller => 'dmsf', :action => 'unlock', :as => 'unlock_dmsf'
@@ -64,6 +64,8 @@ RedmineApp::Application.routes.draw do
   post '/projects/:id/dmsf/upload', :controller => 'dmsf_upload', :action => 'upload'
   post '/projects/:id/dmsf/upload/commit', :controller => 'dmsf_upload', :action => 'commit_files'
   post '/projects/:id/dmsf/commit', :controller => 'dmsf_upload', :action => 'commit'
+  match 'dmsf_uploads', :to => 'dmsf_upload#upload', :via => :post
+  delete '/dmsf/attachments/:id/delete', :to => 'dmsf_upload#delete_dmsf_attachment', :as => 'dmsf_attachment'
 
   #
   # dmsf_files controller
@@ -77,11 +79,11 @@ RedmineApp::Application.routes.draw do
   post '/dmsf/files/:id/revision/create', :controller => 'dmsf_files', :action => 'create_revision'
   get '/dmsf/files/:id/revision/delete', :controller => 'dmsf_files', :action => 'delete_revision', :as => 'delete_revision'
   get '/dmsf/files/:id/download', :controller => 'dmsf_files', :action => 'show', :download => '' # Otherwise will not route nil download param
-  get '/dmsf/files/:id/download/:download', :controller => 'dmsf_files', :action => 'show', :as => 'download_revision'
-  get '/dmsf/files/:id/view', :controller => 'dmsf_files', :action => 'view'
+  get '/dmsf/files/:id/view', :to => 'dmsf_files#view', :as => 'view_dmsf_file'
   get '/dmsf/files/:id', :controller => 'dmsf_files', :action => 'show', :as => 'dmsf_file'
   delete '/dmsf/files/:id', :controller => 'dmsf_files', :action => 'delete'
   get '/dmsf/files/:id/restore', :controller => 'dmsf_files', :action => 'restore', :as => 'restore_dmsf_file'
+  get '/dmsf/files/:id/thumbnail', :to => 'dmsf_files#thumbnail', :as => 'dmsf_thumbnail'
 
   #
   # url controller
@@ -112,12 +114,16 @@ RedmineApp::Application.routes.draw do
 
   #
   # DAV4Rack implementation of Webdav
-  mount DAV4Rack::Handler.new(
+  dav_engine = DAV4Rack::Handler.new(
     :root_uri_path => "#{Redmine::Utils::relative_url_root}/dmsf/webdav",
     :resource_class => RedmineDmsf::Webdav::ResourceProxy,
     :controller_class => RedmineDmsf::Webdav::Controller,
     :log_to => Rails.logger
-  ), :at => '/dmsf/webdav'  if defined?(RedmineDmsf)
+  )
+  mount dav_engine, :at => '/dmsf/webdav'
+  mount dav_engine, :at => '/', :via => :options
+  mount dav_engine, :at => '/', :via => :propfind
+  mount dav_engine, :at => '/dmsf', :via => :propfind
 
   # Approval workflow
   resources :dmsf_workflows do
@@ -130,6 +136,8 @@ RedmineApp::Application.routes.draw do
       get 'start'
       post 'assignment'
       get 'new_step'
+      put 'update_step'
+      delete 'delete_step'
     end
   end
 
@@ -143,5 +151,8 @@ RedmineApp::Application.routes.draw do
       get 'restore'
     end
   end
+
+  # Public URLs
+  resource :dmsf_public_urls
 
 end

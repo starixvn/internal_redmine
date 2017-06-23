@@ -55,7 +55,38 @@ $(document).ready(function() {
 		issue_spm_maximize();
 		issue_spm_enable_request(true);
 	}
+	
+	binding_uat_link();
 });
+
+function binding_uat_link()
+{
+	$.ajax({
+                url: 'http://10.18.200.114:8980/Redmine/GetUATLink',
+                dataType: 'json',
+                method: "GET",
+                data:
+                {
+                    redmineId: $('#spm_uat_link').attr('data-issueId')
+                },
+                success: function (data) {
+					if(data.length > 0)
+					{
+						for(var i = 0; i < data.length; i++)
+						{
+							$('#spm_uat_link').append('<li><a href="'+ data[i] +'" target="_blank">' + data[i] + '</a></li>');
+						}
+						
+						$('#spm_min').show();
+					}
+					else
+					{
+						$('#spm_min').hide();
+					}
+                }
+            });
+              
+}
 
 function issue_spm_enable_request(enabled) {
 	var src = $("#issue_spm_widgets iframe").attr("src");

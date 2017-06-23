@@ -2,7 +2,7 @@
 #
 # Redmine plugin for Document Management System "Features"
 #
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -233,6 +233,12 @@ class DmsfWorkflowTest < RedmineDmsf::Test::UnitTest
   
   def test_scope_status    
     assert_equal 1, DmsfWorkflow.status(DmsfWorkflow::STATUS_LOCKED).count
+  end
+
+  def test_copy_to
+    wf = @wf1.copy_to(@project5, "#{@wf1.name}_copy")
+    assert_equal wf.project_id, @project5.id
+    assert_equal wf.name, "#{@wf1.name}_copy"
   end
   
 end

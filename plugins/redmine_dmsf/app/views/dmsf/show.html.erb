@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2011    Vít Jonáš <vit.jonas@gmail.com>
 # Copyright (C) 2012    Daniel Munn <dan.munn@munnster.co.uk>
-# Copyright (C) 2011-16 Karel Pičman <karel.picman@kontron.com>
+# Copyright (C) 2011-17 Karel Pičman <karel.picman@kontron.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -132,6 +132,17 @@
   <%= stylesheet_link_tag 'jquery.dataTables/jquery-ui.dataTables.css', :plugin => 'redmine_dmsf' %>
   <%= javascript_include_tag 'jquery.dataTables/jquery.dataTables.min.js', :plugin => 'redmine_dmsf' %>
 
+  <% title = DmsfFolder.get_column_position('title') %>
+  <% position = DmsfFolder.get_column_position('position') %>
+  <% commands = DmsfFolder.get_column_position('commands') %>
+  <% position = DmsfFolder.get_column_position('position') %>
+  <% version = DmsfFolder.get_column_position('version') %>
+  <% size_calculated = DmsfFolder.get_column_position('size_calculated') %>
+  <% modified_calculated = DmsfFolder.get_column_position('modified_calculated') %>
+  <% version_calculated = DmsfFolder.get_column_position('version_calculated') %>
+  <% size = DmsfFolder.get_column_position('size') %>
+  <% modified = DmsfFolder.get_column_position('modified') %>
+
   <script type="text/javascript">
     $(document).ready(function() {
       $('#browser').dataTable({
@@ -141,14 +152,22 @@
         },
         'bAutoWidth': false,
         'bPaginate': false,
-        'aaSorting': [[1, 'asc']],
-        'aaSortingFixed': [[ 8, 'asc']],
+        <% if title %>
+          'aaSorting': [[<%= title %>, 'asc']],
+        <% end %>
+        'aaSortingFixed': [[ <%= position %>, 'asc']],
         'aoColumnDefs': [
-          { 'bSearchable': false, 'aTargets': [0, 7, 8, 9, 10, 11] },
-          { 'bSortable': false, 'aTargets': [0, 7] },
-          { 'iDataSort': 9, 'aTargets': [ 2 ] },
-          { 'iDataSort': 10, 'aTargets': [ 3 ] },
-          { 'iDataSort': 11, 'aTargets': [ 4 ] }
+          { 'bSearchable': false, 'aTargets': [0, <%= commands %>, <%= position %>, <%= size_calculated %>, <%= modified_calculated %>, <%= version_calculated %>] },
+          { 'bSortable': false, 'aTargets': [0, <%= commands %>] }
+          <% if size %>
+            ,{ 'iDataSort': <%= size_calculated %>, 'aTargets': [ <%= size %> ] }
+          <% end %>
+          <% if modified %>
+            ,{ 'iDataSort': <%= modified_calculated %>, 'aTargets': [ <%= modified %> ] }
+          <% end %>
+          <% if version %>
+            ,{ 'iDataSort': <%= version_calculated %>, 'aTargets': [ <%= version %> ] }
+          <% end %>
         ],
         'fnInitComplete': function() {
           $('#dmsf_buttons').prependTo($('#browser_wrapper div.fg-toolbar')[0]);
@@ -159,7 +178,7 @@
             <% if @folder %>
               return "<%= "#{l(:label_number_of_folders)}: #{@folder.deep_folder_count} #{l(:label_number_of_documents)}: #{@folder.deep_file_count}" %>";
             <% else %>
-              return "<%= "#{l(:label_number_of_folders)}: #{DmsfFolder.visible.where(:project_id => @project.id).count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfFolder').count}, #{l(:label_number_of_documents)}: #{DmsfFile.visible.where(:project_id => @project.id).count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfFile').count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfUrl').count}" %>";
+              return "<%= "#{l(:label_number_of_folders)}: #{DmsfFolder.visible.where(:project_id => @project.id).count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfFolder').count}, #{l(:label_number_of_documents)}: #{DmsfFile.visible.where(:container_id => @project.id, :container_type => 'Project').count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfFile').count + DmsfLink.visible.where(:project_id => @project.id, :target_type => 'DmsfUrl').count}" %>";
             <% end %>
           <% else %>
             return "<%= "#{l(:label_number_of_folders)}: #{@subfolders.count + @dir_links.count}, #{l(:label_number_of_documents)}: #{@files.count + @file_links.count + @url_links.count}" %>";
@@ -188,3 +207,22 @@
 <% if (@file_manipulation_allowed && !@locked_for_user) %>
   <%= render(:partial => 'dmsf_upload/multi_upload') %>
 <% end %>
+
+<% other_formats_links do |f| %>
+    <%= f.link_to 'CSV', :url => params, :onclick => "showModal('csv-export-options', '350px'); return false;" %>
+<% end %>
+
+<div id="csv-export-options" style="display:none;">
+  <h3 class="title"><%= l(:label_export_options, :export_format => 'CSV') %></h3>
+  <%= form_tag(dmsf_folder_path(:id => @project, :format => 'csv'), :method => :get, :id => 'csv-export-form') do %>
+      <%= hidden_field_tag(:folder_id, @folder.id) if @folder %>
+      <div class="tabular">
+        <%= render(:partial => 'settings/dmsf_columns',
+                   :locals => { :settings => Setting.plugin_redmine_dmsf, :extra_columns => @extra_columns }) %>
+      </div>
+      <p class="buttons">
+        <%= submit_tag l(:button_export), :name => nil, :onclick => "hideModal(this);" %>
+        <%= submit_tag l(:button_cancel), :name => nil, :onclick => "hideModal(this);", :type => 'button' %>
+      </p>
+  <% end %>
+</div>
