@@ -1,0 +1,21 @@
+<script>
+	var relative_url_root = '<%= Redmine::Utils::relative_url_root.to_s  %>';
+</script>
+
+<div style="display: none" id="spent_time_queries">	
+	
+<% if defined? spent_time_queries %>
+	
+<% spent_time_queries.each do |query| %>
+	<a href="<%= ((query.query.include? "&v[query]=") ? query.query : (query.query + '&v[query]=' + query.name)) %>">
+		<%= query.name %>
+	</a>
+<% end %>
+
+<% end %>
+
+</div>
+
+<%= stylesheet_link_tag    'dropit.css',     :plugin => 'redmine_save_spent_time_queries', :media => 'all' %>
+<%= javascript_include_tag 'dropit.js',         :plugin => 'redmine_save_spent_time_queries' %>
+<%= javascript_include_tag 'save_spent_time_queries.js', :plugin => 'redmine_save_spent_time_queries' %>
