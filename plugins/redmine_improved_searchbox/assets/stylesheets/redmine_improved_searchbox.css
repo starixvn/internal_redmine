@@ -1,2 +1,11 @@
-#s2id_project_quick_jump_box .select2-choice span { color:black; }
-.select2-container--default { padding-bottom:4px; }
+#s2id_project_quick_jump_box .select2-choice span {
+    color: black;
+}
+
+.select2-container--default {
+    padding-bottom: 4px;
+}
+
+#quick-search form input {
+    height: 20px;
+}
