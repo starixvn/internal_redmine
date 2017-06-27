@@ -40,7 +40,7 @@ $("a.query").each(function () {
 })
 
 function InsertIssueHref($element) {
-	var href = $element.attr("href");
+	var href = "?" + $element.attr("href").split('?')[1];
 	if (href.indexOf("/issues") === -1) {
 		$element.attr("href", "/issues" + href)
 	}
