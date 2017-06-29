@@ -93,16 +93,16 @@ module FavoriteProjectsHelper
     list_styles += [[l(:label_favorite_project_list_list), "list"]]
   end
 
-  def fb_column_content(column, issue)
+  def fp_column_content(column, issue)
     value = column.value_object(issue)
     if value.is_a?(Array)
-      value.collect {|v| fb_column_value(column, issue, v)}.compact.join(', ').html_safe
+      value.collect {|v| fp_column_value(column, issue, v)}.compact.join(', ').html_safe
     else
-      fb_column_value(column, issue, value)
+      fp_column_value(column, issue, value)
     end
   end
   
-  def fb_column_value(column, issue, value)
+  def fp_column_value(column, issue, value)
     case column.name
     when :id
       link_to value, issue_path(issue)
@@ -111,13 +111,16 @@ module FavoriteProjectsHelper
     when :parent
       value ? (value.visible? ? link_to_issue(value, :subject => false) : "##{value.id}") : ''
     when :description
-      issue.description? ? content_tag('div', textilizable(issue, :description), :class => "wiki") : ''
+      issue.description? ? content_tag('small', textilizable(issue, :description), :class => "wiki") : ''
     when :done_ratio
       progress_bar(value)
     when :relations
       content_tag('span',
         value.to_s(issue) {|other| link_to_issue(other, :subject => false, :tracker => false)}.html_safe,
         :class => value.css_classes_for(issue))
+    when :name
+      content_tag('span', link_to_project(issue, {:action => 'show'}, :title => value))  
+      #Option show short description :title => strip_tags(issue.short_description).html_safe   
     else
       format_object(value)
     end
