@@ -1,0 +1,13 @@
+require 'search_helper_patch'
+require 'gantt_helper_patch'
+
+Redmine::Plugin.register :nexcel_redmine_enhance do
+  name 'Nexcel Redmine Enhance plugin'
+  author 'Raymond.Le'
+  description 'This is a plugin for fix bugs and enhance in Redmine Nexdev'
+  version '0.0.1'
+  url 'http://example.com/path/to/plugin'
+  author_url 'http://example.com/about'
+  
+  requires_redmine :version_or_higher => '3.3.3'
+end

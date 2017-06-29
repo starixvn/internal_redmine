@@ -17,8 +17,7 @@
               <p style="margin-bottom: 5px;"></p>
               <% if project.short_description.present? %>
                 <div class="description">
-                  <p>Test</p>
-                  <p><%= ActionController::Base.helpers.strip_tags(project.short_description) %></p>
+                  <p><%= strip_tags(project.short_description) %></p>
                 </div>
               <% end %>
 
