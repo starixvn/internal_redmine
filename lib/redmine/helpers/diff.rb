@@ -35,7 +35,7 @@ module Redmine
       end
 
       def to_html
-        words = self.words.collect{|word| h(word)}
+        #words = self.words.collect{|word| h(word)}
         words_add = 0
         words_del = 0
         dels = 0
@@ -59,17 +59,19 @@ module Redmine
             end
           end
           if add_at
-            words[add_at] = '<span class="diff_in">'.html_safe + words[add_at]
-            words[add_to] = words[add_to] + '</span>'.html_safe
+            words[add_at] = '<div class="diff_in">'.html_safe + words[add_at].html_safe
+            words[add_to] = words[add_to].html_safe + '</div>'.html_safe
           end
           if del_at
             # deleted is not safe html at this point
-            words.insert del_at - del_off + dels + words_add, '<span class="diff_out">'.html_safe + h(deleted) + '</span>'.html_safe
+            words.insert del_at - del_off + dels + words_add, '<div class="diff_out">'.html_safe + deleted.html_safe + '</div>'.html_safe
             dels += 1
             del_off += words_del
             words_del = 0
           end
         end
+        
+        words = self.words.collect{|word| word.html_safe}
         safe_join(words, ' ')
       end
     end

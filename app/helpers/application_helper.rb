@@ -1032,8 +1032,8 @@ module ApplicationHelper
   def simple_format_without_paragraph(text)
     text.to_s.
       gsub(/\r\n?/, "\n").                    # \r\n and \r -> \n
-      gsub(/\n\n+/, "<br /><br />").          # 2+ newline  -> 2 br
-      gsub(/([^\n]\n)(?=[^\n])/, '\1<br />'). # 1 newline   -> br
+      gsub(/\n\n+/, "").          # 2+ newline  -> 2 br
+      gsub(/([^\n]\n)(?=[^\n])/, ''). # 1 newline   -> br
       html_safe
   end
 
