@@ -182,6 +182,7 @@ function initialize() {
                 };
 
                 makeSumEstTimeNSpentTime();
+                makeTooltip();
             },
             error: makeSumEstTimeNSpentTime
         });
