@@ -1,15 +1,30 @@
-<%= render :partial => "/shared/plugin_header", :locals => {:is_board => true, :member => @member, :list_versions_open => @list_versions_open, :list_versions_closed => @list_versions_closed} %>
+<%= render :partial => "/shared/plugin_header", :locals => {
+    :is_board => true,
+    :member => @member,
+    :list_versions_open => @list_versions_open,
+    :list_versions_closed => @list_versions_closed } %>
+
 <div class="container-fluid">
-  <%= render :partial => "screen_board", :locals => { :id_member =>@id_member ,:new_issues => @new_issues ,:started_issues => @started_issues ,:completed_issues => @completed_issues,:issue => @issue,
-                                                      :tracker => @tracker , :priority => @priority,:member => @member,:status => @status,:sprints => @sprints} %>
+  <%= render :partial => "screen_board", :locals => { 
+      :id_member =>@id_member,
+      :new_issues => @new_issues,
+      :started_issues => @started_issues,
+      :completed_issues => @completed_issues,
+      :issue => @issue,
+      :tracker => @tracker ,
+      :priority => @priority,
+      :member => @member,
+      :status => @status,
+      :sprints => @sprints } %>
 
 </div>
+
 <script>
 
   function initialize() {
       $("#completed").find(".icon_close_issue").show();
 
-      $(".icon_close_issue").live("click", function () {
+      $(".icon_close_issue").on("click", function () {
           if (!confirm('<%= l(:label_sure_to_close_issues)%>')) {
               return;
           }
@@ -30,7 +45,7 @@
           return false;
       });
 
-      $("#btn_filter_issues_on_board").live("click", function () {
+      $("#btn_filter_issues_on_board").on("click", function () {
           var select_version = $("#select_version_onboard").val()
           var select_member = $("#select_member").val()
           var project_id = <%= @project.id %>
@@ -119,7 +134,7 @@
           });
       });
 
-      $(".icon_edit_issue").live("click", function () {
+      $(".icon_edit_issue").on("click", function () {
           var id_issue = parseInt($(this).parent().attr("value"));
           $(".icon_edit_issue").show();
           $(this).hide();
@@ -132,7 +147,7 @@
           $(".hide").hide();
       });
 
-      $(".cancel_issue").live("click", function () {
+      $(".cancel_issue").on("click", function () {
           var id_issue = parseInt($(this).parent().attr("value"));
           $("#completed").find("#close_" + id_issue).show();
           $("#edit_issue_" + id_issue).hide();
@@ -144,7 +159,7 @@
           $("#edit_issue_").hide();
       });
 
-      $(".submit_issue").live("click", function () {
+      $(".submit_issue").on("click", function () {
           var id_issue = $(this).parent().attr("value");
           if (id_issue != "") {
               var url_ajax = "update";
@@ -198,7 +213,7 @@
           }
       })
 
-      $(".readmore").live("click", function () {
+      $(".readmore").on("click", function () {
           var id = $(this).attr("value");
           $(this).hide();
           $("#hide_" + id).show();
@@ -207,7 +222,7 @@
           return false;
       });
 
-      $(".hide").live("click", function () {
+      $(".hide").on("click", function () {
           var id = $(this).attr("value");
           $(this).hide();
           $("#readmore_" + id).show();
@@ -221,7 +236,7 @@
       $("#ate_start_").datepicker("option", "dateFormat", "yy-mm-dd");
       $("#date_end_").datepicker("option", "dateFormat", "yy-mm-dd");
 
-      $(".icon_new_issue").live("click", function () {
+      $(".icon_new_issue").on("click", function () {
       	 $("#edit_issue_").show();     
          $("#edit_issue_").addClass("board_issue");
          editDate("");

@@ -27,7 +27,7 @@
           return false;
       });
 
-      $("#btn_move_issues").live("click", function () {
+      $("#btn_move_issues").on("click", function () {
           var issue_id = [];
           $('input[name="check"]').each(function () {
               if (this.checked == true) issue_id.push($(this).val());
@@ -50,7 +50,7 @@
 
       });
 
-      $("#btn_filter_issues_onlist").live("click", function () {
+      $("#btn_filter_issues_onlist").on("click", function () {
           var select_version = $("#select_version_onlist").val()
           var select_issue = $("#select_type_issue_onlist").val()
           var project_id = <%= @project.id %>
@@ -65,7 +65,7 @@
           return false;
       });
 
-      $("#btn_close_issue_list").live("click", function () {
+      $("#btn_close_issue_list").on("click", function () {
           var issue_id = [];
           $('input[name="check"]').each(function () {
               if (this.checked == true) issue_id.push($(this).val());
