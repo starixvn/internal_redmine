@@ -1,0 +1,29 @@
+#history > h3 {
+    display: none;
+}
+
+.diff-table .thead,
+.diff-table .tbody {
+	display: flex;
+	align-items: stretch;
+}
+
+.diff-table .thead div,
+.diff-table .tbody div {
+	border: 1px solid #d7d7d7;
+	padding: 4px;
+	overflow-x: auto;
+	flex-basis: 50%;
+}
+
+.diff-table .thead div {
+	background-color: #f0fff0;
+}
+
+.diff_in > * {
+	background: #cfc;
+}
+
+.diff_out > * {
+    background: #fcc;
+}

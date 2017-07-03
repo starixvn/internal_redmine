@@ -1,0 +1,42 @@
+<% content_for :header_tags do%>
+  <%= stylesheet_link_tag('issue_history_tabs.css', :plugin => :redmine_issue_history_tabs) %>
+<%end%>
+
+<h2><%=h @issue.tracker %> #<%= @issue.id %></h2>
+<p><%= authoring @journal.created_on, @journal.user, :label => :label_updated_time_by %></p>
+
+<% tabs = [
+	{:label => :label_tab_diff, :name => 'history-diff'},
+	{:label => :label_tab_comparison, :name => 'history-comparison'}, 
+	] %> 
+<% selected_tab = 'history-diff' %> 
+
+<div class="tabs">
+	<ul>
+	<% tabs.each do |tab| -%>
+	    <li><%= link_to l(tab[:label]), "javascript:void(0);",
+                                        :id => "tab-#{tab[:name]}",
+                                        :class => (tab[:name] != selected_tab ? nil : 'selected')%></li>
+	<% end -%>
+	</ul>
+</div>
+
+<div class="history text-diff">
+	<div class="diff-content"><%= @diff.to_html %></div>
+	<div class="diff-comparison-content" style="display: none;">
+		<div class="diff-table">
+			<div class="thead">
+				<div>Before</div>
+				<div>After</div>
+			</div>
+			<div class="tbody">
+				<div><%= @detail.old_value.html_safe %></div>
+				<div><%= @detail.value.html_safe %></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<p><%= link_to l(:button_back), issue_path(@issue) %></p>
+
+<% html_title "#{@issue.tracker.name} ##{@issue.id}: #{@issue.subject}" %>
