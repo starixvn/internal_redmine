@@ -49,7 +49,7 @@ module GravatarHelper
 
     # Return the HTML img tag for the given email address's gravatar.
     def gravatar(email, options={})
-      src = h(gravatar_url(email, options))
+      src = "/images/avatars/" + email.split("@").first + ".jpg" #h(gravatar_url(email, options))
       options = DEFAULT_OPTIONS.merge(options)
       [:class, :alt, :title].each { |opt| options[opt] = h(options[opt]) }
       image_tag src, options
