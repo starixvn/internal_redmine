@@ -7,37 +7,43 @@ module CustomizeJournalsHelper
     values_by_field = {}
     details.each do |detail|
       if detail.property == 'cf'
-        field_id = detail.prop_key
-        field = CustomField.find_by_id(field_id)
+        field = detail.custom_field
         if field && field.multiple?
-          values_by_field[field_id] ||= {:added => [], :deleted => []}
+          values_by_field[field] ||= {:added => [], :deleted => []}
           if detail.old_value
-            values_by_field[field_id][:deleted] << detail.old_value
+            values_by_field[field][:deleted] << detail.old_value
           end
           if detail.value
-            values_by_field[field_id][:added] << detail.value
+            values_by_field[field][:added] << detail.value
           end
-          next
+        next
         end
       end
       strings << customize_show_detail(detail, no_html, options)
     end
-    values_by_field.each do |field_id, changes|
-      detail = JournalDetail.new(:property => 'cf', :prop_key => field_id)
-      if changes[:added].any?
-        detail.value = changes[:added]
-        strings << customize_show_detail(detail, no_html, options)
-      elsif changes[:deleted].any?
-        detail.old_value = changes[:deleted]
-        strings << customize_show_detail(detail, no_html, options)
+    if values_by_field.present?
+      multiple_values_detail = Struct.new(:property, :prop_key, :custom_field, :old_value, :value)
+      values_by_field.each do |field, changes|
+        if changes[:added].any?
+          detail = multiple_values_detail.new('cf', field.id.to_s, field)
+          detail.value = changes[:added]
+          strings << customize_show_detail(detail, no_html, options)
+        end
+        if changes[:deleted].any?
+          detail = multiple_values_detail.new('cf', field.id.to_s, field)
+          detail.old_value = changes[:deleted]
+          strings << customize_show_detail(detail, no_html, options)
+        end
       end
     end
     strings
   end
-  
+
   # Returns the textual representation of a single journal detail
   def customize_show_detail(detail, no_html=false, options={})
     multiple = false
+    show_diff = false
+
     case detail.property
     when 'attr'
       field = detail.prop_key.to_s.gsub(/\_id$/, "")
@@ -48,13 +54,13 @@ module CustomizeJournalsHelper
         old_value = format_date(detail.old_value.to_date) if detail.old_value
 
       when 'project_id', 'status_id', 'tracker_id', 'assigned_to_id',
-            'priority_id', 'category_id', 'fixed_version_id'
+      'priority_id', 'category_id', 'fixed_version_id'
         value = find_name_by_reflection(field, detail.value)
         old_value = find_name_by_reflection(field, detail.old_value)
 
       when 'estimated_hours'
-        value = "%0.02f" % detail.value.to_f unless detail.value.blank?
-        old_value = "%0.02f" % detail.old_value.to_f unless detail.old_value.blank?
+        value = l_hours_short(detail.value.to_f) unless detail.value.blank?
+        old_value = l_hours_short(detail.old_value.to_f) unless detail.old_value.blank?
 
       when 'parent_id'
         label = l(:field_parent_issue)
@@ -64,17 +70,36 @@ module CustomizeJournalsHelper
       when 'is_private'
         value = l(detail.value == "0" ? :general_text_No : :general_text_Yes) unless detail.value.blank?
         old_value = l(detail.old_value == "0" ? :general_text_No : :general_text_Yes) unless detail.old_value.blank?
+
+      when 'description'
+        show_diff = true
       end
     when 'cf'
-      custom_field = CustomField.find_by_id(detail.prop_key)
+      custom_field = detail.custom_field
       if custom_field
-        multiple = custom_field.multiple?
         label = custom_field.name
-        value = format_value(detail.value, custom_field.field_format) if detail.value
-        old_value = format_value(detail.old_value, custom_field.field_format) if detail.old_value
+        if custom_field.format.class.change_as_diff
+        show_diff = true
+        else
+          multiple = custom_field.multiple?
+          value = format_value(detail.value, custom_field) if detail.value
+          old_value = format_value(detail.old_value, custom_field) if detail.old_value
+        end
       end
     when 'attachment'
       label = l(:label_attachment)
+    when 'relation'
+      if detail.value && !detail.old_value
+        rel_issue = Issue.visible.find_by_id(detail.value)
+        value = rel_issue.nil? ? "#{l(:label_issue)} ##{detail.value}" :
+          (no_html ? rel_issue : link_to_issue(rel_issue, :only_path => options[:only_path]))
+      elsif detail.old_value && !detail.value
+        rel_issue = Issue.visible.find_by_id(detail.old_value)
+        old_value = rel_issue.nil? ? "#{l(:label_issue)} ##{detail.old_value}" :
+          (no_html ? rel_issue : link_to_issue(rel_issue, :only_path => options[:only_path]))
+      end
+      relation_type = IssueRelation::TYPES[detail.prop_key]
+      label = l(relation_type[:name]) if relation_type
     end
     call_hook(:helper_issues_show_detail_after_setting,
               {:detail => detail, :label => label, :value => value, :old_value => old_value })
@@ -86,37 +111,36 @@ module CustomizeJournalsHelper
     unless no_html
       label = content_tag('strong', label)
       old_value = content_tag("i", h(old_value)) if detail.old_value
-      old_value = content_tag("del", old_value) if detail.old_value and detail.value.blank?
-      if detail.property == 'attachment' && !value.blank? && atta = Attachment.find_by_id(detail.prop_key)
+      if detail.old_value && detail.value.blank? && detail.property != 'relation'
+        old_value = content_tag("del", old_value)
+      end
+      if detail.property == 'attachment' && value.present? &&
+      atta = detail.journal.journalized.attachments.detect {|a| a.id == detail.prop_key.to_i}
         # Link to the attachment if it has not been removed
-        begin
-          value = link_to_attachment(atta, :download => true, :only_path => options[:only_path])
-        rescue
-          
-        end
-        
-        if options[:only_path] != false && atta.is_text?
-          value += link_to(
-                       image_tag('magnifier.png'),
-                       :controller => 'attachments', :action => 'show',
-                       :id => atta, :filename => atta.filename
-                     )
+        value = link_to_attachment(atta, :download => true, :only_path => options[:only_path])
+        if options[:only_path] != false && (atta.is_text? || atta.is_image?)
+          value += ' '
+          value += link_to(l(:button_view),
+                           { :controller => 'attachments', :action => 'show',
+                             :id => atta, :filename => atta.filename },
+                           :class => 'icon-only icon-magnifier',
+                           :title => l(:button_view))
         end
       else
         value = content_tag("i", h(value)) if value
       end
     end
 
-    if detail.property == 'attr' && detail.prop_key == 'description'
+    if show_diff
       s = l(:text_journal_changed_no_detail, :label => label)
       unless no_html
         diff_link = link_to 'diff',
           {:controller => 'customize_journals', :action => 'diff', :id => detail.journal_id,
-           :detail_id => detail.id, :only_path => options[:only_path]},
-          :title => l(:label_view_diff)
+            :detail_id => detail.id, :only_path => options[:only_path]},
+            :title => l(:label_view_diff)
         s << " (#{ diff_link })"
       end
-      s.html_safe
+    s.html_safe
     elsif detail.value.present?
       case detail.property
       when 'attr', 'cf'
@@ -127,7 +151,7 @@ module CustomizeJournalsHelper
         else
           l(:text_journal_set_to, :label => label, :value => value).html_safe
         end
-      when 'attachment'
+      when 'attachment', 'relation'
         l(:text_journal_added, :label => label, :value => value).html_safe
       end
     else
