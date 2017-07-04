@@ -1,6 +1,8 @@
 require 'search_helper_patch'
 require 'gantt_helper_patch'
 require 'issues_helper_patch'
+require 'gantts_controller_patch'
+#require 'welcome_page_hook'
 
 Redmine::Plugin.register :nexcel_redmine_enhance do
   name 'Nexcel Redmine Enhance plugin'

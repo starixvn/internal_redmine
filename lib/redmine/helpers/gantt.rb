@@ -63,7 +63,7 @@ module Redmine
           @year_from ||= User.current.today.year
         end
         zoom = (options[:zoom] || User.current.pref[:gantt_zoom]).to_i
-        @zoom = (zoom > 0 && zoom <= 5) ? zoom : 2
+        @zoom = (zoom > 0 && zoom < 5) ? zoom : 2
         months = (options[:months] || User.current.pref[:gantt_months]).to_i
         @months = (months > 0 && months < 25) ? months : 6
         # Save gantt parameters as user preference (zoom and months count)

@@ -1,3 +1,0 @@
-= redmine_issues_custom_sort
-
-Description goes here
