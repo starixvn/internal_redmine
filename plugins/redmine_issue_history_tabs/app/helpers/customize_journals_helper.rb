@@ -1,6 +1,7 @@
 module CustomizeJournalsHelper
   # Returns the textual representation of a journal details
   # as an array of strings
+  include CustomFieldsHelper
   def customize_details_to_strings(details, no_html=false, options={})
     options[:only_path] = (options[:only_path] == false ? false : true)
     strings = []
