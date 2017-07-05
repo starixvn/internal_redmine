@@ -211,8 +211,8 @@ ActiveRecord::Schema.define(version: 20170317082100) do
     t.string  "hint",                 limit: 255
     t.text    "format_store",         limit: 65535
     t.text    "description",          limit: 65535
-    t.boolean "ajaxable",                           default: false
     t.boolean "dmsf_not_inheritable"
+    t.boolean "ajaxable",                           default: false
   end
 
   add_index "custom_fields", ["id", "type"], name: "index_custom_fields_on_id_and_type", using: :btree
