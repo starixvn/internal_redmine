@@ -11,23 +11,23 @@ CKEDITOR.editorConfig = function (config) {
 
 	/* Filebrowser routes */
 	// The location of an external file browser, that should be launched when "Browse Server" button is pressed.
-	config.filebrowserBrowseUrl = "/rich/files";
+	// config.filebrowserBrowseUrl = "/rich/files";
 
 	// The location of an external file browser, that should be launched when "Browse Server" button is pressed in the Flash dialog.
-	config.filebrowserFlashBrowseUrl = "/rich/files";
+	// config.filebrowserFlashBrowseUrl = "/rich/files";
 
 	// The location of a script that handles file uploads in the Flash dialog.
-	config.filebrowserFlashUploadUrl = "/rich/files";
+	// config.filebrowserFlashUploadUrl = "/rich/files";
 
 	// The location of an external file browser, that should be launched when "Browse Server" button is pressed in the Link tab of Image dialog.
-	config.filebrowserImageBrowseLinkUrl = "/rich/files";
+	// config.filebrowserImageBrowseLinkUrl = "/rich/files";
 
 	// The location of an external file browser, that should be launched when "Browse Server" button is pressed in the Image dialog.
-	config.filebrowserImageBrowseUrl = "/rich/files";
+	// config.filebrowserImageBrowseUrl = "/rich/files";
 
 	// The location of a script that handles file uploads in the Image dialog.
-	config.filebrowserImageUploadUrl = "/rich/files";
+	// config.filebrowserImageUploadUrl = "/rich/files";
 
 	// The location of a script that handles file uploads.
-	config.filebrowserUploadUrl = "/rich/files";
+	// config.filebrowserUploadUrl = "/rich/files";
 };
