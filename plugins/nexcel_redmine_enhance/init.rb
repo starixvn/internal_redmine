@@ -2,6 +2,7 @@ require 'search_helper_patch'
 require 'gantt_helper_patch'
 require 'issues_helper_patch'
 require 'gantts_controller_patch'
+require 'application_helper_patch'
 require 'layout_header_hook'
 #require 'welcome_page_hook'
 
