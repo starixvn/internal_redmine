@@ -131,8 +131,9 @@ Rails.application.config.after_initialize do
   #   Redmine::Plugin::registered_plugins[:a_common_libs].settings[:auto]['enable_periodpicker'] = true
   # end
 
+if ActiveRecord::Base.connection.table_exists?("settings")
   if Setting.plugin_a_common_libs.blank? || Setting.plugin_a_common_libs[:autoconfig_libs].present? || Setting.plugin_a_common_libs['autoconfig_libs'].present?
     Setting.plugin_a_common_libs = Redmine::Plugin::registered_plugins[:a_common_libs].settings[:auto]
   end
-
+end
 end
