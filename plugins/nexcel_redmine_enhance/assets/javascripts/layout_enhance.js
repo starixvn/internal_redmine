@@ -1,13 +1,14 @@
 $(document).ready(function () {
     $(".gravatar").removeAttr('alt');
 
-    $(Start);
+    //$(Start);
 
     $(".news.box").detach().appendTo('.splitcontentleft');
 
     //document.getElementsByClassName("cke_editable")[0].addEventListener('paste', handlePaste);
 });
 
+// Bug: Effect redmine functions
 function Start() {
 
     var OldHtml = window.jQuery.fn.html;
