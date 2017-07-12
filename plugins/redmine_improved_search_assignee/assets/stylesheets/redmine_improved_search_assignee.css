@@ -1,0 +1,21 @@
+.issue_assigned_container.select2-selection--single {
+	border-radius: 0;
+	border: 1px solid #d7d7d7;
+}
+
+.issue_assigned_container.select2-selection--single .select2-selection__rendered
+{
+	color: #000000;
+}
+
+.select2-container .issue_assigned_container .select2-selection__arrow b
+{
+	border-color: #0e0e0e transparent transparent transparent;
+	border-width: 6px 3px 0 3px;
+	margin-left: -2px;
+}
+
+.select2-container--open .issue_assigned_container .select2-selection__arrow b
+{
+	border-color: transparent transparent #0e0e0e transparent !important;
+	border-width: 0 3px 6px 3px !important;
