@@ -6,6 +6,8 @@ $(document).ready(function () {
     $(".news.box").detach().appendTo('.splitcontentleft');
 
     //document.getElementsByClassName("cke_editable")[0].addEventListener('paste', handlePaste);
+
+    $("#quick-search select").select2();
 });
 
 // Bug: Effect redmine functions

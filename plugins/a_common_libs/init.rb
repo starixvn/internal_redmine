@@ -28,6 +28,9 @@ end
 Rails.application.config.after_initialize do
   Redmine::Plugin::registered_plugins[:a_common_libs].settings[:auto]['autoconfig_libs'] = true
 
+  # required for improved search box in nexcel_redmine_enhance
+  Redmine::Plugin::registered_plugins[:a_common_libs].settings[:auto]['enable_select2_lib'] = true
+
   # Select2
   if Redmine::Plugin.installed?(:luxury_buttons) ||
      Redmine::Plugin.installed?(:kpi) ||
@@ -44,7 +47,8 @@ Rails.application.config.after_initialize do
      Redmine::Plugin.installed?(:shipping) ||
      Redmine::Plugin.installed?(:custom_menu) ||
      Redmine::Plugin.installed?(:rmplus_tags) ||
-     Redmine::Plugin.installed?(:rm_custom_pdf)
+     Redmine::Plugin.installed?(:rm_custom_pdf) ||
+     Redmine::Plugin.installed?(:redmine_improved_searchbox)
 
     Redmine::Plugin::registered_plugins[:a_common_libs].settings[:auto]['enable_select2_lib'] = true
   end
