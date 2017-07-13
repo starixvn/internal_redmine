@@ -1171,6 +1171,9 @@ ActiveRecord::Schema.define(version: 20170317082100) do
     t.boolean  "vote_flag"
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
+    t.string   "vote_scope",   limit: 255
+    t.integer  "vote_weight",  limit: 4
+    t.string   "vote_ip",      limit: 255
   end
 
   add_index "votes", ["votable_id", "votable_type"], name: "index_votes_on_votable_id_and_votable_type", using: :btree
