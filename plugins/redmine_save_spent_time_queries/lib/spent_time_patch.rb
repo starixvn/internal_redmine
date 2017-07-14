@@ -217,7 +217,8 @@ module TimeEntryQueryPatch
       if grouped?
         begin
           # Rails3 will raise an (unexpected) RecordNotFound if there's only a nil group value
-          r = TimeEntry.sum(:hours, :group => group_by_statement, :include => [:status, :project], :conditions => statement)
+          # Update for Rails 4
+          r = TimeEntry.where(statement).sum(:hours, :group => group_by_statement, :include => [:status, :project])
         rescue ActiveRecord::RecordNotFound
         
         end
