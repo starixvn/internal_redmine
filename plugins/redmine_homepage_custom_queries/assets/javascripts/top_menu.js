@@ -26,8 +26,10 @@ $("#custom_queries").children().each(function () {
 my_queries_menu.append(my_ul);
 custom_queries_menu.append(custom_ul);
 
-if (my_ul == "<ul></ul>") {
+if (my_queries_menu.children().length <= 1) {
 	my_queries_menu.hide();
+} else {
+	my_queries_menu.show();
 }
 
 // End Comment
