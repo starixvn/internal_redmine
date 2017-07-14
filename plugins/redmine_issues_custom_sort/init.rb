@@ -1,5 +1,3 @@
-require 'issues_controller_patch' 
-
 Redmine::Plugin.register :redmine_issues_custom_sort do
   name 'Redmine Issues Custom Sort plugin'
   author 'Raymond.Le'

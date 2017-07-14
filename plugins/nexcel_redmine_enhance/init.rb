@@ -4,6 +4,10 @@ require 'issues_helper_patch'
 require 'gantts_controller_patch'
 require 'application_helper_patch'
 require 'layout_header_hook'
+require 'issue_model_patch'
+require 'journal_model_patch'
+require 'issues_controller_patch'
+require 'wiki_content_model_patch'
 #require 'welcome_page_hook'
 
 Redmine::Plugin.register :nexcel_redmine_enhance do
