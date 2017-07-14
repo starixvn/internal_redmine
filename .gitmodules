@@ -1,0 +1,3 @@
+[submodule "plugins/redmine_save_spent_time_queries"]
+	path = plugins/redmine_save_spent_time_queries
+	url = https://github.com/cuoilennaocacban/redmine_save_spent_time_queries.git
