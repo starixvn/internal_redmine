@@ -5,6 +5,4 @@ $(document).ready(function () {
     // Add Select2 to project search
     $("#quick-search select").select2();
 
-    // Remove alt attr in activities tab
-    $(".gravatar").attr("alt","");
 });

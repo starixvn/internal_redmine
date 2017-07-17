@@ -38,6 +38,7 @@ module RedminePeople
         # include ContactsHelper
 
         def avatar_with_people(user, options = { })
+          options[:alt] = ""
           options[:width] = options[:size] || "50" unless options[:width]
           options[:height] = options[:size] || "50" unless options[:height]
           options[:size] = "#{options[:width]}x#{options[:height]}" if ActiveRecord::VERSION::MAJOR >= 4

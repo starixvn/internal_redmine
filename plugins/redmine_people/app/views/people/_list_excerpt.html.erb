@@ -22,7 +22,7 @@
                 <%= check_box_tag "ids[]", person.id, false %>
             </td>
             <td class="avatar">
-                <%= avatar(person, :size => "32", :height => 32, :width => 32, :alt => " ") %>
+                <%= avatar(person, :size => "32", :height => 32, :width => 32) %>
             </td>
             <td class="name">
                 <h1><%= link_to person.name, person_path(person) %></h1>
