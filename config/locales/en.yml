@@ -265,6 +265,7 @@ en:
   field_value: Value
   field_category: Category
   field_title: Title
+  field_tags: Tags
   field_project: Project
   field_issue: Issue
   field_status: Status

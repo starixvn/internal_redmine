@@ -312,6 +312,7 @@ en-GB:
   field_member_of_group: "Assignee's group"
   field_assigned_to_role: "Assignee's role"
   field_text: Text field
+  field_tags: Tags
   field_visible: Visible
   field_warn_on_leaving_unsaved: "Warn me when leaving a page with unsaved text"
 
