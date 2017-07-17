@@ -120,7 +120,18 @@ module FavoriteProjectsHelper
         :class => value.css_classes_for(issue))
     when :name
       content_tag('span', link_to_project(issue, {:action => 'show'}, :title => value))  
-      #Option show short description :title => strip_tags(issue.short_description).html_safe   
+      #Option show short description :title => strip_tags(issue.short_description).html_safe
+    when :status
+      case value
+      when Project::STATUS_ACTIVE
+        l(:project_status_active)
+      when Project::STATUS_CLOSED
+        l(:project_status_closed)
+      when Project::STATUS_ARCHIVED
+        l(:project_status_archived)
+      else
+        value.to_s
+      end
     else
       format_object(value)
     end

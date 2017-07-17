@@ -12,8 +12,7 @@ class FavoriteProjectsQuery < Query
     QueryColumn.new(:description, :sortable => "#{Project.table_name}.description", :caption => :field_description),
     QueryColumn.new(:created_on, :sortable => "#{Project.table_name}.created_on", :caption => :field_created_on),
     QueryColumn.new(:is_public, :sortable => "#{Project.table_name}.is_public", :caption => :field_is_public),
-    QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :caption => :field_status),
-    QueryColumn.new(:tags, :caption => :label_favorite_project_tags_plural),
+    QueryColumn.new(:status, :sortable => "#{Project.table_name}.status", :caption => :field_status)
   ]
 
   scope :visible, lambda {|*args|
