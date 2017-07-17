@@ -5,6 +5,6 @@ $(document).ready(function () {
     // Add Select2 to project search
     $("#quick-search select").select2();
 
-    // Add View All in home page
-    
+    // Remove alt attr in activities tab
+    $(".gravatar").attr("alt","");
 });
