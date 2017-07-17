@@ -4,3 +4,5 @@
 [submodule "public/themes/redpenny"]
 	path = public/themes/redpenny
 	url = https://github.com/themondays/redpenny.git
+[submodule "public/themes/typecode"]
+	url = https://github.com/typecode/typecode-redmine-theme.git
