@@ -21,9 +21,9 @@ module RedmineFavoriteProjects
           favorite_projects_ids = FavoriteProject.where(:user_id => User.current.id).map(&:project_id)
           projects = Project.visible.where(:id => favorite_projects_ids)
 
-          projects = Project.visible unless projects.any?
+          # projects = Project.visible unless projects.any?
 
-          if projects.any?
+          # if projects.any?
             s = '<select onchange="if (this.value != \'\') { window.location = this.value; }">' +
             "<option value=''>#{ l(:label_jump_to_a_project) }</option>" +
             '<option value="" disabled="disabled">---</option>'
@@ -32,7 +32,7 @@ module RedmineFavoriteProjects
             end
             s << '</select>'
             s.html_safe
-          end        
+          # end        
         end
         
       end
