@@ -8,6 +8,7 @@ require 'issue_model_patch'
 require 'journal_model_patch'
 require 'issues_controller_patch'
 require 'wiki_content_model_patch'
+require 'attachments_controller_patch'
 #require 'welcome_page_hook'
 
 Redmine::Plugin.register :nexcel_redmine_enhance do

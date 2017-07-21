@@ -7,8 +7,8 @@ module IssuePatch
 
     base.class_eval do
       unloadable
-      validates :description, length: { maximum: 65535,
-      too_long: "must be less than 65535 characters (size < 64kb, include text and image)" }
+      validates :description, length: { maximum: 131070,
+      too_long: "must be less than 131070 characters (size < 128kb, include text and image)" }
     end
 
   end  
