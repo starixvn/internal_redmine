@@ -4,6 +4,4 @@ $(document).ready(function () {
 
     // Add Select2 to project search
     $("#quick-search select").select2();
-
-    $(".select2-selection.select2-selection--single").height(22);
 });

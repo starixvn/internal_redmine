@@ -1,3 +1,19 @@
 .select2-selection.select2-selection--single {
-    height: 24px;
+    height: 22px;
+}
+
+pre {
+    -moz-tab-size: 4 !important;
+}
+
+
+/* Code for Firefox */
+pre {
+    -o-tab-size: 4 !important;
+}
+
+
+/* Code for Opera 10.6-12.1 */
+pre {
+    tab-size: 4 !important;
 }
