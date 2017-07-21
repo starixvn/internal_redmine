@@ -1,0 +1,29 @@
+<table id="highlightSettings">
+  <tbody>
+    <tr>
+      <th><label for="settings_theme"><%= l(:highlighting_theme) %></label></th>
+      <td><%= select_tag('settings[theme]',
+         options_for_select(CodeThemeUserSetting::CODE_THEMES, settings['theme'])) %>
+          <span class="helpLink"> <%= l(:try_it_link) %> <a href="https://highlightjs.org/static/demo/" target="_blank">https://highlightjs.org/static/demo/</a> </span>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="settings_allow_redefine"><%= l(:allow_redefine) %></label></th>
+      <td><%=check_box_tag 'settings[allow_redefine]', 'yes', settings['allow_redefine'] == 'yes' %></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr class="clear" />
+
+<div id="HighlightSupportedLanguages">
+    <h4><%= l(:supported_languages) %></h4>
+    <div></div>
+</div>
+<script type="text/javascript">
+    $.each( hljs.listLanguages(), function( index, value ){
+        $('#HighlightSupportedLanguages div').append('<span>'+value+'</span> ')
+    });
+</script>
+
+<hr class="clear" />
