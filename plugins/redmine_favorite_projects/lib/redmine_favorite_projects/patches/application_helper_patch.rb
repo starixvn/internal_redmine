@@ -22,6 +22,7 @@ module RedmineFavoriteProjects
           projects = Project.visible.where(:id => favorite_projects_ids)
 
           # projects = Project.visible unless projects.any?
+          projects = Project.visible
 
           # if projects.any?
             s = '<select onchange="if (this.value != \'\') { window.location = this.value; }">' +
