@@ -79,7 +79,10 @@ module TimelogControllerPatch
       
       @current_query = nil
       begin
-        @current_query = SpentTimeQuery.find_by_name(CGI.unescape(params[:v][:query]))
+        user_group = params[:v]['member_of_group'][0]
+        like_query = 'query like "%' + user_group + '%"'
+        @current_query = SpentTimeQuery.where(like_query).first
+        # @current_query = SpentTimeQuery.find_by_name(CGI.unescape(params[:v][:query]))
       rescue
       end     
       
@@ -87,7 +90,6 @@ module TimelogControllerPatch
     end
     
     def index_with_group
-      
       if !@issue.nil? || !@project.nil?
         index_without_group
         return
@@ -95,7 +97,10 @@ module TimelogControllerPatch
       
       @current_query = nil
       begin
-        @current_query = SpentTimeQuery.find_by_name(CGI.unescape(params[:v][:query]))
+        # @current_query = SpentTimeQuery.find_by_name(CGI.unescape(params[:v][:query]))
+        user_group = params[:v]['member_of_group'][0]
+        like_query = 'query like "%' + user_group + '%"'
+        @current_query = SpentTimeQuery.where(like_query).first
       rescue
       end      
       
@@ -200,7 +205,7 @@ module TimeEntryQueryPatch
         groups = Group.all
         operator = '!' # Override the operator since we want to find by assigned_to
       else
-        groups = Group.where(value)
+        groups = Group.where(:id => value)
       end
       groups ||= []
     
