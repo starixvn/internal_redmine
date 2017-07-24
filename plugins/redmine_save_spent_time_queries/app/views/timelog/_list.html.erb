@@ -10,10 +10,11 @@
 <thead>
   <tr>
     <th class="checkbox hide-when-print">
-      <%= link_to image_tag('toggle_check.png'),
+      <%#= link_to image_tag('toggle_check.png'),
         {},
         :onclick => 'toggleIssuesSelection(this); return false;',
         :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
+        <input type="checkbox" name="check_all" id="check_all" value="" class="toggle-selection" title="Check all/Uncheck all">
     </th>
     <% inline_columns.each do |column| %>
       <%= column_header(column) %>
