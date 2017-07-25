@@ -4,7 +4,7 @@
  */
 
 CKEDITOR.editorConfig = function(config) {
-	config.extraPlugins = 'sourcearea';
+	config.extraPlugins = 'sourcearea,button,clipboard,lineutils,notification,toolbar,widget,widgetselection,codesnippet';
 
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
