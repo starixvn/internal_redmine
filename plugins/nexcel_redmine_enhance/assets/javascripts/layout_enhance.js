@@ -4,4 +4,7 @@ $(document).ready(function () {
 
     // Add Select2 to project search
     $("#quick-search select").select2();
+
+    // Remove DMSF upload button
+    $(".dmsf_uploader").remove();
 });
