@@ -40,3 +40,4 @@
 /Gemfile.lock
 /Gemfile.local
 
+.byebug_history

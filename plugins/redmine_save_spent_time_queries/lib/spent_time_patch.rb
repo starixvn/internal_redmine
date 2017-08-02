@@ -223,7 +223,8 @@ module TimeEntryQueryPatch
         begin
           # Rails3 will raise an (unexpected) RecordNotFound if there's only a nil group value
           # Update for Rails 4
-          r = TimeEntry.where(statement).group(group_by_statement).sum(:hours, :include => [:status, :project])
+          r = TimeEntry.joins("INNER JOIN `enumerations` on `time_entries`.`activity_id` = `enumerations`.`id`")
+          .where(statement).group(group_by_statement).sum(:hours, :include => [:status, :project])
         rescue ActiveRecord::RecordNotFound
         
         end
