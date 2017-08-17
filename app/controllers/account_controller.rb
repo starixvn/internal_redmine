@@ -130,17 +130,7 @@ class AccountController < ApplicationController
     else
       user_params = params[:user] || {}
       @user = User.new
-      byebug
       @user.safe_attributes = user_params
-
-      # TODO: MOVE THIS TO PLUGIN
-
-      @user.firstname = user_params["firstname"];
-      @user.lastname = user_params["lastname"];
-      @user.mail = user_params["mail"];
-
-      # END TODO
-
       @user.pref.attributes = params[:pref] if params[:pref]
       @user.admin = false
       @user.register
@@ -148,7 +138,6 @@ class AccountController < ApplicationController
         @user.activate
         @user.login = session[:auth_source_registration][:login]
         @user.auth_source_id = session[:auth_source_registration][:auth_source_id]
-        byebug
         if @user.save
           session[:auth_source_registration] = nil
           self.logged_user = @user

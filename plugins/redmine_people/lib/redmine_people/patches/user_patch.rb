@@ -48,8 +48,13 @@ module RedminePeople
           end
           self.clear_safe_attributes
 
+          # safe_attributes 'firstname', 'lastname', 'mail', 'custom_field_values', 'custom_fields',
+          # :if => lambda {|user, current_user| current_user.allowed_people_to?(:edit_people, user) || (user.new_record? && current_user.anonymous? && Setting.self_registration?) }
+
+          # TODO: HARDCODE HERE
+
           safe_attributes 'firstname', 'lastname', 'mail', 'custom_field_values', 'custom_fields',
-          :if => lambda {|user, current_user| current_user.allowed_people_to?(:edit_people, user) || (user.new_record? && current_user.anonymous? && Setting.self_registration?) }
+          :if => lambda {|user, current_user| current_user.allowed_people_to?(:edit_people, user) || (user.new_record? && current_user.anonymous?) }
         end
       end
 
