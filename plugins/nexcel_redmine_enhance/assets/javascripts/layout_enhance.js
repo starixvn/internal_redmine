@@ -6,5 +6,5 @@ $(document).ready(function () {
     $("#quick-search select").select2();
 
     // Remove DMSF upload button
-    $(".dmsf_uploader").remove();
+    // $(".dmsf_uploader").remove();
 });
