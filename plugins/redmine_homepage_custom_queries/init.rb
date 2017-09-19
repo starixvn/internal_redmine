@@ -11,7 +11,6 @@ Redmine::Plugin.register :redmine_homepage_custom_queries do
   url 'http://example.com/path/to/plugin'
   author_url 'http://example.com/about'
   
-  menu :top_menu, :issues, {:controller => 'issues', :action => 'index', :project_id => nil, :set_filter => 1 }, :caption => 'Issues'
   menu :top_menu, :custom_queries_menu, {:controller => 'issues', :action => 'index', :project_id => nil}, :caption => 'Custom queries'
   menu :top_menu, :my_queries_menu, {:controller => 'issues', :action => 'index', :project_id => nil}, :caption => 'My queries'  
   
