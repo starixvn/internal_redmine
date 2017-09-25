@@ -5,7 +5,8 @@ require_dependency 'time_entry_query'
 require_dependency 'sort_helper'
 require_dependency 'custom_fields_helper'
 require_dependency 'queries_helper' 
-require_dependency '../lib/redmine/pagination' 
+require_dependency '../lib/redmine/pagination'
+require_dependency 'issues_controller' 
 
 module SpentTimeQueryHelper
   
@@ -61,7 +62,9 @@ module TimelogControllerPatch
     
     base.class_eval do
       unloadable # Send unloadable so it will not be unloaded in development
-
+      
+      helper SpentTimeQueryHelper   
+      
       alias_method_chain :index, :group
       alias_method_chain :report, :group
     end    
@@ -242,6 +245,6 @@ end
 
 TimeEntryQuery.send(:include, TimeEntryQueryPatch)
 TimelogController.send(:include, TimelogControllerPatch)
-TimelogController.send(:helper, SpentTimeQueryHelper)
+IssuesController.send(:helper, SpentTimeQueryHelper)
 ApplicationController.send(:helper, SpentTimeQueryHelper)
 TimelogHelper.send(:include, TimelogHelperPatch)
