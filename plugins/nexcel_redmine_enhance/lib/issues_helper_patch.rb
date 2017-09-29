@@ -32,6 +32,22 @@ module IssuesHelperPatch
         attrs[:tracker_id] = issue.tracker unless issue.tracker.disabled_core_fields.include?('parent_issue_id')
         link_to(l(:button_add), new_project_issue_path(issue.project, :issue => attrs))
       end
+      
+      def query_links(title, queries)
+        return '' if queries.empty?
+        # links to #index on issues/show
+        url_params = controller_name == 'issues' ? {:controller => 'issues', :action => 'index', :project_id => @project} : params
+    
+        content_tag('h3', title) + "\n" +
+          content_tag('ul',
+            queries.collect {|query|
+                css = title == l(:label_query_plural) ? 'public-query' :'query'
+                css << ' selected' if query == @query
+                content_tag('li', link_to(query.name, url_params.merge(:query_id => query), :class => css))
+              }.join("\n").html_safe,
+            :class => 'queries'
+          ) + "\n"
+      end      
     end
   end
 end
