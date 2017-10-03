@@ -21,12 +21,12 @@
             "name": "Rails server",
             "type": "Ruby",
             "request": "launch",
+            "preLaunchTask": "removeserver",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/bin/rails",
             "args": [
                 "server"
-            ],
-            "showDebuggerOutput": true
+            ]
         },
         {
             "name": "RSpec - all",
