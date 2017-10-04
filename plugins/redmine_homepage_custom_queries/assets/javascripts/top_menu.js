@@ -37,7 +37,7 @@ if (my_queries_menu.children().length <= 1) {
 $("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " ▽");
 $("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
-$("a.public-query").each(function () {
+$("a.query").each(function () {
 	InsertIssueHref($(this));
 })
 
