@@ -336,17 +336,17 @@ tr.odd.priority-7 td, tr.even.priority-7 td { border-color: #ffb4b4; }
 
 /*Immedidate*/
 tr.odd.priority-5, table.list tbody tr.odd.priority-5:hover { color: #900; }
-tr.odd.priority-5 { background: #ffc4c4; }
+tr.odd.priority-5 { background: #ffa5a5; }
 tr.even.priority-5, table.list tbody tr.even.priority-5:hover { color: #900; }
-tr.even.priority-5 { background: #ffd4d4; }
+tr.even.priority-5 { background: #ffa5a5; }
 tr.priority-5 a { color: #900; }
 tr.odd.priority-5 td, tr.even.priority-5 td { border-color: #ffb4b4; }
 
 /*Urgent*/
 tr.odd.priority-4, table.list tbody tr.odd.priority-4:hover { color: #900; }
-tr.odd.priority-4 { background: #fee; }
+tr.odd.priority-4 { background: #ffdede; }
 tr.even.priority-4, table.list tbody tr.even.priority-4:hover { color: #900; }
-tr.even.priority-4 { background: #fff2f2; }
+tr.even.priority-4 { background: #ffdede; }
 tr.priority-4 a { color: #900; }
 tr.odd.priority-4 td, tr.even.priority-4 td { border-color: #fcc; }
 
