@@ -37,16 +37,16 @@ if (my_queries_menu.children().length <= 1) {
 $("#top-menu ul li a.my-queries-menu").html($("#top-menu ul li a.my-queries-menu").html() + " ▽");
 $("#top-menu ul li a.custom-queries-menu").html($("#top-menu ul li a.custom-queries-menu").html() + " ▽");
 
-$("a.query").each(function () {
-	InsertIssueHref($(this));
-})
-
-function InsertIssueHref($element) {
-	var href = "?" + $element.attr("href").split('?')[1];
-	if (href.indexOf("/issues") === -1) {
-		$element.attr("href", "/issues" + href)
-	}
-}
+// $("a.query").each(function () {
+	// InsertIssueHref($(this));
+// })
+// 
+// function InsertIssueHref($element) {
+	// var href = "?" + $element.attr("href").split('?')[1];
+	// if (href.indexOf("/issues") === -1) {
+		// $element.attr("href", "/issues" + href)
+	// }
+// }
 
 // @Forrest - 05 Jan, 2017. Fix when upgrade to Redmine 3.3.1
 $('#top-menu ul').dropit({
