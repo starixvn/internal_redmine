@@ -36,7 +36,8 @@ class AgileQuery < Query
     QueryColumn.new(:assigned_to, :sortable => lambda {User.fields_for_order_statement}, :groupable => "#{Issue.table_name}.assigned_to_id"),
     QueryColumn.new(:relations, :caption => :label_related_issues),
     QueryColumn.new(:last_comment, :caption => :label_agile_last_comment),
-    QueryColumn.new(:story_points, :caption => :label_agile_story_points)
+    QueryColumn.new(:story_points, :caption => :label_agile_story_points),
+    QueryColumn.new(:priority)
   ]
 
   if RedmineAgile.use_checklist?
@@ -516,7 +517,7 @@ class AgileQuery < Query
 
   def issue_board(options={})
     @truncated = RedmineAgile.board_items_limit <= issue_scope.count
-    all_issues = self.issues.limit(RedmineAgile.board_items_limit).sorted_by_rank
+    all_issues = self.issues.order(options[:order]).limit(RedmineAgile.board_items_limit).sorted_by_rank
     all_issues.group_by{|i| [i.status_id]}
       end
 

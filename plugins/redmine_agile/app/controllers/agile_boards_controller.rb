@@ -51,7 +51,7 @@ class AgileBoardsController < ApplicationController
     retrieve_agile_query
     if @query.valid?
       @issues = @query.issues
-      @issue_board = @query.issue_board
+      @issue_board = @query.issue_board(:order => "#{Issue.table_name}.priority_id DESC")
       @board_columns = @query.board_statuses
 
       respond_to do |format|
