@@ -36,11 +36,14 @@ module IssuesHelperPatch
       def query_links(title, queries)
         return '' if queries.empty?
         # links to #index on issues/show
-        
         content_tag('h3', title) + "\n" +
           content_tag('ul',
-            queries.collect {|query|
-                url_params = !(query.project_id.nil?) ? {:controller => 'issues', :action => 'index', :project_id => @project} : {:controller => 'issues', :action => 'index' , :project_id => nil}
+            queries.collect {|query|                
+                if controller_name == 'gantts'
+                  url_params = !(query.project_id.nil?) ? {:controller => 'gantts', :action => 'show', :project_id => @project} : {:controller => 'gantts', :action => 'show' , :project_id => nil}
+                else
+                  url_params = !(query.project_id.nil?) ? {:controller => 'issues', :action => 'index', :project_id => @project} : {:controller => 'issues', :action => 'index' , :project_id => nil}           
+                end 
                 
                 css = 'query'
                 css << ' selected' if query == @query
@@ -48,7 +51,8 @@ module IssuesHelperPatch
               }.join("\n").html_safe,
             :class => 'queries'
           ) + "\n"
-      end     
+      end  
+        
     end
   end
 end

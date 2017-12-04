@@ -1516,11 +1516,11 @@ $(function(){
 	
 });
 
-$(document).ready(function() {
-	if (document.title === 'Rich Browser') {
-		$('a.delete[data-method="delete"]').remove();
-	}	
-}); 
+// $(document).ready(function() {
+	// if (document.title === 'Rich Browser') {
+		// $('a.delete[data-method="delete"]').remove();
+	// }	
+// }); 
 
 
 
