@@ -79,7 +79,6 @@ module RedmineCkeditor
       @ckeditor_config ||= begin
         conf = {
           :extraPlugins => plugins.join(","),
-          :allowedContent => true,
           :bodyClass => "wiki",
           :removePlugins => 'div,flash,forms,iframe',
           :forcePasteAsPlainText => false

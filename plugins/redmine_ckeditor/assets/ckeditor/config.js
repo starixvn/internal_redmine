@@ -4,6 +4,18 @@
  */
 
 CKEDITOR.editorConfig = function(config) {
+	config.allowedContent = {
+	    $1: {
+	        // Use the ability to specify elements as an object.
+	        elements: CKEDITOR.dtd,
+	        attributes: true,
+	        styles: true,
+	        classes: true
+	    },
+	    input: true
+	};
+	config.disallowedContent = 'script; *[on*]; style; *[data*];';
+	config.pasteFilter = null;
 	config.extraPlugins = 'sourcearea,button,clipboard,lineutils,notification,toolbar,widget,widgetselection,codesnippet';
 	
 	config.colorButton_colors = '000,800000,8B4513,2F4F4F,008080,000080,4B0082,696969,' +
