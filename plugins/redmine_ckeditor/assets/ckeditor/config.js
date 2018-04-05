@@ -4,17 +4,7 @@
  */
 
 CKEDITOR.editorConfig = function(config) {
-	config.allowedContent = {
-	    $1: {
-	        // Use the ability to specify elements as an object.
-	        elements: CKEDITOR.dtd,
-	        attributes: true,
-	        styles: true,
-	        classes: true
-	    },
-	    input: true
-	};
-	config.disallowedContent = 'script; *[on*]; style; *[data*];';
+	config.allowedContent = true;
 	config.pasteFilter = null;
 	config.extraPlugins = 'sourcearea,button,clipboard,lineutils,notification,toolbar,widget,widgetselection,codesnippet';
 	
