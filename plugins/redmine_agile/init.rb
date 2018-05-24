@@ -37,10 +37,10 @@ Redmine::Plugin.register :redmine_agile do
   settings :default => { 'default_columns' => %w(tracker assigned_to) },
            :partial => 'settings/agile/general'
 
-  menu :application_menu, :agile,
-       { :controller => 'agile_boards', :action => 'index' },
-       :caption => :label_agile,
-       :if => Proc.new { User.current.allowed_to?(:view_agile_queries, nil, :global => true) }
+  # menu :application_menu, :agile,
+       # { :controller => 'agile_boards', :action => 'index' },
+       # :caption => :label_agile,
+       # :if => Proc.new { User.current.allowed_to?(:view_agile_queries, nil, :global => true) }
   menu :project_menu, :agile, {:controller => 'agile_boards', :action => 'index' },
                               :caption => :label_agile,
                               :after => :gantt,
