@@ -3,7 +3,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2017 RedmineUP
+# Copyright (C) 2011-2018 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -21,26 +21,8 @@
 
 module AgileBoardsHelper
   def agile_color_class(issue, options={})
-    card_color_class = ''
-    if issue.priority_id?    
-      case issue.priority_id
-      when 1
-        card_color_class = 'prior-low'
-      when 2
-        card_color_class = 'prior-normal'
-      when 3
-        card_color_class = 'prior-high'
-      when 4
-        card_color_class = 'prior-urgent'
-      when 5
-        card_color_class = 'prior-immediate'
-      else
-        card_color_class = ''
-      end  
-    end
-    
-    card_color_class
-  end
+    ''
+      end
 
   def agile_user_color(user, options={})
   end

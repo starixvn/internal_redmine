@@ -1,7 +1,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2017 RedmineUP
+# Copyright (C) 2011-2018 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 
 class AgileQuery < Query
   unloadable
+  include Redmine::SafeAttributes
 
   attr_reader :truncated
 
@@ -36,8 +37,7 @@ class AgileQuery < Query
     QueryColumn.new(:assigned_to, :sortable => lambda {User.fields_for_order_statement}, :groupable => "#{Issue.table_name}.assigned_to_id"),
     QueryColumn.new(:relations, :caption => :label_related_issues),
     QueryColumn.new(:last_comment, :caption => :label_agile_last_comment),
-    QueryColumn.new(:story_points, :caption => :label_agile_story_points),
-    QueryColumn.new(:priority)
+    QueryColumn.new(:story_points, :caption => :label_agile_story_points)
   ]
 
   if RedmineAgile.use_checklist?
@@ -266,10 +266,7 @@ class AgileQuery < Query
   def available_columns
     return @available_columns if @available_columns
     @available_columns = self.class.available_columns.dup
-    @available_columns += (project ?
-                            project.all_issue_custom_fields :
-                            IssueCustomField
-                           ).visible.collect {|cf| QueryCustomFieldColumn.new(cf) }
+    @available_columns += (project ? project.all_issue_custom_fields : IssueCustomField).visible.collect { |cf| QueryCustomFieldColumn.new(cf) }
 
     if User.current.allowed_to?(:view_time_entries, project, :global => true)
       index = nil
@@ -281,6 +278,10 @@ class AgileQuery < Query
         :default_order => 'desc',
         :caption => :label_spent_time
       )
+    end
+
+    if Redmine::Plugin.installed?(:redmineup_tags)
+      @available_columns << QueryColumn.new(:tags, :caption => :field_tags)
     end
 
     disabled_fields = Tracker.disabled_core_fields(trackers).map {|field| field.sub(/_id$/, '')}
@@ -517,7 +518,7 @@ class AgileQuery < Query
 
   def issue_board(options={})
     @truncated = RedmineAgile.board_items_limit <= issue_scope.count
-    all_issues = self.issues.order(options[:order]).limit(RedmineAgile.board_items_limit).sorted_by_rank
+    all_issues = self.issues.limit(RedmineAgile.board_items_limit).sorted_by_rank
     all_issues.group_by{|i| [i.status_id]}
       end
 
