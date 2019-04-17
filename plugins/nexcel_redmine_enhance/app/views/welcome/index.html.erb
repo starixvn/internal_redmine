@@ -6,7 +6,7 @@
 </div>
 
 <div class="splitcontentright">
-  <% if @news.any? %>
+  <% if @news.any? %>                                                         
   <div class="news box">
   <h3><%=l(:label_news_latest)%></h3>
     <%= render :partial => 'news/news', :collection => @news %>

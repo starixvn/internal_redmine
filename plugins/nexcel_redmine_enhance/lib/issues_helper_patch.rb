@@ -1,6 +1,42 @@
 require_dependency 'issues_helper'
 
 module IssuesHelperPatch
+  class IssueFieldsRowsCustom
+    include ActionView::Helpers::TagHelper
+
+    def initialize
+      @left = []
+      @right = []
+    end
+
+    def left(*args)
+      args.any? ? @left << cells(*args) : @left
+    end
+
+    def right(*args)
+      args.any? ? @right << cells(*args) : @right
+    end
+
+    def size
+      @left.size > @right.size ? @left.size : @right.size
+    end
+
+    def to_html
+      content =
+        content_tag('div', @left.reduce(&:+), :class => 'splitcontentleft') +
+        content_tag('div', @right.reduce(&:+), :class => 'splitcontentleft')
+
+      content_tag('div', content, :class => 'splitcontent')
+    end
+  
+    def cells(label, text, options={})
+      options[:class] = [options[:class] || "", 'attribute'].join(' ')
+      content_tag 'div',
+        content_tag('div', label + ":", :class => 'label') + content_tag('div', text, :class => 'value') + content_tag('span', "", :class => options[:icon_class] || ''),
+        options
+    end
+  end
+
   def self.included(base)
 
     base.class_eval do
@@ -51,11 +87,20 @@ module IssuesHelperPatch
               }.join("\n").html_safe,
             :class => 'queries'
           ) + "\n"
-      end  
-        
+      end
+      
+      def issue_fields_rows
+        r = IssueFieldsRowsCustom.new
+        render plain: r.to_s
+        yield r
+        r.to_html
+      end
+      
+      def show_issue_status_context()
+        render :plain => "showMenuContext();"
+      end
     end
   end
 end
 
 IssuesHelper.send(:include, IssuesHelperPatch)
-

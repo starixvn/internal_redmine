@@ -24,3 +24,92 @@ pre {
 pre {
     tab-size: 4 !important;
 }
+
+.status .value {
+    display: inline-block;
+}
+
+.arrow-down {
+    padding-left: 16px;
+    background: url(/images/arrow_expanded.png) no-repeat 0% 40%;
+    cursor: pointer;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+#allowed_status_context {
+    position: absolute;
+    z-index: 40;
+    font-size: 0.9em;
+    left: 280px;
+}
+
+#allowed_status_context ul {
+    width: 150px;
+    border: 1px solid #ccc;
+    background: white;
+    list-style: none;
+    padding: 2px;
+    border-radius: 2px;
+}
+
+#allowed_status_context li {
+    position: relative;
+    padding: 1px;
+    z-index: 39;
+    border: 1px solid white;
+}
+
+#allowed_status_context a {
+    text-decoration: none !important;
+    background-repeat: no-repeat;
+    background-position: 1px 50%;
+    padding: 2px 0px 2px 20px;
+    width: 100%;
+    /* IE */
+}
+
+#allowed_status_context li>a {
+    width: auto;
+}
+
+/* others */
+#allowed_status_context a.disabled,
+#allowed_status_context a.disabled:hover {
+    color: #aaa;
+}
+
+#allowed_status_context li a.submenu {
+    padding-right: 16px;
+    background: url("../images/bullet_arrow_right.png") right no-repeat;
+}
+
+#allowed_status_context li:hover {
+    border: 1px solid #628db6;
+    background-color: #eef5fd;
+    border-radius: 3px;
+}
+
+#allowed_status_context a:hover {
+    color: #2A5685;
+}
+
+#allowed_status_context li.folder:hover {
+    z-index: 40;
+}
+
+#allowed_status_context ul ul,
+#allowed_status_context li:hover ul ul {
+    display: none;
+}
+
+#allowed_status_context li:hover ul,
+#allowed_status_context li:hover li:hover ul {
+    display: block;
+}
+
+#allowed_status_context a.icon-checked {
+    background: url(/images/toggle_check.png) no-repeat 3px 40%;
+}
