@@ -1,0 +1,9 @@
+[submodule "plugins/redmine_save_spent_time_queries"]
+	path = plugins/redmine_save_spent_time_queries
+	url = https://github.com/cuoilennaocacban/redmine_save_spent_time_queries.git
+[submodule "public/themes/redpenny"]
+	path = public/themes/redpenny
+	url = https://github.com/themondays/redpenny.git
+[submodule "public/themes/typecode"]
+	path = public/themes/typecode
+	url = https://github.com/typecode/typecode-redmine-theme.git
