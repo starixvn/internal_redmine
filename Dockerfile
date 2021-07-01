@@ -2,3 +2,4 @@
 FROM registry.nexdev.net:5050/nexcel/nexus/nexdev
 
 COPY . /app/redmine/
+RUN chmod -R 777  /app/redmine/public/
