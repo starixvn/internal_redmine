@@ -68,10 +68,9 @@ module RedmineApp
     # for more options (same options as config.cache_store).
     config.redmine_search_cache_store = :memory_store
 
-    config.logger = Logger.new(File.join(File.join(Rails.root, 'log'), 'production.log'), 2, 50)
     # Configure log level here so that additional environment file
     # can change it (environments/ENV.rb would take precedence over it)
-    config.logger.level = Logger::INFO
+    config.log_level = Rails.env.production? ? :info : :debug
 
     config.session_store :cookie_store,
       :key => '_redmine_session',
