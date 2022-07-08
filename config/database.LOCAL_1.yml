@@ -1,7 +1,7 @@
 production:
   adapter: "mysql2"
-  host: "nexcel_prod_redmine_prod_mysql_db"
-  port: "3306"
+  host: "10.18.200.109"
+  port: "33069"
   username: "root"
   password: "1qaz@WSX"
   database: "nexdev"
@@ -9,8 +9,8 @@ production:
 
 development:
   adapter: "mysql2"
-  host: "nexcel_prod_redmine_prod_mysql_db"
-  port: "3306"
+  host: "10.18.200.109"
+  port: "33069"
   username: "root"
   password: "1qaz@WSX"
   database: "nexdev"
