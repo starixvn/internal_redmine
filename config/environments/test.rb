@@ -35,7 +35,4 @@ Rails.application.configure do
   config.secret_key_base = 'a secret token for running the tests'
 
   config.active_support.test_order = :random
-
-  config.logger = ActiveSupport::Logger.new(
-                     config.paths['log'].first, 5, 100 * 1024 * 1024)
 end
