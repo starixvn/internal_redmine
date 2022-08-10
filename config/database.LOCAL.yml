@@ -1,7 +1,7 @@
 production:
   adapter: "mysql2"
-  host: "10.18.200.109"
-  port: "33069"
+  host: "10.18.200.141"
+  port: "3306"
   username: "root"
   password: "1qaz@WSX"
   database: "nexdev_old"
@@ -9,8 +9,8 @@ production:
 
 development:
   adapter: "mysql2"
-  host: "10.18.200.109"
-  port: "33069"
+  host: "10.18.200.141"
+  port: "3306"
   username: "root"
   password: "1qaz@WSX"
   database: "nexdev_old"
