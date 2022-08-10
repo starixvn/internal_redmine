@@ -3,8 +3,8 @@ production:
   host: "10.18.200.141"
   port: "3306"
   username: "root"
-  password: "1qaz@WSX"
-  database: "nexdev_old"
+  password: "1234aa"
+  database: "redmine"
   strict: false
 
 development:
@@ -12,6 +12,6 @@ development:
   host: "10.18.200.141"
   port: "3306"
   username: "root"
-  password: "1qaz@WSX"
-  database: "nexdev_old"
+  password: "1234aa"
+  database: "redmine"
   strict: false
