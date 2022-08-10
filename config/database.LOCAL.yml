@@ -4,7 +4,7 @@ production:
   port: "33069"
   username: "root"
   password: "1qaz@WSX"
-  database: "nexdev"
+  database: "nexdev_old"
   strict: false
 
 development:
@@ -13,5 +13,5 @@ development:
   port: "33069"
   username: "root"
   password: "1qaz@WSX"
-  database: "nexdev"
+  database: "nexdev_old"
   strict: false
