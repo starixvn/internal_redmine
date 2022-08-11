@@ -195,7 +195,8 @@ default:
 # specific configuration options for production environment
 # that overrides the default ones
 production:
-
+  secret_key_base: 'N6P7R9SATCVDWEYGZH2K4M5N7Q8R9TBUCVEXFYG2J3K4M6P7Q8SATBUDWE'
 # specific configuration options for development environment
 # that overrides the default ones
 development:
+  secret_key_base: 'N6P7R9SATCVDWEYGZH2K4M5N7Q8R9TBUCVEXFYG2J3K4M6P7Q8SATBUDWE'
