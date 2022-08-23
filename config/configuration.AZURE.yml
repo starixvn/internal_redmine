@@ -86,7 +86,7 @@ default:
     smtp_settings:
 #     enable_starttls_auto: true
       address: "smtp.nexdev.net"
-      port: 25
+      port: 2525
       domain: "smtp.nexdev.net"
       enable_starttls_auto: false
       openssl_verify_mode: 'none'
