@@ -24,5 +24,5 @@ Rails.application.configure do
   config.active_support.deprecation = :log
 
   #Only write error log
-  config.logger.level = Logger::ERROR
+  config.log_level  = :error
 end
