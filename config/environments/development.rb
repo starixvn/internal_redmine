@@ -19,5 +19,8 @@ Rails.application.configure do
   # Print deprecation notices to stderr and the Rails logger.
   config.active_support.deprecation = [:stderr, :log]
 
+  config.logger = ActiveSupport::Logger.new(
+                     config.paths['log'].first, 5, 10 * 1024 * 1024)
+
   config.log_level = :error
 end

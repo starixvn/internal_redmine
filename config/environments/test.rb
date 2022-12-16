@@ -33,6 +33,9 @@ Rails.application.configure do
   config.active_support.deprecation = [:stderr, :log]
 
   config.secret_key_base = 'a secret token for running the tests'
+  
+  config.logger = ActiveSupport::Logger.new(
+                     config.paths['log'].first, 5, 10 * 1024 * 1024)
 
   config.active_support.test_order = :random
 end
