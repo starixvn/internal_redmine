@@ -3,7 +3,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2018 RedmineUP
+# Copyright (C) 2011-2023 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -46,29 +46,45 @@ class AgileVersionsQueryTest < ActiveSupport::TestCase
            :journal_details,
            :queries
 
+  def filter_fields
+    ['assigned_to_id', 'tracker_id', 'status_id', 'author_id', 'category_id'] # estimated_hours
+  end
+
   def setup
     super
     RedmineAgile.create_issues
-    @query = AgileVersionsQuery.new
-        @query.project = Project.find(2)
-    @backlog_version = Version.find(7)
-    @current_version = Version.find(5)
+    @query = AgileVersionsQuery.new(:name => '_')
+    @query.project = Project.find(2)
+    @version5 = Version.find(5)
+    @version7 = Version.find(7)
     User.current = User.find(1) # because issues selected according permissions
   end
 
-  def test_backlog_version
-    assert_equal @backlog_version, @query.backlog_version
+  def test_versions
+    assert_equal [5, 7], @query.versions.map(&:id).sort
   end
 
-  def test_current_version
-    assert_equal @current_version, @query.current_version
+  def test_no_version_issues
+    assert_equal [4, 107], @query.no_version_issues.map(&:id).sort
   end
 
-  def test_backlog_issues
-    assert_equal [100, 101, 102, 103], @query.backlog_version_issues.map(&:id).sort
+  def test_version_issues
+    assert_equal [104], @query.version_issues(@version5).map(&:id).sort
   end
 
-  def test_current_issues
-    assert_equal [104], @query.current_version_issues.map(&:id).sort
+  def test_query_version_filter
+    hash = { f: ['fixed_version_id'], op: { 'fixed_version_id' => '=' }, v: { 'fixed_version_id' => ['7'] } }
+    @query.build_from_params(hash)
+    assert_equal [4, 107, 108, 109], @query.no_version_issues.map(&:id).sort
+    assert_equal [], @query.version_issues(@version5).map(&:id).sort
+    assert_equal [100, 101, 102, 103], @query.version_issues(@version7).map(&:id).sort
+  end
+
+  def test_query_version_filter_if_current_and_other_versions_are_selected
+    hash = { f: ['fixed_version_id'], op: { 'fixed_version_id' => '=' }, v: { 'fixed_version_id' => ['current_version', '7'] } }
+    @query.build_from_params(hash)
+    assert_equal [4, 107, 108, 109], @query.no_version_issues.map(&:id).sort
+    assert_equal [104, 105, 106], @query.version_issues(@version5).map(&:id).sort
+    assert_equal [100, 101, 102, 103], @query.version_issues(@version7).map(&:id).sort
   end
 end

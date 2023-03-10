@@ -1,7 +1,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2018 RedmineUP
+# Copyright (C) 2011-2023 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 
 module RedmineAgile
   module Hooks
-    class ViewsUsersHook < Redmine::Hook::ViewListener
+    class ViewsUsersFormHook < Redmine::Hook::ViewListener
       preferences_hook = Redmine::VERSION.to_s > '2.5' ? :view_users_form_preferences : :view_users_form
-      render_on preferences_hook, :partial => 'users/user_color_form'
+      render_on preferences_hook, partial: 'users/user_color_form'
     end
   end
 end

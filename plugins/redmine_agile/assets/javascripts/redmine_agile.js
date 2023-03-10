@@ -45,7 +45,7 @@
       }
     },
 
-    errorSortable: function($oldColumn, responseText) {
+    errorSortable: function(responseText) {
       var alertMessage = parseErrorResponse(responseText);
       if (alertMessage) {
         setErrorMessage(alertMessage);
@@ -54,25 +54,27 @@
 
     initSortable: function() {
       var self = this;
-      var $issuesCols = $(".issue-version-col");
+      var $issuesCols = $(".column-issues");
 
       $issuesCols.sortable({
-        connectWith: ".issue-version-col",
+        connectWith: ".column-issues",
         start: function(event, ui) {
           var $item = $(ui.item);
-          $item.attr('oldColumnId', $item.parent().data('id'));
+          var boardType = $item.parent().data('version-id') !== undefined ? 'version' : 'sprint';
           $item.attr('oldPosition', $item.index());
+          $item.attr('oldColumnId', $item.parent().data('version-id'));
+          $item.attr('oldSprintId', $item.parent().data('sprint-id'));
+          $item.attr('boardType', boardType);
         },
         stop: function(event, ui) {
           var $item = $(ui.item);
-          var sender = ui.sender;
-          var $column = $item.parents('.issue-version-col');
+          var $column = $item.parents('.column-issues');
           var issue_id = $item.data('id');
-          var version_id = $column.attr("data-id");
-          var order = $column.sortable('serialize');
+          var version_id = $column.attr('data-version-id');
+          var sprint_id = $column.attr('data-sprint-id');
           var positions = {};
-          var oldId = $item.attr('oldColumnId');
-          var $oldColumn = $('.ui-sortable[data-id="' + oldId + '"]');
+          var oldId = $item.attr('boardType') !== 'sprint' ? $item.attr('oldColumnId') : $item.attr('oldSprintId');
+          var $oldColumn = $('.ui-sortable[data-' + $item.attr('boardType') + '-id="' + oldId + '"]');
 
           if(!self.hasChange($item)){
             self.backSortable($column);
@@ -84,13 +86,15 @@
             positions[$e.data('id')] = { position: $e.index() };
           });
 
+          var issueParams = {};
+          if (version_id != undefined) issueParams['fixed_version_id'] = version_id || "";
+          if (sprint_id != undefined) issueParams['sprint_id'] = sprint_id || "";
+
           $.ajax({
             url: self.routes.update_agile_board_path,
             type: 'PUT',
             data: {
-              issue: {
-                fixed_version_id: version_id
-              },
+              issue: issueParams,
               positions: positions,
               id: issue_id
             },
@@ -98,20 +102,21 @@
               self.successSortable($oldColumn, $column);
             },
             error: function(xhr, status, error) {
-              self.errorSortable($oldColumn, xhr.responseText);
+              self.errorSortable(xhr.responseText);
+              self.backSortable($oldColumn);
             }
           });
         }
       }).disableSelection();
 
-      $issuesCols.sortable( "option", "cancel", "div.pagination-wrapper" );
-
+      $issuesCols.sortable('option', 'cancel', 'div.pagination-wrapper');
     },
 
     hasChange: function($item){
-      var column = $item.parents('.issue-version-col');
-      return $item.attr('oldColumnId') != column.data('id') || // Checks a version change
-             $item.attr('oldPosition') != $item.index();
+      var column = $item.parents('.column-issues');
+      return $item.attr('oldColumnId') != column.data('version-id') || // Checks a version change
+             $item.attr('oldSprintId') != column.data('sprint-id') || // Checks a sprint change;
+             $item.attr('oldPosition') != $item.index()
     },
 
   }
@@ -176,6 +181,7 @@
           var oldSwimLaneId = $item.attr('oldSwimLaneId');
           var oldSwimLaneField = $item.attr('oldSwimLaneField');
           var $oldColumn = $('.ui-sortable[data-id="' + oldStatusId + '"]');
+          var $sprintField = $('#sprint_id');
 
           if(!self.hasChange($item)){
             self.backSortable($column);
@@ -204,6 +210,17 @@
             }
           params['issue'][swimLaneField] = swimLaneId;
 
+
+          if ($sprintField) {
+            if (oldStatusId == '' && newStatusId != '') {
+              params['issue'].sprint_id = $sprintField.val();
+            }
+            if (oldStatusId != '' && newStatusId == '') {
+              delete(params['issue'].status_id)
+              params['issue'].sprint_id = '';
+            }
+          }
+
           $.ajax({
             url: self.routes.update_agile_board_path,
             type: 'PUT',
@@ -212,7 +229,7 @@
               self.successSortable(oldStatusId, newStatusId, oldSwimLaneId, swimLaneId);
               $($item).replaceWith(data);
               estimatedHours = $($item).find("span.hours");
-              if(estimatedHours.size() > 0){
+              if(estimatedHours.length > 0){
                 hours = $(estimatedHours).html().replace(/(\(|\)|h)?/g, '');
                 // self.recalculateEstimateHours(oldStatusId, newStatusId, hours);
               }
@@ -311,64 +328,42 @@
       });
     }
 
-    this.saveInlineComment = function(node, url){
-      var node = node;
-      var comment = $(node).siblings("textarea").val();
-      if ($.trim(comment) === "") return false;
-      $(node).prop('disabled', true);
-      $('.lock').show();
-      var card = $(node).parents(".issue-card");
-      $.ajax({
-        url: url,
-        type: "PUT",
-        dataType: "html",
-        data: { issue: { notes: comment } },
-        success: function(data, status, xhr){
-          $(card).replaceWith(data);
-        },
-        error: function(xhr, status, error){
-          var alertMessage = parseErrorResponse(xhr.responseText);
-          if (alertMessage) {
-            setErrorMessage(alertMessage);
-          }
-        },
-        complete: function(xhr, status){
-          $(node).prop('disabled', false);
-          $('.lock').hide();
-        }
-      });
-    }
-
-    this.createIssue = function(url){
-      $('.add-issue').click(function(){
-        $(this).children('.new-card__input').focus();
-      });
-      $('.new-card__input').keyup(function(evt){
-        var node = this;
-        evt = evt || window.event;
-        subject = $.trim($(node).val());
+    this.createIssue = function (url) {
+      $(".add-issue").click(function () {
+        $(this).children(".new-card__input").focus()
+      })
+      $('.agile-board').parent('form').on('submit', function(evt) {
+        evt.preventDefault();
+      })
+      $(".new-card__input").keyup(function (evt) {
+        var node = this
+        var $sprintField = $("#sprint_id")
+        evt = evt || window.event
+        subject = $.trim($(node).val())
+        sprint_id = $sprintField ? $sprintField.val() : ""
         if (evt.keyCode == 13 && subject.length != 0) {
           $.ajax({
             url: url,
             type: "POST",
             data: {
               subject: subject,
-              status_id: $(node).parents('td').data('id')
+              status_id: $(node).parents("td").data("id"),
+              sprint_id: sprint_id
             },
             dataType: "html",
-            success: function(data, status, xhr){
-              $(node).parent().before(data);
-              $(node).val('');
+            success: function (data, status, xhr) {
+              $(node).parent().before(data)
+              $(node).val("")
             },
-            error:function(xhr, status, error) {
-              var alertMessage = parseErrorResponse(xhr.responseText);
+            error: function (xhr, status, error) {
+              var alertMessage = parseErrorResponse(xhr.responseText)
               if (alertMessage) {
-                setErrorMessage(alertMessage);
+                setErrorMessage(alertMessage)
               }
-            }
-          });
+            },
+          })
         }
-      });
+      })
     }
 
     this.routes = routes;
@@ -411,7 +406,6 @@
               .remove()
               .end()
               .addClass('sticky')
-              .css({'display': 'table', 'top': '0px', 'position': 'fixed'})
               .insertBefore($this)
               .hide();
       }
@@ -439,9 +433,14 @@
 
           resizeFixed();
 
-          if (offset < tableOffsetTop || offset > tableOffsetBottom) {
+          // The first breakpoint to add responsiveness is 899px
+          var headerHeight = $(window).width() < 900 ? $('#header').height() : 0;
+          var tablePositionTop= tableOffsetTop - headerHeight;
+          var tablePositionBottom= tableOffsetBottom - headerHeight;
+
+          if (offset < tablePositionTop|| offset > tablePositionBottom) {
               $tableFixed.css('display', 'none');
-          } else if (offset >= tableOffsetTop && offset <= tableOffsetBottom) {
+          } else if (offset >= tablePositionTop && offset <= tablePositionBottom) {
               $tableFixed.css('display', 'table');
               // Fix for chrome not redrawing header
               $tableFixed.css('z-index', '100');
@@ -451,6 +450,7 @@
 
       function bindScroll() {
           if ($html.hasClass('agile-board-fullscreen')) {
+              scrollFixed();
               $('div.agile-board.autoscroll').scroll(scrollFixed);
               $(window).unbind('scroll');
           } else {
@@ -541,7 +541,6 @@ function changeHtmlNumber(element, number){
   }
 }
 
-
 function observeIssueSearchfield(fieldId, url) {
   $('#'+fieldId).each(function() {
     var $this = $(this);
@@ -549,44 +548,131 @@ function observeIssueSearchfield(fieldId, url) {
     $this.attr('data-value-was', $this.val());
     var check = function() {
       var val = $this.val();
+
       if ($this.attr('data-value-was') != val){
+        var request_data = {}
+        $.map($('#query_form').serializeArray(), function(n, i){
+          if (request_data[n['name']]) {
+            if ($.isArray(request_data[n['name']])) {
+              request_data[n['name']].push(n['value'])
+            } else {
+              request_data[n['name']] = [request_data[n['name']], n['value']];
+            }
+          } else {
+            request_data[n['name']] = n['value'];
+          }
+        });
+        request_data['q'] = val
+
         $this.attr('data-value-was', val);
         $.ajax({
           url: url,
           type: 'get',
-          data: {q: $this.val()},
+          data: request_data,
           beforeSend: function(){ $this.addClass('ajax-loading'); },
           complete: function(){ $this.removeClass('ajax-loading'); }
         });
       }
     };
-    var reset = function() {
+    var reset = function(e) {
       if (timer) {
         clearInterval(timer);
         timer = setInterval(check, 300);
       }
     };
+    var skipSpecialKeys = function(e) {
+      if (e.keyCode === 13) { e.preventDefault() }
+    }
     var timer = setInterval(check, 300);
+    var skipSubmit = function(e) {
+      if (e.which == 13 || e.keyCode == 13) {
+        e.preventDefault();
+        return false
+      }
+    }
+    $this.bind('keydown', skipSubmit);
     $this.bind('keyup click mousemove', reset);
+    $this.bind('keydown', skipSpecialKeys);
   });
 }
 
 function recalculateHours() {
-  var backlogSum = 0;
-  var unit = $("#backlog_version_header").data('estimated-unit');
+  $('.version-column').each(function (i, elem) {
+    var estimatedHours = 0;
+    var storyPoints = 0;
+    $(elem).find('.issue-card').each(function (j, issue) {
+      estimatedHours += parseFloat($(issue).data('estimated-hours'));
+      storyPoints += parseFloat($(issue).data('story-points'));
+    });
 
-  $('.versions-planning-board td:nth-child(2) .issue-card').each(function(i, elem){
-    hours = parseFloat($(elem).data('estimated-hours'));
-    backlogSum += hours;
-  })
-  $('.versions-planning-board .backlog-hours').text('(' + backlogSum.toFixed(2) + unit +')');
+    var values = [];
+    if (estimatedHours > 0) {
+      values.push(estimatedHours.toFixed(2) + 'h');
+    }
 
-  var currentSum = 0;
-  $('.versions-planning-board td:nth-child(3) .issue-card').each(function(i, elem){
-    hours = parseFloat($(elem).data('estimated-hours'));
-    currentSum += hours;
-  })
-  $('.versions-planning-board .current-hours').text('(' + currentSum.toFixed(2) + unit + ')');
+    if (storyPoints > 0) {
+      values.push(storyPoints.toFixed(2) + 'sp');
+    }
+
+    if (values.length > 0) {
+      $(elem).find('.version-estimate').text('(' + values.join('/') + ')');
+    }
+  });
+}
+
+function recalculateSprintHours(url, options) {
+  var $sprint_ids = [];
+  var $sprintValueExist = $('span.sprint-estimate').text().trim()
+
+  $('div.column-issues').each(function() {
+    if($(this).attr('data-sprint-id') !== '') {
+      $sprint_ids.push($(this).attr('data-sprint-id'));
+    }
+  });
+  if($sprint_ids.length > 0 && $sprintValueExist) {
+    $.ajax({
+      url: url,
+      type: "get",
+      data: {sprint_ids: $sprint_ids},
+      success: function (data, status, xhr) {
+        refreshStoryPointsValues(data);
+      },
+      error: function (xhr, status, error) {
+            var alertMessage = parseErrorResponse(xhr.responseText);
+            if (alertMessage) {
+              setErrorMessage(alertMessage);
+            }
+      }
+    });
+  }
+}
+
+function recalculateEstimatedHours() {
+  var unit = $(".planning-board").data('estimated-unit');
+  var dataAttr = 'estimated-hours';
+
+  $('.sprint-column').each(function(i, elem){
+    var versionEstimationSum = 0;
+    $(elem).find('.issue-card').each(function(j, issue){
+      hours = parseFloat($(issue).data(dataAttr));
+      versionEstimationSum += hours;
+    });
+    if (versionEstimationSum > 0) {
+      $(elem).find('.sprint-estimate').text('(' + versionEstimationSum.toFixed(2) + unit + ')');
+    }
+  });
+}
+
+function refreshStoryPointsValues(values) {
+  $('div.column-issues').each(function() {
+    var sprint = $(this).attr('data-sprint-id');
+
+    if(values[sprint]) {
+      $(this).parent().find('span.sprint-estimate').text("(" + values[sprint] + "sp)");
+    } else {
+      $(this).parent().find('span.sprint-estimate').text("");
+    }
+  });
 }
 
 function showInlineCommentNode(quick_comment){
@@ -622,6 +708,35 @@ function showInlineComment(node, url){
   };
 }
 
+function saveInlineComment(node, url){
+  var node = node;
+  var comment = $(node).siblings("textarea").val();
+  if ($.trim(comment) === "") return false;
+  $(node).prop('disabled', true);
+  $('.lock').show();
+  var card = $(node).parents(".issue-card");
+  var version_board = $('.planning-board').length;
+  $.ajax({
+    url: url,
+    type: "PUT",
+    dataType: "html",
+    data: { issue: { notes: comment }, version_board: version_board },
+    success: function(data, status, xhr){
+      $(card).replaceWith(data);
+    },
+    error: function(xhr, status, error){
+      var alertMessage = parseErrorResponse(xhr.responseText);
+      if (alertMessage) {
+        setErrorMessage(alertMessage);
+      }
+    },
+    complete: function(xhr, status){
+      $(node).prop('disabled', false);
+      $('.lock').hide();
+    }
+  });
+}
+
 function cancelInlineComment(node){
   $(node).parent().hide();
   $(node).parent().siblings(".last_comment").show();
@@ -646,7 +761,7 @@ $(document).ready(function(){
     var searchTerm = this.value;
     cards.removeClass("filtered");
     cards.filter(function() {
-      return $(this).find(".name").text().toLowerCase().indexOf(searchTerm) === -1;
+      return $(this).find(".name").text().toLowerCase().indexOf(searchTerm.toLowerCase()) === -1;
     }).addClass("filtered");
   });
 });
@@ -673,4 +788,46 @@ function linkableAttributeFields() {
 
   var progress_label = $('.progress.attribute .label')
   progress_label.html(linkGenerator('/done_ratio', progress_label.html()));
+};
+
+function chartLinkGenerator() {
+  var filter_values = $("#query_form").serialize();
+  event.preventDefault();
+  window.location.href = $('.agile_charts_link').prop('href') + '?' + filter_values;
+}
+
+function hideChartPeriodCheckbox() {
+  $("#cb_chart_period").hide();
+  $("label[for=cb_chart_period]").removeAttr("for");
+};
+
+function toggleChartUnit(chart, target) {
+  var showTarget = chartsWithUnits.indexOf(chart) > -1;
+  $('#' + target).toggle(showTarget);
+};
+
+function updateVersionAgileChart(url) {
+  $.ajax(url + '&chart=' + $('#chart_by_select').val() + '&chart_unit=' + $('#chart_unit').val());
+};
+
+function chartTooltipCallbacks(chartType) {
+  if (chartType === 'scatter') {
+    return scatterChartTooltipCallbacks()
+  } else {
+    return {}
+  }
+};
+
+function scatterChartTooltipCallbacks() {
+  return {
+    title: function (tooltipItem, data) {
+      return data.labels[tooltipItem[0].xLabel] || '';
+    },
+    label: function (tooltipItem, data) {
+      var label = data.datasets[tooltipItem.datasetIndex].label || '';
+      if (label) { label += ': ' }
+      label += tooltipItem.yLabel;
+      return label;
+    }
+  }
 };
