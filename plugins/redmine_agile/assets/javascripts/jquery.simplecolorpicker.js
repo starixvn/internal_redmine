@@ -39,7 +39,7 @@
         var selectText = self.$select.find('> option:selected').text();
         self.$icon = $('<span class="simplecolorpicker button"'
                      + ' title="' + selectText + '"'
-                     + ' style="background-color: ' + self.$select.val() + ';"'
+                     + ' style="background: ' + self.$select.val() + ';"'
                      + ' role="button" tabindex="0">'
                      + '</span>').insertAfter(self.$select);
         self.$icon.on('click.' + self.type, $.proxy(self.showPicker, self));
