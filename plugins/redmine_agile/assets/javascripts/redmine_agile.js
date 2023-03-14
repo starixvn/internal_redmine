@@ -444,6 +444,7 @@
               $tableFixed.css('display', 'table');
               // Fix for chrome not redrawing header
               $tableFixed.css('z-index', '100');
+              $tableFixed.css('margin-top', '0');
           }
       }
 
