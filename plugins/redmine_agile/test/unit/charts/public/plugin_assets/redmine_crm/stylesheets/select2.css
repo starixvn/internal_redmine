@@ -152,7 +152,6 @@
 .select2-container--default .select2-selection--single {
   /*background: #fff url(../images/vcard.png) no-repeat 2px 50%;*/
   background-color: #fff;
-  height: 24px;
   border: 1px solid #ccc;
   border-radius: 3px;
 }
@@ -162,8 +161,8 @@
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 21px;
-  font-size: 11px;
+  line-height: 28px;
+  color: #444;
 }
 
 .select2-container--default .select2-selection--single.icon .select2-selection__rendered {
@@ -347,9 +346,7 @@
   margin-left: -5em;
   padding-left: 6em;
 }
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #eef5fd;
-}
+
 .select2-container--default .select2-results__group {
   cursor: default;
   display: block;
@@ -372,53 +369,4 @@
   padding: 3px 5px;
 }
 
-/* == Theming ===
-
-.select2-container--default .select2-selection--single {
-  background: #fff url(../images/vcard.png) no-repeat 2px 50%;
-  border: 1px solid #9EB1C2;
-  border-radius: 2px;
-  height: 21px;
-}
-
-.select2-container--default .select2-selection--single:focus {
-  border-color: #2996cc;
-  outline: none;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-  padding-left: 21px;
-  line-height: 18px;
-  font-size: 11px;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 20px;
-  top: 0px;
-  right: 1px;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__clear {
-  font-weight: normal;
-  color: #888;
-}
-
-.select2-container--default .select2-results__option[aria-selected=true] {
-  background-color: #eee;
-}
-
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #eef5fd;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-  border-color: #afafaf transparent transparent transparent;
-}
-
-.select2-dropdown {
-  border: 1px solid #e0e2e3;
-  border-radius: 3px;
-}
-
-*/
 
