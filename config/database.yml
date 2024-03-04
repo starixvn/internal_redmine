@@ -4,7 +4,7 @@ production:
   port: "33066"
   username: "redmine"
   password: "1qaz@WSX"
-  database: "redmine_local"
+  database: "old_nexdev"
   strict: false
 
 development:
@@ -13,5 +13,5 @@ development:
   port: "33066"
   username: "redmine"
   password: "1qaz@WSX"
-  database: "redmine_local"
+  database: "old_nexdev"
   strict: false

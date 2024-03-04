@@ -1,13 +1,12 @@
-FROM hub.nexdev.net/nexus/nexdev_base
+FROM redmine:3.3.3
 
-RUN rm -r /app/redmine/*
-COPY . /app/redmine/
-WORKDIR /app/redmine
-RUN mkdir tmp
-RUN chmod 777 /app/redmine/tmp
+RUN rm -r /usr/src/redmine/plugins/* 
+RUN rm -r /usr/src/redmine/config/* 
+RUN rm -r /usr/src/redmine/public/*
 
-RUN set -x \
- 	&& apt-get update \
-     && apt-get -y install nano \
-     && apt-get -y install curl \
-     && apt-get -y install telnet
+COPY --chown=redmine:redmine ./plugins/ /usr/src/redmine/plugins/
+COPY --chown=redmine:redmine ./config/ /usr/src/redmine/config/
+COPY --chown=redmine:redmine ./public/ /usr/src/redmine/public/
+
+COPY ./Gemfile /usr/src/redmine/Gemfile
+COPY ./Gemfile.lock /usr/src/redmine/Gemfile.lock
