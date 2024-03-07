@@ -1,4 +1,4 @@
-FROM redmine:3.3.3
+FROM hub.nexdev.net/nexus/nexcel_redmine_base_new:3.3.3
 
 RUN rm -r /usr/src/redmine/plugins/* 
 RUN rm -r /usr/src/redmine/config/* 
