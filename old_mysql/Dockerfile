@@ -1,0 +1,1 @@
+FROM hub.nexdev.net/base/database/mysql:8.0
