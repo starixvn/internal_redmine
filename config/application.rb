@@ -1,5 +1,6 @@
+require_relative '../lib/middleware/long_request_logger'
+require_relative '../lib/middleware/avatar_redirect_middleware'
 require File.expand_path('../boot', __FILE__)
-
 require 'rails/all'
 
 Bundler.require(*Rails.groups)
@@ -57,6 +58,10 @@ module RedmineApp
     # Sets the Content-Length header on responses with fixed-length bodies
     config.middleware.insert_after Rack::Sendfile, Rack::ContentLength
 
+    # JACOB middleware for log request duration
+    config.middleware.insert_before Rack::Runtime, AvatarRedirectMiddleware
+    config.middleware.insert_after Rails::Rack::Logger, Middleware::LongRequestLogger
+    
     # Verify validity of user sessions
     config.redmine_verify_sessions = true
 
