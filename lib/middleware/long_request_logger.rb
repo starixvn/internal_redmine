@@ -10,7 +10,7 @@ module Middleware
       end_time = Time.now
       duration = (end_time - start_time)
 
-      if duration > 60
+      if duration > 30
         request = ActionDispatch::Request.new(env)
         Rails.logger.error "Long Request Detected! Duration: #{duration.round(2)} seconds - Method: #{request.method} - Path: #{request.fullpath} - Parameters: #{request.params.inspect}"
         

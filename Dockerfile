@@ -18,4 +18,3 @@ COPY ./Gemfile.lock /usr/src/redmine/Gemfile.lock
 
 RUN chmod -R 777 /usr/src/redmine
 
-USER root
