@@ -1,7 +1,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2018 RedmineUP
+# Copyright (C) 2011-2023 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_agile.  If not, see <http://www.gnu.org/licenses/>.
 
-require_dependency 'issue'
-require_dependency 'agile_data'
-
 module RedmineAgile
   module Patches
 
@@ -29,14 +26,27 @@ module RedmineAgile
         base.class_eval do
           unloadable
           has_one :agile_data, :dependent => :destroy
+          has_one :agile_sprint, through: :agile_data
           delegate :position, :to => :agile_data, :allow_nil => true
           scope :sorted_by_rank, lambda { eager_load(:agile_data).
-                                          order("COALESCE(#{AgileData.table_name}.position, 999999)") }
-          safe_attributes 'agile_data_attributes', :if => lambda { |issue, user| issue.new_record? || user.allowed_to?(:edit_issues, issue.project) && RedmineAgile.use_story_points? }
+                                          order(Arel.sql("COALESCE(#{AgileData.table_name}.position, 999999  )")) }
+          alias_method :css_classes_without_agile, :css_classes
+          alias_method :css_classes, :css_classes_with_agile
+
+          acts_as_colored
+
+          safe_attributes 'agile_color_attributes',
+            :if => lambda { |issue, user| user.allowed_to?(:edit_issues, issue.project) && user.allowed_to?(:view_agile_queries, issue.project) && RedmineAgile.issue_colors? }
+          safe_attributes 'agile_data_attributes', :if => lambda { |issue, user| issue.new_record? || user.allowed_to?(:edit_issues, issue.project) }
           accepts_nested_attributes_for :agile_data, :allow_destroy => true
 
           alias_method :agile_data_without_default, :agile_data
           alias_method :agile_data, :agile_data_with_default
+          alias_method :'safe_attributes=_without_agile', :'safe_attributes='
+          alias_method :'safe_attributes=', :'safe_attributes=_with_agile'
+
+          alias_method :copy_from_without_agile, :copy_from
+          alias_method :copy_from, :copy_from_with_agile
         end
       end
 
@@ -59,6 +69,31 @@ module RedmineAgile
 
         def story_points
           @story_points ||= agile_data.story_points
+        end
+        def css_classes_with_agile(user = User.current)
+          s = if Redmine::VERSION.to_s < '2.4'
+                css_classes_without_agile
+              else
+                css_classes_without_agile(user)
+              end
+          s << " #{RedmineAgile.color_prefix}-#{color}" if RedmineAgile.issue_colors? && color
+          s
+        end
+
+        define_method 'safe_attributes=_with_agile' do |attrs, user=User.current|
+          if attrs && attrs[:agile_data_attributes].present?
+            attrs[:agile_data_attributes][:id] = agile_data.try(:id)
+            attrs[:agile_data_attributes].delete(:agile_sprint_id) unless User.current.allowed_to?(:manage_sprints, project)
+          end
+          send('safe_attributes=_without_agile', attrs, user)
+        end
+
+        def copy_from_with_agile(arg, options={})
+          original_issue = arg.is_a?(Issue) ? arg : Issue.visible.find(arg)
+          copied_issue = copy_from_without_agile(original_issue, options)
+          copied_issue.build_agile_data(story_points: original_issue.agile_data[:story_points],
+                                        agile_sprint_id: original_issue.agile_data[:agile_sprint_id])
+          copied_issue
         end
 
         def sub_issues

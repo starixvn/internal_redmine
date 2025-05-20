@@ -176,7 +176,7 @@ GEM
     rbpdf-font (1.19.1)
     rdoc (4.3.0)
     redcarpet (3.3.4)
-    redmine_crm (0.0.55)
+    redmine_crm (0.0.59)
       liquid (< 2.6.4)
       rails
       rubyzip
@@ -269,7 +269,7 @@ DEPENDENCIES
   rbpdf (~> 1.19.2)
   rdoc (~> 4.3)
   redcarpet (~> 3.3.2)
-  redmine_crm (= 0.0.55)
+  redmine_crm (= 0.0.59)
   request_store (= 1.0.5)
   rich!
   rmagick (>= 2.14.0)

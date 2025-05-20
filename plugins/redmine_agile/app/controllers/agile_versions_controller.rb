@@ -1,7 +1,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2018 RedmineUP
+# Copyright (C) 2011-2023 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -20,24 +20,37 @@
 class AgileVersionsController < ApplicationController
   unloadable
 
-  menu_item :agile
+  menu_item :agile_backlog
 
-  before_action :find_project_by_project_id, :only => [:index, :autocomplete, :load]
-  before_action :find_version, :only => [:load]
-  before_action :authorize, :except => [:autocomplete, :load]
-  before_action :find_no_version_issues, :only => [:index, :autocomplete]
+  before_action :find_project_by_project_id
+  before_action :authorize, except: [:autocomplete, :load_more]
+  before_action :find_version, only: [:load_more]
+  before_action :find_sprint, only: [:load_more]
+  before_action :retrieve_query
+  before_action :retrieve_data
 
-  include QueriesHelper
   helper :queries
-  include RedmineAgile::AgileHelper
+  include QueriesHelper
+  helper :sort
+  include SortHelper
+  helper :issues
+  include IssuesHelper
+  helper :agile_boards
+  include AgileBoardsHelper
+  include RedmineAgile::Helpers::AgileHelper
+  helper :agile_sprints
+  include AgileSprintsHelper
 
   def index
-    retrieve_versions_query
-      @backlog_version = @query.backlog_version
-      @backlog_version_issues =  @query.backlog_version_issues
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
 
-      @current_version = @query.current_version
-      @current_version_issues = @query.current_version_issues
+  def sprints
     respond_to do |format|
       format.html
       format.js
@@ -47,35 +60,74 @@ class AgileVersionsController < ApplicationController
   end
 
   def autocomplete
-    render :layout => false
+    @more_url = load_more_project_agile_versions_path(@project, { q: params[:q], page: @paginator.try(:next_page) }.merge(@object_params))
+    render layout: false
   end
 
-  def load
-    retrieve_versions_query
-    @version_issues = @query.version_issues(@version)
-    @version_type = params[:version_type]
-    @other_version_type = @version_type == "backlog" ? "current" : "backlog"
-    @other_version_id = params[:other_version_id]
-    respond_to do |format|
-      format.js
-    end
+  def load_more
+    @more_url = load_more_project_agile_versions_path(@project, { q: params[:q], page: @paginator.try(:next_page) }.merge(@object_params))
+    render layout: false
   end
 
   private
 
+  def sprint_request?
+    params[:sprints] || action_name == 'sprints'
+  end
+
+  def retrieve_query
+    if sprint_request?
+      retrieve_versions_query(AgileSprintsQuery, :sprints_query)
+    else
+      retrieve_versions_query(AgileVersionsQuery, :versions_query)
+    end
+  end
+
+  def retrieve_data
+    if sprint_request?
+      @tab_sprints = true
+      @issues = @sprint ? find_sprint_issues : find_no_sprint_issues
+      @object_params = { sprint_id: @sprint.try(:id), sprints: 1 }
+    else
+      @tab_versions = true
+      @issues = @version ? find_version_issues : find_no_version_issues
+      @object_params = { version_id: @version.try(:id) }
+    end
+  end
+
   def find_version
-    @version = Version.visible.find(params[:version_id])
-    @project ||= @version.project
-  rescue ActiveRecord::RecordNotFound
-    render_404
+    return unless params[:version_id]
+    @version = Version.visible.where(id: params[:version_id]).first
+    return render_404 unless @version
+  end
+
+  def find_version_issues
+    scope = @query.version_issues(@version)
+    @paginator = @query.version_paginator(@version, params)
+    @version_issues = scope.offset(@paginator.offset).limit(@paginator.per_page).all
   end
 
   def find_no_version_issues
-    retrieve_versions_query
-      scope = @query.no_version_issues(params)
-      @issue_count = scope.count
-      @issue_pages = Redmine::Pagination::Paginator.new @issue_count, 20, params['page']
-      @version_issues = scope.offset(@issue_pages.offset).limit(@issue_pages.per_page).all
+    scope = @query.no_version_issues(params)
+    @paginator = @query.version_paginator(nil, params)
+    @no_version_issues = scope.offset(@paginator.offset).limit(@paginator.per_page).all
   end
 
+  def find_sprint
+    return unless params[:sprint_id]
+    @sprint = @project.shared_agile_sprints.where(id: params[:sprint_id]).first
+    return render_404 unless @sprint
+  end
+
+  def find_sprint_issues
+    scope = @query.sprint_issues(@sprint)
+    @paginator = @query.sprint_paginator(@sprint, params)
+    @sprint_issues = scope.offset(@paginator.offset).limit(@paginator.per_page).all
+  end
+
+  def find_no_sprint_issues
+    scope = @query.no_sprint_issues(params)
+    @paginator = @query.sprint_paginator(nil, params)
+    @no_sprint_issues = scope.offset(@paginator.offset).limit(@paginator.per_page).all
+  end
 end

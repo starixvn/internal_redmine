@@ -1,9 +1,9 @@
-/* Coffee theme version 0.0.4 (c) Kirill Bezrukov www.redminecrm.com 
+/* Coffee theme version 0.0.4 (c) Kirill Bezrukov www.redminecrm.com
 
  ver. 0.0.4
  - Search autocomplete styles
  - New CRM 3.2.6+ tags styles
- - redmine_tags RedmineCRM fork support 
+ - redmine_tags RedmineCRM fork support
 */
 
 @import url(../../../stylesheets/application.css);
@@ -15,11 +15,11 @@
 	padding: 5px 60px;
 }
 
-@media only screen and (-webkit-min-device-pixel-ratio: 2), 
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
 only screen and (min-device-pixel-ratio: 2) {
 	#header > h1 {
 		background-image: url(../images/logo-2x.png);
-		background-size: 43px 30px; 
+		background-size: 43px 30px;
 	}
 }
 
@@ -54,7 +54,7 @@ body {
 	right: 0px;
 	padding: 8px 20px 6px;
 	top: 0px;
-	z-index: 100;
+	z-index: 10;
 }
 
 
@@ -81,7 +81,7 @@ body {
 	display: block;
 	color: #595F69;
 	text-decoration: none;
-	position: relative;	
+	position: relative;
 	margin-right: 0px;
 }
 
@@ -112,7 +112,7 @@ body {
 
 div#content {
 	padding-top: 20px;
-	margin-right: 25%;
+	margin-right: 20px;
 	margin-bottom: 5px;
 	width: auto;
 	background: #FAFAFA;
@@ -226,7 +226,7 @@ a, a:link, a:visited {
 	color: #008cdd;
 }
 
-.buttons a, .contextual a, 
+.buttons a, .contextual a,
 small a, .breadcrumb a,
 p.other-formats a, .pagination a {
 	color: #999;
@@ -467,7 +467,7 @@ box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 -webkit-box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.15);
 outline: none;
 padding: 3px 10px;
-border: 1px solid 
+border: 1px solid
 #C3C3C3;
 }
 
@@ -508,6 +508,7 @@ input.autocomplete {
 	-ms-border-radius: 5px;
 	-o-border-radius: 5px;
 	border-radius: 5px;
+	border: 0px;
 	border-color: transparent;
 	-webkit-box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
 	-moz-box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
@@ -534,7 +535,7 @@ input.autocomplete {
 	-moz-box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
 	-ms-box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
 	-o-box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
-	box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);	
+	box-shadow: 0 0 2px rgba(0,0,0,0.3),0 3px 5px rgba(0,0,0,0.2);
 	padding: 15px 10px 15px inherit;
 }
 
@@ -760,7 +761,7 @@ body.layout-cms #quick-search {
 /*  PLUGINS
 /***************************************************************************************/
 
-body.controller-contacts #content, 
+body.controller-contacts #content,
 body.controller-notes #content,
 body.controller-contacts_tasks #content,
 body.controller-contacts_duplicates #content,
@@ -800,7 +801,7 @@ span.tag-label-color:hover {
 
 span.tag-label-color a, span.tag-label-color > span {
 	font-weight: bold !important;
-	font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif !important; 
+	font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif !important;
 }
 
 span.tag-label-color:hover a {
@@ -886,7 +887,7 @@ div.page, div.page-title {
 	-o-box-shadow: 0 1px 2px rgba(192,204,212,0.6);
 	box-shadow: 0 1px 2px rgba(192, 204, 212, 0.6);
 	margin: -10px -30px 15px;
-	
+
 }
 
 #content div.wiki-page .page-title {
@@ -900,7 +901,7 @@ div.page, div.page-title {
 	background: -ms-linear-gradient(#FAFAFA, #FFF);
 	background: -o-linear-gradient(#FAFAFA, #FFF);
 	background: linear-gradient(#FAFAFA, #FFF);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FAFAFA', endColorstr='#FFF');	
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FAFAFA', endColorstr='#FFF');
 }
 
 #content div.wiki-page .page-title p {
@@ -974,7 +975,7 @@ div.page-title p {
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,0.26);
 	-ms-box-shadow: 0 1px 2px rgba(0,0,0,0.26);
 	-o-box-shadow: 0 1px 2px rgba(0,0,0,0.26);
-	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.26);	
+	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.26);
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -1031,7 +1032,7 @@ div.page-title p {
   left: auto;
 }
 
-#top-menu ul {	
+#top-menu ul {
 	overflow: hidden;
 }
 
@@ -1191,7 +1192,4 @@ border-bottom: 1px solid #27507E;
 	}
 */
 
-
-
-
-
+.icon { padding-left: 20px !important; }

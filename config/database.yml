@@ -1,17 +1,17 @@
 production:
   adapter: "mysql2"
-  host: "10.18.200.103"
-  port: "33069"
-  username: "root"
+  host: "10.18.200.133"
+  port: "33066"
+  username: "redmine"
   password: "1qaz@WSX"
-  database: "nexdev"
+  database: "redmine_local"
   strict: false
 
 development:
   adapter: "mysql2"
-  host: "10.18.200.103"
-  port: "33069"
-  username: "root"
+  host: "10.18.200.133"
+  port: "33066"
+  username: "redmine"
   password: "1qaz@WSX"
-  database: "nexdev"
+  database: "redmine_local"
   strict: false

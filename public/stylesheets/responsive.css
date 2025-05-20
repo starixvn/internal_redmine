@@ -800,3 +800,9 @@
   .pagination ul.pages li.next {display:inline-block; width:32%; overflow:hidden;}
 }
 
+@media screen and (max-width: 1366px) {
+  .splitcontentleft,
+  .splitcontentright {
+    width: 100%;
+  }
+}

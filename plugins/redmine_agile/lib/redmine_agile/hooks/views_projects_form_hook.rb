@@ -1,7 +1,7 @@
 # This file is a part of Redmin Agile (redmine_agile) plugin,
 # Agile board plugin for redmine
 #
-# Copyright (C) 2011-2018 RedmineUP
+# Copyright (C) 2011-2023 RedmineUP
 # http://www.redmineup.com/
 #
 # redmine_agile is free software: you can redistribute it and/or modify
@@ -19,8 +19,8 @@
 
 module RedmineAgile
   module Hooks
-    class ViewsProjectsForm < Redmine::Hook::ViewListener
-      render_on :view_projects_form, :partial => "projects/project_color_form"
+    class ViewsProjectsFormHook < Redmine::Hook::ViewListener
+      render_on :view_projects_form, partial: 'projects/project_color_form'
     end
   end
 end
