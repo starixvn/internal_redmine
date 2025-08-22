@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  redmine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - D:/SourceCode/Olympus/redmine/lib:/usr/src/redmine/lib
+      - D:/SourceCode/Olympus/redmine/config:/usr/src/redmine/config      
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+     
