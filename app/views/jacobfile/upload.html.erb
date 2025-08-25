@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>File Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .box { border: 1px solid #ccc; padding: 20px; margin: 10px 0; border-radius: 5px; }
+    .file-list { margin-top: 20px; }
+    .download-link { color: blue; text-decoration: none; margin-left: 10px; }
+    .download-link:hover { text-decoration: underline; }
+    .upload-button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; }
+    .upload-button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <form action="/jacobfile/upload" method="post" enctype="multipart/form-data">
+    <div class="box">
+      <input type="file" name="file" required style="margin-bottom: 10px; display: block;">
+      <input type="submit" value="Upload" class="upload-button">
+    </div>
+  </form>
+
+  <% files = Dir.glob(File.join(Rails.root, 'tmp', '*')).map { |f| File.basename(f) } %>
+  <% if files.any? %>
+    <div class="box file-list">
+      <h3>File List</h3>
+      <% files.each do |file| %>
+        <p>
+          <%= file %>
+          <a href="/jacobfile/download?filename=<%= file %>" class="download-link">Download</a>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+</body>
+</html>

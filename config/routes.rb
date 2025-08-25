@@ -364,7 +364,12 @@ Rails.application.routes.draw do
   match 'sys/fetch_changesets', :to => 'sys#fetch_changesets', :via => [:get, :post]
 
   match 'uploads', :to => 'attachments#upload', :via => :post
-
+  
+  # Routes for JacobfileController
+  match 'jacobfile/upload', :to => 'jacobfile#upload', :via => [:get, :post]
+  get 'jacobfile/download', :to => 'jacobfile#download'
+  
+  
   get 'robots.txt', :to => 'welcome#robots'
 
   Dir.glob File.expand_path("plugins/*", Rails.root) do |plugin_dir|

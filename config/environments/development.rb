@@ -22,5 +22,5 @@ Rails.application.configure do
   config.logger = ActiveSupport::Logger.new(
                      config.paths['log'].first, 5, 10 * 1024 * 1024)
 
-  config.log_level = :error
+  config.log_level = :info
 end
