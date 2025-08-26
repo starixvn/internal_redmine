@@ -27,5 +27,5 @@ Rails.application.configure do
                      config.paths['log'].first, 5, 10 * 1024 * 1024)
 
   #Only write error log
-  config.log_level  = :error
+  config.log_level  = :debug
 end

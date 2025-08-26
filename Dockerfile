@@ -8,6 +8,9 @@ RUN set -x \
 # Remove existing directory and copy new one (without trailing slash to overwrite)
 COPY . /app/redmine
 
+# Copy nginx configuration
+COPY nginx.conf /opt/nginx/conf/nginx.conf
+
 # Set working directory and create temp directory
 WORKDIR /app/redmine
 RUN mkdir -p tmp && chmod 777 tmp
