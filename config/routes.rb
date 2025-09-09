@@ -17,6 +17,7 @@
 
 Rails.application.routes.draw do
   root :to => 'my#index'
+  get 'healthz', :to => 'home#healthz'
   get 'welcome', :to => 'welcome#index', :as => 'home'
 
   match 'login', :to => 'account#login', :as => 'signin', :via => [:get, :post]
