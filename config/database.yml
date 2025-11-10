@@ -1,6 +1,6 @@
 production:
   adapter: "mysql2"
-  host: "10.16.200.8"
+  host: "10.15.200.131"
   port: "33068"
   username: "redmine"
   password: "1qaz@WSX"
@@ -9,7 +9,7 @@ production:
 
 development:
   adapter: "mysql2"
-  host: "10.16.200.8"
+  host: "10.15.200.131"
   port: "33068"
   username: "redmine"
   password: "1qaz@WSX"
