@@ -9,8 +9,11 @@ RUN set -x \
 COPY . /app/redmine
 
 # Copy nginx configuration
-COPY nginx.conf /opt/nginx/conf/nginx.conf
+# COPY nginx.conf /opt/nginx/conf/nginx.conf
 
 # Set working directory and create temp directory
 WORKDIR /app/redmine
 RUN mkdir -p tmp && chmod 777 tmp
+RUN bundle install
+EXPOSE 80
+CMD ["bundle", "exec", "puma", "-C", "/app/redmine/config/puma.rb", "-e", "production"]
