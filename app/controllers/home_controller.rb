@@ -29,7 +29,7 @@ class HomeController < ApplicationController
     gmt7_time = current_time.in_time_zone('Asia/Bangkok')
     age = (Time.current - @@app_start_time) / 60    
     if age > 60 && 
-        gmt7_time.hour == 4 && 
+        gmt7_time.hour == 21 && 
         gmt7_time.min <= 30
       render json: {
         status: 'stopped',
