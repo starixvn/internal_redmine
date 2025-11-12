@@ -28,4 +28,6 @@ Rails.application.configure do
 
   #Only write error log
   config.log_level  = :error
+
+  config.log_formatter = ::Logger::Formatter.new
 end

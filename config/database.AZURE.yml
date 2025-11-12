@@ -6,6 +6,7 @@ production:
   password: "1qaz@WSX"
   database: "nexdev"
   strict: false
+  pool: 16
 
 development:
   adapter: "mysql2"
@@ -15,3 +16,4 @@ development:
   password: "1qaz@WSX"
   database: "nexdev"
   strict: false
+  pool: 16
