@@ -10,13 +10,13 @@ module Middleware
       end_time = Time.now
       duration = (end_time - start_time)
 
-      if duration > 30
+      if duration > 5
         request = ActionDispatch::Request.new(env)
         
         # Extract user information
         user_info = extract_user_info(request, env)
-        
-        Rails.logger.error "Long Request Detected! Duration: #{duration.round(2)} seconds - Method: #{request.method} - Path: #{request.fullpath} - User: #{user_info} - Parameters: #{request.params.inspect}"
+        logTime = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+        Rails.logger.error "Long Request Detected! Time: #{logTime} - Duration: #{duration.round(2)} seconds - Method: #{request.method} - Path: #{request.fullpath} - User: #{user_info} - Parameters: #{request.params.inspect}"
               
       end
 
@@ -27,48 +27,34 @@ module Middleware
 
     def extract_user_info(request, env)
       user_info = []
-
-      # Try to get user from session
-      if env['rack.session'] && env['rack.session'][:user_id]
-        user_id = env['rack.session'][:user_id]
-        user_info << "UserID: #{user_id}"
+    
+      # Get the current user object as identified by Redmine
+      current_user = User.current 
+    
+      if current_user.logged?
+        # If the user is logged in (session, API key, Basic Auth)
+        user_info << "UserID: #{current_user.id}"
+        user_info << "Username: #{current_user.login}"
         
-        # Try to get username if User model is available
-        begin
-          user = User.find_by_id(user_id)
-          user_info << "Username: #{user.login}" if user
-        rescue => e
-          # Skip if User model is not available or error occurs
+        # Check the authentication method if needed
+        if env['rack.session'] && env['rack.session'][:user_id]
+          user_info << "AuthMethod: Session"
+        elsif request.headers['X-Redmine-API-Key'].present? || request.params['key'].present?
+          user_info << "AuthMethod: API-Key"
+        elsif request.authorization.present?
+          user_info << "AuthMethod: Basic-Auth"
         end
+      else
+        # User is a Guest
+        user_info << 'Anonymous'
       end
-
-      # Check for API token in headers
-      api_key = request.headers['X-Redmine-API-Key'] || request.params['key']
-      if api_key.present?
-        user_info << "API-Token: #{api_key[0..7]}***" # Show only first 8 chars for security
-        
-        # Try to get user from token
-        begin
-          token = Token.find_by_value(api_key)
-          if token && token.user
-            user_info << "TokenUser: #{token.user.login}"
-          end
-        rescue => e
-          # Skip if Token model is not available or error occurs
-        end
-      end
-
-      # Check for basic authentication
-      if request.authorization.present?
-        auth_type = request.authorization.split(' ').first
-        user_info << "Auth: #{auth_type}"
-      end
-
+    
       # Check for remote IP
       remote_ip = request.remote_ip || env['REMOTE_ADDR']
       user_info << "IP: #{remote_ip}" if remote_ip
-
-      user_info.empty? ? 'Anonymous' : user_info.join(', ')
+    
+      # Return the information string
+      user_info.join(', ')
     end
   end
 end

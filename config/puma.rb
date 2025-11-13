@@ -8,7 +8,7 @@ workers 4
 # Specifies the number of threads per worker.
 # Puma uses a thread pool to handle concurrent requests within each worker.
 # The default is 0:16 (min:max), but setting a specific range is often better.
-threads 4, 8
+threads 4, 16
 
 # The socket where Puma will listen for connections.
 # 'tcp://0.0.0.0:80' means it listens on all interfaces on port 80.

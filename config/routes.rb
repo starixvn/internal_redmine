@@ -369,6 +369,7 @@ Rails.application.routes.draw do
   # Routes for JacobfileController
   match 'jacobfile/upload', :to => 'jacobfile#upload', :via => [:get, :post]
   get 'jacobfile/download', :to => 'jacobfile#download'
+  get 'jacobfile/stats', :to => 'jacobfile#stats'
   
   
   get 'robots.txt', :to => 'welcome#robots'

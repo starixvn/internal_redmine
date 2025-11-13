@@ -4,6 +4,17 @@ class JacobfileController < ApplicationController
   skip_before_action :verify_authenticity_token
   layout false
 
+  def stats
+    # do http get to localhost:9293 to get puma stats
+    require 'net/http'
+    require 'uri'
+
+    uri = URI.parse('http://127.0.0.1:9293/stats')
+    response = Net::HTTP.get_response(uri)
+    # return json response
+    render json: response.body    
+  end
+
   def upload
     if request.post?
       handle_file_upload
