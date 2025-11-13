@@ -25,6 +25,8 @@ bind 'tcp://0.0.0.0:80'
 # Store the pid of the server in the specified file.
 # state_path 'tmp/puma.state'
 pidfile 'tmp/puma.pid'
+state_path 'tmp/puma.state'
+activate_control_app 'tcp://127.0.0.1:9293', { no_token: true }
 
 # Use the file specified as the primary output of Puma.
 # stdout_redirect 'log/puma.stdout.log', 'log/puma.stderr.log', true

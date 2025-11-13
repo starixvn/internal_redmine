@@ -16,4 +16,5 @@ WORKDIR /app/redmine
 RUN mkdir -p tmp && chmod 777 tmp
 RUN bundle install
 EXPOSE 80
+EXPOSE 9293
 CMD ["bundle", "exec", "puma", "-C", "/app/redmine/config/puma.rb", "-e", "production"]
