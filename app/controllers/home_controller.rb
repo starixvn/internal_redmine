@@ -20,41 +20,11 @@ class HomeController < ApplicationController
   skip_before_action :require_login
   skip_before_action :verify_authenticity_token
   layout false
-
-  # Lưu thời gian khởi động ứng dụng
-  @@app_start_time = Time.current
-
+  
   def healthz
-    current_time = Time.zone.now
-    gmt7_time = current_time.in_time_zone('Asia/Bangkok')
-    age = (Time.current - @@app_start_time) / 60    
-    if age > 60 && 
-        gmt7_time.hour == 21 && 
-        gmt7_time.min <= 30
-      render json: {
-        status: 'stopped',
-        age: age,
-        app_start_time: @@app_start_time,
-        gmt7_time: gmt7_time,
-        current_time: current_time,
-        current: Time.current,
-        now: Time.zone.now,
-        zone: Time.now.zone,
-        zone_name: Time.zone.tzinfo.name
-      }, status: :service_unavailable
-    else
-      render json: {
-        status: 'ok',
-        age: age,
-        app_start_time: @@app_start_time,
-        gmt7_time: gmt7_time,
-        current_time: current_time,
-        current: Time.current,
-        now: Time.zone.now,
-        zone: Time.now.zone,
-        zone_name: Time.zone.tzinfo.name
-
+    
+    render json: {
+        status: 'ok'        
       }, status: :ok
-    end
   end
 end
