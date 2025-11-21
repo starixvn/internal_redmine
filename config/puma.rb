@@ -3,7 +3,7 @@
 # Specifies the number of worker processes to boot.
 # The recommended value is usually 2 to 4 workers.
 # Each worker process runs an independent Rails application instance.
-workers 4
+workers 3
 
 # Specifies the number of threads per worker.
 # Puma uses a thread pool to handle concurrent requests within each worker.
