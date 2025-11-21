@@ -11,8 +11,9 @@ Rails.application.configure do
   config.eager_load = true
 
   # Full error reports are disabled and caching is turned on.
-  config.consider_all_requests_local = true
-  config.action_controller.perform_caching = false
+  config.consider_all_requests_local = false
+  config.action_controller.perform_caching = true
+  config.action_view.cache_template_loading = true
 
   # Disable delivery errors
   config.action_mailer.raise_delivery_errors = false
@@ -24,8 +25,8 @@ Rails.application.configure do
   config.active_support.deprecation = :log
 
   config.logger = ActiveSupport::Logger.new(
-                     config.paths['log'].first, 5, 10 * 1024 * 1024)
+                     config.paths['log'].first, 5, 100 * 1024 * 1024)
 
   #Only write error log
-  config.log_level  = :error
+  config.log_level  = :error  
 end
