@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   redmine:
+    image: momowiki
     build:
       context: .
       dockerfile: Dockerfile      
